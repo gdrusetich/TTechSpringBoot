@@ -21,6 +21,19 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
+    public double precioLineaPedido(OrderLine unaLineaPedido) throws ProductNotExistsException{
+        Product producto = productService.buscarProductoPorId(unaLineaPedido.getIdProducto());
+        return producto.getPrecio() * unaLineaPedido.getCantidad();
+    }
+
+    public double precioTotalOrder(Order unaOrden) throws ProductNotExistsException{
+        double precioOrden=0;
+        for(OrderLine ol: unaOrden.getOrder()){
+            precioOrden += precioLineaPedido(ol);
+        }
+        return precioOrden;
+    }
+
     public ArrayList<Order> listarPedidos(){
         return orderRepository.getAllOrder();
     }
@@ -38,8 +51,9 @@ public class OrderService {
         for(OrderLine lp: nuevaOrden){
             productService.descontarStock(lp.getIdProducto(), lp.getCantidad());
             }
-        Order crearOrden = new Order(nuevaOrden);
-        return crearOrden;
+        Order ordenCreada = new Order(nuevaOrden);
+        orderRepository.agregarPedidoConfirmado(ordenCreada);
+        return ordenCreada;
         }
 
     public void agregarLineaPedido(int idOrder, int idProducto, int cantidadPedida) throws ProductNotExistsException {
@@ -50,7 +64,7 @@ public class OrderService {
         }
 
         if (productService.hayStock(idProducto, cantidadPedida)) {
-            OrderLine unaLineaPedido = new OrderLine(productoPedido, cantidadPedida);
+            OrderLine unaLineaPedido = new OrderLine(idProducto, cantidadPedida);
             Order pedidoBuscado = buscarPedido(idOrder);
             pedidoBuscado.agregarLinea(unaLineaPedido);
         }

@@ -32,19 +32,4 @@ public class OrderRepository {
         }
     }
 
-    public void confirmarPedido(Order pedidoAConfirmar) throws NoStockException{
-        for(OrderLine lp : pedidoAConfirmar.getOrder()){
-            try{
-                lp.getProducto().descontarStock(lp.getCantidad());
-                pedidoAConfirmar.asignarIdPedido();
-            }
-            catch(NoStockException e){
-                e.getMessage();
-            }
-        }
-        pedidoAConfirmar.asignarId();
-    }
-
-
-
 }

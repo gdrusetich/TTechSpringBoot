@@ -38,28 +38,9 @@ public class Order {
         pedido.add(linea);
     }
 
-    public double calcularCosto() {
-        double precioAcumuladoRetorno = 0;
-        for(OrderLine ol: pedido) {
-            precioAcumuladoRetorno += ol.getPrecio();
-        }
-       return precioAcumuladoRetorno;
-    }
-
-
-
-
 
     public void asignarIdPedido() {
         contadorPedidos++;
         this.idPedido += contadorPedidos;
-    }
-
-    public void mostrarPedido(){
-        for(OrderLine lp : pedido){
-            System.out.println("Producto: " + lp.getProducto().getNombre() + ". Cantidad: " + lp.getCantidad());
-        }
-        System.out.println("Costo total: " + calcularCosto());
-        System.out.println("______________________");
     }
 }

@@ -98,7 +98,8 @@ public class ProductRepository {
         if(this.buscarProductoPorId(id) == null){
             throw new ProductNotExistsException("No existe ese producto");
         }
-      else {
+      else
+        {
             todosLosProductos.remove(this.buscarProductoPorId(id));
         }
     }

@@ -1,16 +1,13 @@
 package com.ProjectoJava.objetos.entity;
 
 public class OrderLine {
-    Product producto;
+    int idProducto;
     int cantidad;
-    public OrderLine(Product unProducto, int unaCantidad){
-        this.producto = unProducto;
+    public OrderLine(int idProducto, int unaCantidad){
+        this.idProducto = idProducto;
         this.cantidad = unaCantidad;
     }
 
-    public Product getProducto(){return this.producto;}
-    public int getIdProducto(){ return this.producto.getId();
-    }
+    public int getIdProducto(){ return this.idProducto;}
     public int getCantidad(){return this.cantidad;}
-    public double getPrecio(){return this.producto.getPrecio() * this.cantidad;}
 }

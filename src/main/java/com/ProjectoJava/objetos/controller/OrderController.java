@@ -23,17 +23,19 @@ public class OrderController {
         this.service = orderService;
     }
 
-    @PostMapping
-    public ResponseEntity<Order> crear(@RequestBody ArrayList<OrderLine> items) throws ProductNotExistsException, NoStockException {
+    @PostMapping("/")
+    public ResponseEntity<?> crear(@RequestBody ArrayList<OrderLine> items) throws ProductNotExistsException, NoStockException {
         try {
             Order nueva = service.crearPedido(items);
             return ResponseEntity.ok(nueva);
-        } catch (ProductNotExistsException e) {
-            return ResponseEntity.badRequest().build();
+        } catch (ProductNotExistsException | NoStockException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error interno: " + e.getMessage());
         }
     }
 
-    @GetMapping
+    @GetMapping("/list")
     public ArrayList<Order> listar() {
         return service.listarPedidos();
     }
@@ -46,5 +48,6 @@ public class OrderController {
             return ResponseEntity.notFound().build();
         }
     }
+    
 }
 
