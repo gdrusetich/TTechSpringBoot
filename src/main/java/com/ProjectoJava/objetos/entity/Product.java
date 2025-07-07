@@ -1,8 +1,20 @@
 package com.ProjectoJava.objetos.entity;
 
 import exceptions.NoStockException;
+import jakarta.persistence.*;
 
+
+@Entity
 public class Product {
+
+    private static Long contadorProductos = 0L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idProducto;
+    private String nombre;
+    private double  precio;
+    private int stock;
+
     public Product(String unNombre, double unPrecio, int unStock){
         contadorProductos++;
         this.idProducto = contadorProductos;
@@ -11,21 +23,7 @@ public class Product {
         this.stock = unStock;
     }
 
-    private static int contadorProductos = 0;
-
-    private int idProducto;
-    private String nombre;
-    private double  precio;
-    private int stock;
-
-    public void descontarStock(int cantidad) throws NoStockException {
-        if(this.getStock()<cantidad){
-            throw new NoStockException("No hay stock de: "+ this.getNombre());
-        }
-        this.stock -=cantidad;
-    }
-
-    public int getId(){return this.idProducto;}
+    public Long getId(){return this.idProducto;}
     public String getNombre(){return this.nombre;}
     public double getPrecio( ){return this.precio;}
     public int getStock( ){return this.stock;}
@@ -33,14 +31,6 @@ public class Product {
     public void setNombre(String nuevoNombre){this.nombre = nuevoNombre;}
     public void setPrecio(double nuevoPrecio){this.precio = nuevoPrecio;}
     public void setStock(int nuevoStock){this.stock = nuevoStock;}
-
-
-
-
-    public String mostrarInfo(){
-       return this.getNombre() +" "+ this.getPrecio()+" "+this.getStock();
-
-    }
 
     double precioConDescuento(){
         return precio - precio * 0.2;

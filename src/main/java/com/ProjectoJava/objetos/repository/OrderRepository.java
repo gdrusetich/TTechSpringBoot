@@ -1,13 +1,12 @@
 package com.ProjectoJava.objetos.repository;
 import com.ProjectoJava.objetos.entity.Order;
-import com.ProjectoJava.objetos.entity.OrderLine;
-import com.ProjectoJava.objetos.entity.Product;
-import exceptions.NoStockException;
 import exceptions.ProductNotExistsException;
 import org.springframework.stereotype.Repository;
-
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import com.ProjectoJava.objetos.entity.Product;
 import java.util.ArrayList;
-import java.util.Scanner;
+
 
 @Repository
 public class OrderRepository {
@@ -21,7 +20,7 @@ public class OrderRepository {
         return todosLosPedidos;
     }
 
-    public Order buscarPedido(int id) throws ProductNotExistsException{
+    public Order buscarPedido(Long id) throws ProductNotExistsException{
     for(Order o: todosLosPedidos){
         if(o.getIdPedido() == id){
             return o;

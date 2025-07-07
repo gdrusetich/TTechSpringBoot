@@ -1,17 +1,14 @@
 package com.ProjectoJava.objetos.entity;
-import com.ProjectoJava.objetos.repository.ProductRepository;
-import com.ProjectoJava.objetos.repository.OrderRepository;
-import exceptions.NoStockException;
-import exceptions.ProductNotExistsException;
-import exceptions.ProductExistsException;
+import jakarta.persistence.*;
 
 import java.util.ArrayList;
-import java.util.Scanner;
-
+@Entity
 public class Order {
-    int idPedido;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long idPedido;
     public ArrayList<OrderLine> pedido = new ArrayList<>();
-    public static int contadorPedidos = 0;
+    public static Long contadorPedidos = 0L;
 
     public Order(ArrayList<OrderLine> pedido) {
         this.pedido = pedido;
@@ -24,7 +21,7 @@ public class Order {
 
     }
 
-    public int getIdPedido(){
+    public Long getIdPedido(){
         return idPedido;
     }
 

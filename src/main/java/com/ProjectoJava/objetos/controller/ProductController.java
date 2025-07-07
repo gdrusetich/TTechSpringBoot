@@ -1,5 +1,6 @@
 package com.ProjectoJava.objetos.controller;
 import java.util.ArrayList;
+import java.util.List;
 
 import exceptions.ProductExistsException;
 
@@ -9,8 +10,12 @@ import com.ProjectoJava.objetos.service.ProductService;
 import exceptions.ProductNotExistsException;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+
+//TODO Pasar todo a DTO.
 
 @RestController         //Anotación que explicita a Springboot que la clase es un Controller
 @RequestMapping("/products")
@@ -23,10 +28,10 @@ public class ProductController {
     }
 
     @GetMapping("/list")                //Para obtener datos, utilizo Get.
-    public ArrayList<Product> listarProductos(){
+    public List<Product> listarProductos(){
         return service.listarProductos();
     }
-
+/*
     @PostMapping("/")
     public String crearProducto(@RequestBody Product nuevoProducto){
         return "creando producto... \n"+
@@ -34,31 +39,31 @@ public class ProductController {
                 "Precio: " + nuevoProducto.getPrecio() +"\n"+
                 "Stock: " + nuevoProducto.getStock() + "\n";
     }
-
+*/  //CORROBORAR
     @PostMapping("/nuevo-producto")
-    public ResponseEntity<String> agregarProducto(@RequestBody Product nuevoProducto) throws ProductExistsException{
+    public ResponseEntity<Product> agregarProducto(@RequestBody Product nuevoProducto) throws ProductExistsException{
         try {
             service.agregarProducto(nuevoProducto);
-            return ResponseEntity.ok("Producto Agregado");
+            return ResponseEntity.status(HttpStatus.CREATED).body(this.service.agregarProducto(nuevoProducto));
         } catch (ProductExistsException e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+            return ResponseEntity.badRequest().body(nuevoProducto);
         }
     }
 
     @GetMapping("/find-id/{productId}")
-    public ResponseEntity<String> buscarProductoPorId(@PathVariable int id) throws ProductNotExistsException {      //La variable lo busca en la ruta
+    public ResponseEntity<Product> buscarProductoPorId(@PathVariable Long id) throws ProductNotExistsException {      //La variable lo busca en la ruta
         try {
-            return ResponseEntity.ok(service.buscarProductoPorId(id).mostrarInfo());
+            return ResponseEntity.ok(service.buscarProductoPorId(id));
         } catch (ProductNotExistsException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> eliminar(@PathVariable int id) {
+    public ResponseEntity<String> eliminar(@PathVariable Long id) {
         try {
             service.eliminarProductoPorId(id);
-            return ResponseEntity.ok("Producto eliminado");
+            return ResponseEntity.ok("Producto "+id+" eliminado");
         } catch (ProductNotExistsException e) {
             return ResponseEntity.notFound().build();
         }

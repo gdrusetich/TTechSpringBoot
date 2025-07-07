@@ -41,13 +41,13 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Order> buscar(@PathVariable int id) {
+    public ResponseEntity<Order> buscar(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(service.buscarPedido(id));
         } catch (ProductNotExistsException e) {
             return ResponseEntity.notFound().build();
         }
     }
-    
+
 }
 

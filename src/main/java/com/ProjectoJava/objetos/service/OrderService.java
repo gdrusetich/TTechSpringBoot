@@ -56,7 +56,7 @@ public class OrderService {
         return ordenCreada;
         }
 
-    public void agregarLineaPedido(int idOrder, int idProducto, int cantidadPedida) throws ProductNotExistsException {
+    public void agregarLineaPedido(Long idOrder, Long idProducto, int cantidadPedida) throws ProductNotExistsException {
 
         Product productoPedido = this.productService.buscarProductoPorId(idProducto);
         if (productoPedido == null) {
@@ -70,7 +70,7 @@ public class OrderService {
         }
     }
 
-    public Order buscarPedido(int id) throws ProductNotExistsException{
+    public Order buscarPedido(Long id) throws ProductNotExistsException{
        return orderRepository.buscarPedido(id);
     }
 
