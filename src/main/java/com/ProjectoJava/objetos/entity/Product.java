@@ -1,6 +1,4 @@
 package com.ProjectoJava.objetos.entity;
-
-import exceptions.NoStockException;
 import jakarta.persistence.*;
 
 
@@ -36,16 +34,5 @@ public class Product {
         return precio - precio * 0.2;
     }
 
-    String capitalize(){
-        String textoMinuscula = nombre.toLowerCase();
-        String textoSinEspacios = textoMinuscula.trim();
-        String[] palabras = textoSinEspacios.split(" ");
-        String resultado = "";
-        for(int i = 0; i<palabras.length; i++){
-            String palabra = palabras[i];
-            resultado += palabra.substring(0, 1).toUpperCase() + palabra.substring(1) + " ";
-        }
-        return resultado;
-    }
 
 }

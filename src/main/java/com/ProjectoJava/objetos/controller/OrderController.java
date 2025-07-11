@@ -1,5 +1,8 @@
 package com.ProjectoJava.objetos.controller;
+import com.ProjectoJava.objetos.DTO.request.OrderLineRequestDTO;
+import com.ProjectoJava.objetos.DTO.response.OrderResponseDTO;
 import exceptions.NoStockException;
+import exceptions.OrderNotExistsException;
 import exceptions.ProductNotExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +13,7 @@ import com.ProjectoJava.objetos.entity.OrderLine;
 import com.ProjectoJava.objetos.entity.Order;
 
 
-import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
@@ -24,8 +27,10 @@ public class OrderController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> crear(@RequestBody ArrayList<OrderLine> items) throws ProductNotExistsException, NoStockException {
+    public ResponseEntity<?> crear(@RequestBody List<OrderLineRequestDTO> items) throws ProductNotExistsException, NoStockException {
+
         try {
+
             Order nueva = service.crearPedido(items);
             return ResponseEntity.ok(nueva);
         } catch (ProductNotExistsException | NoStockException e) {
@@ -36,15 +41,15 @@ public class OrderController {
     }
 
     @GetMapping("/list")
-    public ArrayList<Order> listar() {
+    public List<OrderResponseDTO> listar() throws OrderNotExistsException, ProductNotExistsException {
         return service.listarPedidos();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Order> buscar(@PathVariable Long id) {
+    public ResponseEntity<?> buscar(@PathVariable Long id) {
         try {
-            return ResponseEntity.ok(service.buscarPedido(id));
-        } catch (ProductNotExistsException e) {
+            return ResponseEntity.ok(service.buscarOrderReturnDTO(id));
+        } catch (OrderNotExistsException | ProductNotExistsException e) {
             return ResponseEntity.notFound().build();
         }
     }

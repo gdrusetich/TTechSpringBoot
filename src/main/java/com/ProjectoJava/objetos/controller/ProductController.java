@@ -1,7 +1,8 @@
 package com.ProjectoJava.objetos.controller;
-import java.util.ArrayList;
 import java.util.List;
 
+import com.ProjectoJava.objetos.DTO.request.ProductRequestDTO;
+import com.ProjectoJava.objetos.DTO.response.ProductResponseDTO;
 import exceptions.ProductExistsException;
 
 
@@ -28,7 +29,7 @@ public class ProductController {
     }
 
     @GetMapping("/list")                //Para obtener datos, utilizo Get.
-    public List<Product> listarProductos(){
+    public List<ProductResponseDTO> listarProductos(){
         return service.listarProductos();
     }
 /*
@@ -41,31 +42,31 @@ public class ProductController {
     }
 */  //CORROBORAR
     @PostMapping("/nuevo-producto")
-    public ResponseEntity<Product> agregarProducto(@RequestBody Product nuevoProducto) throws ProductExistsException{
-        try {
-            service.agregarProducto(nuevoProducto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(this.service.agregarProducto(nuevoProducto));
+    public ResponseEntity<?> agregarProducto(@RequestBody ProductRequestDTO nuevoProducto) throws ProductExistsException{
+        try {ProductResponseDTO productoCreado = service.agregarProducto(nuevoProducto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(productoCreado);
         } catch (ProductExistsException e) {
-            return ResponseEntity.badRequest().body(nuevoProducto);
+            return ResponseEntity.badRequest().body("Error: "+e.getMessage());
         }
     }
 
     @GetMapping("/find-id/{productId}")
-    public ResponseEntity<Product> buscarProductoPorId(@PathVariable Long id) throws ProductNotExistsException {      //La variable lo busca en la ruta
+    public ResponseEntity<?> buscarProductoPorId(@PathVariable Long id) throws ProductNotExistsException {      //La variable lo busca en la ruta
         try {
-            return ResponseEntity.ok(service.buscarProductoPorId(id));
+            ProductResponseDTO productoBuscado = service.buscarProductoPorId(id);
+            return ResponseEntity.ok(productoBuscado);
         } catch (ProductNotExistsException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: "+e.getMessage());
         }
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> eliminar(@PathVariable Long id) {
+    public ResponseEntity<String> eliminar(@PathVariable Long id) throws ProductNotExistsException {
         try {
             service.eliminarProductoPorId(id);
             return ResponseEntity.ok("Producto "+id+" eliminado");
         } catch (ProductNotExistsException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: "+e.getMessage());
         }
     }
 

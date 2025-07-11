@@ -1,43 +1,28 @@
 package com.ProjectoJava.objetos.entity;
+import com.ProjectoJava.objetos.DTO.response.OrderLineResponseDTO;
+import com.ProjectoJava.objetos.DTO.response.OrderResponseDTO;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long idPedido;
-    public ArrayList<OrderLine> pedido = new ArrayList<>();
+    public List<OrderLine> pedido = new ArrayList<>();
     public static Long contadorPedidos = 0L;
 
-    public Order(ArrayList<OrderLine> pedido) {
+    public Order(List<OrderLine> pedido) {
         this.pedido = pedido;
         this.idPedido = contadorPedidos;
         contadorPedidos++;
     }
 
-    public ArrayList<OrderLine> getOrder(){
-        return pedido;
+    public List<OrderLine> getOrder(){return pedido;}
+    public Long getIdPedido(){return idPedido;}
 
-    }
+    public void agregarLinea(OrderLine linea) {pedido.add(linea);}
 
-    public Long getIdPedido(){
-        return idPedido;
-    }
-
-
-    public void asignarId(){
-        contadorPedidos++;
-        this.idPedido = contadorPedidos;
-    }
-
-    public void agregarLinea(OrderLine linea) {
-        pedido.add(linea);
-    }
-
-
-    public void asignarIdPedido() {
-        contadorPedidos++;
-        this.idPedido += contadorPedidos;
-    }
 }
