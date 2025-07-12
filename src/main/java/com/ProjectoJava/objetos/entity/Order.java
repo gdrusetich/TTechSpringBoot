@@ -7,17 +7,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "pedidos")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long idPedido;
-    public List<OrderLine> pedido = new ArrayList<>();
-    public static Long contadorPedidos = 0L;
 
-    public Order(List<OrderLine> pedido) {
-        this.pedido = pedido;
-        this.idPedido = contadorPedidos;
-        contadorPedidos++;
+    @ElementCollection
+    @CollectionTable(name = "lineas_pedido", joinColumns = @JoinColumn(name = "pedido_id"))
+    public List<OrderLine> pedido = new ArrayList<>();
+
+    public Order() {
+    }
+
+    public List<OrderLine> setOrder(List<OrderLine> unaOrden){
+        this.pedido = unaOrden;
+        return unaOrden;
     }
 
     public List<OrderLine> getOrder(){return pedido;}

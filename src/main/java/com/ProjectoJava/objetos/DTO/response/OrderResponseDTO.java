@@ -1,19 +1,27 @@
 package com.ProjectoJava.objetos.DTO.response;
-
-import com.ProjectoJava.objetos.DTO.response.OrderLineResponseDTO;
-import com.ProjectoJava.objetos.entity.OrderLine;
-
+import java.util.ArrayList;
 import java.util.List;
 
 public class OrderResponseDTO {
-    private Long id;
-    private List<OrderLineResponseDTO> orden;
+    private List<OrderLineResponseDTO> orden = new ArrayList<>();
     private double total;
 
+    public OrderResponseDTO() {
+        this.orden = new ArrayList<>();
+    }
 
-    public void setOrden(List<OrderLineResponseDTO> items) {this.orden = items;}
+    public List<OrderLineResponseDTO> getLineas() {
+        return orden;
+    }
+
+    public void setOrden(List<OrderLineResponseDTO> unaOrden) {this.orden = unaOrden;}
+
+
     public void addOrderLineResponseDTO(OrderLineResponseDTO orderLineToAdd){
         orden.add(orderLineToAdd);
     }
+
+    public double getTotal() {return this.total;}
+
     public void setTotal(double total) {this.total = total;}
 }

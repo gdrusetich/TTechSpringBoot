@@ -45,7 +45,7 @@ public class OrderService {
     }
 
     public List<OrderResponseDTO> listarPedidos() throws OrderNotExistsException, ProductNotExistsException {
-        List<OrderResponseDTO> listaOrderResponseDTO = new ArrayList<OrderResponseDTO>();
+        List<OrderResponseDTO> listaOrderResponseDTO = new ArrayList<>();
         for(Order o : list()){
             OrderResponseDTO orderResponseDTO = buscarOrderReturnDTO(o.getIdPedido());
             listaOrderResponseDTO.add(orderResponseDTO);
@@ -87,11 +87,14 @@ public class OrderService {
         List<OrderLine> lineasDeOrden = new ArrayList<>();
 
         for(OrderLineRequestDTO dto : nuevaOrden){
-            OrderLine orderLine = new OrderLine(dto.getIdProduct(), dto.getCantidad());
+            OrderLine orderLine = new OrderLine();
+            orderLine.setIdProducto(dto.getIdProduct());
+            orderLine.setcantidad(dto.getCantidad());
             lineasDeOrden.add(orderLine);
         }
 
-        Order ordenCreada = new Order(lineasDeOrden);
+        Order ordenCreada = new Order();
+        ordenCreada.setOrder(lineasDeOrden);
         orderRepository.save(ordenCreada);
 
         return ordenCreada;
@@ -105,7 +108,9 @@ public class OrderService {
         }
 
         if (productService.hayStock(idProducto, cantidadPedida)) {
-            OrderLine unaLineaPedido = new OrderLine(idProducto, cantidadPedida);
+            OrderLine unaLineaPedido = new OrderLine();
+            unaLineaPedido.setIdProducto(idProducto);
+            unaLineaPedido.setcantidad(cantidadPedida);
             Order pedidoBuscado = this.buscarPedido(idOrder);
             pedidoBuscado.agregarLinea(unaLineaPedido);
             orderRepository.save(pedidoBuscado);
@@ -115,11 +120,15 @@ public class OrderService {
     public OrderResponseDTO buscarOrderReturnDTO(Long idOrder) throws OrderNotExistsException, ProductNotExistsException {
         Order ordenBuscada = buscarPedido(idOrder);
         OrderResponseDTO orderResponseDTO = new OrderResponseDTO();
+        double total = 0;
         for(OrderLine ol:ordenBuscada.getOrder()){
             ProductResponseDTO p = productService.buscarProductoPorId(ol.getIdProducto());
-            OrderLineResponseDTO olDTO = new OrderLineResponseDTO(p.getNombre(), ol.getCantidad(), p.getPrecio(), p.getPrecio()*ol.getCantidad());
+            double subtotal = p.getPrecio()*ol.getCantidad();
+            OrderLineResponseDTO olDTO = new OrderLineResponseDTO(p.getNombre(), ol.getCantidad(), p.getPrecio(), subtotal);
             orderResponseDTO.addOrderLineResponseDTO(olDTO);
+            total +=subtotal;
         }
+        orderResponseDTO.setTotal(total);
         return orderResponseDTO;
     }
 

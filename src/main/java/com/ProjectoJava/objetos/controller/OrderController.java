@@ -5,6 +5,8 @@ import exceptions.NoStockException;
 import exceptions.OrderNotExistsException;
 import exceptions.ProductNotExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,8 +43,13 @@ public class OrderController {
     }
 
     @GetMapping("/list")
-    public List<OrderResponseDTO> listar() throws OrderNotExistsException, ProductNotExistsException {
-        return service.listarPedidos();
+    public ResponseEntity<?> listar() throws OrderNotExistsException, ProductNotExistsException {
+        try {return ResponseEntity.ok(service.listarPedidos());}
+        catch (OrderNotExistsException | ProductNotExistsException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno");
+        }
     }
 
     @GetMapping("/{id}")

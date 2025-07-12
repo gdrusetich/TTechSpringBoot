@@ -32,7 +32,10 @@ public class ProductService {
         if (productRepositoryJPA.existsByNombreIgnoreCase(nuevoDTO.getNombre())){
             throw new ProductExistsException("Ya existe un producto con ese nombre");
         }
-        Product productoNuevo = new Product(nuevoDTO.getNombre(), nuevoDTO.getPrecio(), nuevoDTO.getStock());
+        Product productoNuevo = new Product();
+        productoNuevo.setNombre(nuevoDTO.getNombre());
+        productoNuevo.setPrecio(nuevoDTO.getPrecio());
+        productoNuevo.setStock(nuevoDTO.getStock());
         Product productoGuardado = productRepositoryJPA.save(productoNuevo);
         return new ProductResponseDTO(productoGuardado);
     }
