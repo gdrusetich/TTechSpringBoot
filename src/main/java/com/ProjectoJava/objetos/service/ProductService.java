@@ -50,6 +50,20 @@ public class ProductService {
         return listaDTO;
     }
 
+    public List<ProductResponseDTO> filtrarPorPrecio(double precioMaximo){
+        List<Product> listaDeProductos = productRepositoryJPA.findAll();
+        List<ProductResponseDTO> productosFiltrados = new ArrayList<>();
+        for(Product p: listaDeProductos){
+            if(p.getPrecio()<=precioMaximo) {
+                ProductResponseDTO nuevoDTO = new ProductResponseDTO(p);
+                productosFiltrados.add(nuevoDTO);
+            }
+        }
+        return productosFiltrados;
+    }
+
+
+
     public ProductResponseDTO buscarProductoPorId(Long id) throws ProductNotExistsException {
         Product productoBuscado = productRepositoryJPA.findById(id)
                 .orElseThrow(() -> new ProductNotExistsException("Producto no encontrado con ID: " + id));

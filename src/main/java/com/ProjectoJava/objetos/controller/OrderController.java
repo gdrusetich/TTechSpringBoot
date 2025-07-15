@@ -52,6 +52,28 @@ public class OrderController {
         }
     }
 
+    @GetMapping("/filter-cheaper/{precioMaximo}")
+    public ResponseEntity<?> ordenesBaratas(@PathVariable double precioMaximo) throws ProductNotExistsException {
+        try {return ResponseEntity.ok(service.ordenesMasBaratasQue(precioMaximo));}
+        catch (OrderNotExistsException | ProductNotExistsException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno");
+        }
+    }
+
+    @GetMapping("/filter-expensive/{precioMinimo}")
+    public ResponseEntity<?> ordenesCaras(@PathVariable double precioMinimo) throws ProductNotExistsException {
+        try {return ResponseEntity.ok(service.ordenesMasCarasQue(precioMinimo));}
+        catch (OrderNotExistsException | ProductNotExistsException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno");
+        }
+    }
+
+
+
     @GetMapping("/{id}")
     public ResponseEntity<?> buscar(@PathVariable Long id) {
         try {

@@ -71,6 +71,29 @@ public class OrderService {
         return listOrderLineResponseDTO;
     }
 
+    public List<OrderResponseDTO> ordenesMasCarasQue(double precioMinimo) throws OrderNotExistsException, ProductNotExistsException {
+        List<OrderResponseDTO> ordenes = listarPedidos();
+        List<OrderResponseDTO> ordenesCaras = new ArrayList<>();
+        for(OrderResponseDTO o: ordenes){
+            if(o.getTotal()>=precioMinimo){
+                ordenesCaras.add(o);
+            }
+        }
+        return ordenesCaras;
+
+    }
+
+    public List<OrderResponseDTO> ordenesMasBaratasQue(double precioMaximo) throws OrderNotExistsException, ProductNotExistsException {
+        List<OrderResponseDTO> ordenes = listarPedidos();
+        List<OrderResponseDTO> ordenesBaratas = new ArrayList<>();
+        for(OrderResponseDTO o: ordenes){
+            if(o.getTotal()<=precioMaximo){
+                ordenesBaratas.add(o);
+            }
+        }
+        return ordenesBaratas;
+    }
+
     public Order crearPedido(List<OrderLineRequestDTO> nuevaOrden ) throws ProductNotExistsException, NoStockException {
         for(OrderLineRequestDTO lp: nuevaOrden){
             ProductResponseDTO unProducto = productService.buscarProductoPorId(lp.getIdProduct());
@@ -100,7 +123,7 @@ public class OrderService {
         return ordenCreada;
         }
 
-    public void agregarLineaPedido(Long idOrder, Long idProducto, int cantidadPedida) throws ProductNotExistsException, OrderNotExistsException {
+    public void agregarLineaPedidoAOrden(Long idOrder, Long idProducto, int cantidadPedida) throws ProductNotExistsException, OrderNotExistsException {
 
         ProductResponseDTO productoPedido = this.productService.buscarProductoPorId(idProducto);
         if (productoPedido == null) {

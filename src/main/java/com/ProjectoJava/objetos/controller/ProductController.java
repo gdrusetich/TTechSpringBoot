@@ -5,21 +5,17 @@ import com.ProjectoJava.objetos.DTO.request.ProductRequestDTO;
 import com.ProjectoJava.objetos.DTO.response.ProductResponseDTO;
 import exceptions.ProductExistsException;
 
-
-import com.ProjectoJava.objetos.entity.Product;
 import com.ProjectoJava.objetos.service.ProductService;
 import exceptions.ProductNotExistsException;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-//TODO Pasar todo a DTO.
-
 @RestController         //Anotación que explicita a Springboot que la clase es un Controller
 @RequestMapping("/products")
+@CrossOrigin(origins = "${frontend.url}")
 public class ProductController {
     private ProductService service;
 
@@ -32,15 +28,7 @@ public class ProductController {
     public List<ProductResponseDTO> listarProductos(){
         return service.listarProductos();
     }
-/*
-    @PostMapping("/")
-    public String crearProducto(@RequestBody Product nuevoProducto){
-        return "creando producto... \n"+
-                "Nombre: " + nuevoProducto.getNombre() + "\n" +
-                "Precio: " + nuevoProducto.getPrecio() +"\n"+
-                "Stock: " + nuevoProducto.getStock() + "\n";
-    }
-*/  //CORROBORAR
+
     @PostMapping("/nuevo-producto")
     public ResponseEntity<?> agregarProducto(@RequestBody ProductRequestDTO nuevoProducto) throws ProductExistsException{
         try {ProductResponseDTO productoCreado = service.agregarProducto(nuevoProducto);
@@ -68,6 +56,11 @@ public class ProductController {
         } catch (ProductNotExistsException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: "+e.getMessage());
         }
+    }
+
+    @GetMapping("/filter-price/{precioMaximo}")
+    public List<ProductResponseDTO> listarMasBaratos(@PathVariable double precioMaximo) throws ProductNotExistsException{
+        return service.filtrarPorPrecio(precioMaximo);
     }
 
 }
