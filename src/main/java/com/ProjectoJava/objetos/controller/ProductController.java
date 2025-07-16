@@ -58,7 +58,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/filter-price/{precioMaximo}")
+    @GetMapping("/filter-price-{precioMaximo}")
     public List<ProductResponseDTO> listarMasBaratos(@PathVariable double precioMaximo) throws ProductNotExistsException{
         return service.filtrarPorPrecio(precioMaximo);
     }

@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>{
-    boolean existsByNombreIgnoreCase(String nombre);
+    boolean existsByTitleIgnoreCase(String title);
 }

@@ -8,25 +8,25 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idProducto;
-    private String nombre;
+    private String title;
 
-    private double  precio;
+    private double  price;
     private int stock;
 
 
     public Product(){}
 
     public Long getId(){return this.idProducto;}
-    public String getNombre(){return this.nombre;}
-    public double getPrecio( ){return this.precio;}
+    public String getTitle(){return this.title;}
+    public double getPrice( ){return this.price;}
     public int getStock( ){return this.stock;}
 
-    public void setNombre(String nuevoNombre){this.nombre = nuevoNombre;}
-    public void setPrecio(double nuevoPrecio){this.precio = nuevoPrecio;}
+    public void setTitle(String newTitle){this.title = newTitle;}
+    public void setPrice(double newPrice){this.price = newPrice;}
     public void setStock(int nuevoStock){this.stock = nuevoStock;}
 
     double precioConDescuento(){
-        return precio - precio * 0.2;
+        return price - price * 0.2;
     }
 
 

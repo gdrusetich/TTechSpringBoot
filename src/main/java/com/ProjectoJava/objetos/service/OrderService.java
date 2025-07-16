@@ -29,7 +29,7 @@ public class OrderService {
 
     public double precioLineaPedido(OrderLine unaLineaPedido) throws ProductNotExistsException{
         ProductResponseDTO producto = productService.buscarProductoPorId(unaLineaPedido.getIdProducto());
-        return producto.getPrecio() * unaLineaPedido.getCantidad();
+        return producto.getPrice() * unaLineaPedido.getCantidad();
     }
 
     public double precioTotalOrder(Order unaOrden) throws ProductNotExistsException{
@@ -54,11 +54,11 @@ public class OrderService {
     }
 
     public OrderLineResponseDTO orderLineToDTO(OrderLine unaOL) throws ProductNotExistsException {
-        String nombreProducto = productService.buscarProductoPorId(unaOL.getIdProducto()).getNombre();
+        String titleProduct = productService.buscarProductoPorId(unaOL.getIdProducto()).getTitle();
         int cantidad = unaOL.getCantidad();
-        double precioUnit = productService.buscarProductoPorId(unaOL.getIdProducto()).getPrecio();
+        double precioUnit = productService.buscarProductoPorId(unaOL.getIdProducto()).getPrice();
         double subTotal = precioUnit * cantidad;
-        OrderLineResponseDTO OLRespDTO = new OrderLineResponseDTO(nombreProducto, cantidad, precioUnit, subTotal);
+        OrderLineResponseDTO OLRespDTO = new OrderLineResponseDTO(titleProduct, cantidad, precioUnit, subTotal);
     return OLRespDTO;
     }
 
@@ -98,7 +98,7 @@ public class OrderService {
         for(OrderLineRequestDTO lp: nuevaOrden){
             ProductResponseDTO unProducto = productService.buscarProductoPorId(lp.getIdProduct());
             if(!productService.hayStock(unProducto.getId(),lp.getCantidad())){
-                throw new NoStockException("No hay stock de: " + unProducto.getNombre());
+                throw new NoStockException("No hay stock de: " + unProducto.getTitle());
             }
         }
 
@@ -146,8 +146,8 @@ public class OrderService {
         double total = 0;
         for(OrderLine ol:ordenBuscada.getOrder()){
             ProductResponseDTO p = productService.buscarProductoPorId(ol.getIdProducto());
-            double subtotal = p.getPrecio()*ol.getCantidad();
-            OrderLineResponseDTO olDTO = new OrderLineResponseDTO(p.getNombre(), ol.getCantidad(), p.getPrecio(), subtotal);
+            double subtotal = p.getPrice()*ol.getCantidad();
+            OrderLineResponseDTO olDTO = new OrderLineResponseDTO(p.getTitle(), ol.getCantidad(), p.getPrice(), subtotal);
             orderResponseDTO.addOrderLineResponseDTO(olDTO);
             total +=subtotal;
         }

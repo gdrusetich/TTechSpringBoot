@@ -25,12 +25,12 @@ public class ProductService {
 
 
     public ProductResponseDTO agregarProducto(ProductRequestDTO nuevoDTO) throws ProductExistsException {
-        if (productRepositoryJPA.existsByNombreIgnoreCase(nuevoDTO.getNombre())){
-            throw new ProductExistsException("Ya existe un producto con ese nombre");
+        if (productRepositoryJPA.existsByTitleIgnoreCase(nuevoDTO.getTitle())){
+            throw new ProductExistsException("Ya existe un producto con ese titulo");
         }
         Product productoNuevo = new Product();
-        productoNuevo.setNombre(nuevoDTO.getNombre());
-        productoNuevo.setPrecio(nuevoDTO.getPrecio());
+        productoNuevo.setTitle(nuevoDTO.getTitle());
+        productoNuevo.setPrice(nuevoDTO.getPrice());
         productoNuevo.setStock(nuevoDTO.getStock());
         Product productoGuardado = productRepositoryJPA.save(productoNuevo);
         return new ProductResponseDTO(productoGuardado);
@@ -50,7 +50,7 @@ public class ProductService {
         List<Product> listaDeProductos = productRepositoryJPA.findAll();
         List<ProductResponseDTO> productosFiltrados = new ArrayList<>();
         for(Product p: listaDeProductos){
-            if(p.getPrecio()<=precioMaximo) {
+            if(p.getPrice()<=precioMaximo) {
                 ProductResponseDTO nuevoDTO = new ProductResponseDTO(p);
                 productosFiltrados.add(nuevoDTO);
             }
@@ -85,7 +85,7 @@ public class ProductService {
         Product productoADescontar = productRepositoryJPA.findById(idProducto)
                 .orElseThrow(() -> new ProductNotExistsException("Producto no encontrado con ID: " + idProducto));
         if (productoADescontar.getStock() < cantidad) {
-            throw new NoStockException("No hay suficiente stock para: " + productoADescontar.getNombre());
+            throw new NoStockException("No hay suficiente stock para: " + productoADescontar.getTitle());
         }
         productoADescontar.setStock(productoADescontar.getStock() - cantidad);
         productRepositoryJPA.save(productoADescontar); // actualiza en la DB
@@ -94,7 +94,7 @@ public class ProductService {
     public Product editarPrecio(Long id, Double nuevoPrecio) throws ProductNotExistsException {
         Product productoAACtualizar = productRepositoryJPA.findById(id)
                 .orElseThrow(() -> new ProductNotExistsException("Producto no encontrado con ID: " + id));
-        productoAACtualizar.setPrecio(nuevoPrecio);
+        productoAACtualizar.setPrice(nuevoPrecio);
 
         this.productRepositoryJPA.save(productoAACtualizar);
         return productoAACtualizar;

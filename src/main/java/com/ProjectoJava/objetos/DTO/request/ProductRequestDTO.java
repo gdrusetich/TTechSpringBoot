@@ -1,15 +1,15 @@
 package com.ProjectoJava.objetos.DTO.request;
 
 public class ProductRequestDTO {
-    private String nombre;
-    private double precio;
+    private String title;
+    private double price;
     private int stock;
 
-    public String getNombre() {return nombre;}
-    public double getPrecio() {return precio;}
+    public String getTitle() {return title;}
+    public double getPrice() {return price;}
     public int getStock() {return stock;}
 
-    public void setNombre(String nombre) {this.nombre = nombre;}
-    public void setPrecio(double precio) {this.precio = precio;}
+    public void setTitle(String aTitle) {this.title = aTitle;}
+    public void setPrice(double aPrice) {this.price = aPrice;}
     public void setStock(int stock) {this.stock = stock;}
 }

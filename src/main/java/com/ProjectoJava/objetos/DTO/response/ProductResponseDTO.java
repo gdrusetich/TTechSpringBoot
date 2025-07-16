@@ -4,17 +4,17 @@ import com.ProjectoJava.objetos.entity.Product;
 
 public class ProductResponseDTO {
     private Long id;
-    private String nombre;
-    private double precio;
+    private String title;
+    private double price;
 
     public ProductResponseDTO(Product unProducto){
         this.id = unProducto.getId();
-        this.nombre = unProducto.getNombre();
-        this.precio = unProducto.getPrecio();
+        this.title = unProducto.getTitle();
+        this.price = unProducto.getPrice();
     }
 
     public Long getId() {return this.id;}
-    public String getNombre() {return this.nombre;}
-    public double getPrecio() {return this.precio;}
+    public String getTitle() {return this.title;}
+    public double getPrice() {return this.price;}
 }
 
