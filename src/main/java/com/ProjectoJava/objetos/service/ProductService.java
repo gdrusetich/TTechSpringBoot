@@ -13,10 +13,6 @@ import exceptions.ProductNotExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-//DATOS DE SPRING BOOT
- //BEAN 1: ProductService
- //BEAN 2:
-
 
 @Service
 public class ProductService {

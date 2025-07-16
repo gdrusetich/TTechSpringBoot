@@ -1,16 +1,7 @@
 package com.ProjectoJava.objetos.DTO.response;
-//import lombok.Getter;
 
 import com.ProjectoJava.objetos.entity.Product;
 
-//TODO: Estructurar el DTO.
-/*
-dto (package)
--request (package)
--response (package)
--ProductDTO
--ProductResponseDTO
-*/
 public class ProductResponseDTO {
     private Long id;
     private String nombre;
