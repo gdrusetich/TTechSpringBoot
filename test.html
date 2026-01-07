@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Menu TTech</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
+        .card { background: white; padding: 15px; margin: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; }
+        .price { color: #27ae60; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🍺 Mi Menú de Bebidas</h1>
+    <div id="lista-productos">Cargando menú...</div>
+
+    <script>
+        fetch('http://localhost:8081/products/list')
+            .then(response => response.json())
+            .then(data => {
+                const div = document.getElementById('lista-productos');
+                div.innerHTML = data.map(p => `
+                    <div class="card">
+                        <h3>${p.title}</h3>
+                        <p class="price">$ ${p.price}</p>
+                    </div>
+                `).join('');
+            })
+            .catch(err => document.getElementById('lista-productos').innerHTML = "Error: ¿Está prendido el Backend?");
+    </script>
+</body>
+</html>

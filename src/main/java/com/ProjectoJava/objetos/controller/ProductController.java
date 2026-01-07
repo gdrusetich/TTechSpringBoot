@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController         //Anotación que explicita a Springboot que la clase es un Controller
+@CrossOrigin(origins = "*")
+/*@CrossOrigin(origins = "${frontend.url}")*/
 @RequestMapping("/products")
-@CrossOrigin(origins = "${frontend.url}")
 public class ProductController {
     private ProductService service;
 
@@ -38,7 +39,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/find-id/{productId}")
+    @GetMapping("/find-id/{id}")
     public ResponseEntity<?> buscarProductoPorId(@PathVariable Long id) throws ProductNotExistsException {      //La variable lo busca en la ruta
         try {
             ProductResponseDTO productoBuscado = service.buscarProductoPorId(id);
@@ -58,6 +59,17 @@ public class ProductController {
         }
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody ProductRequestDTO dto) {
+        try {
+            // El service debe buscar el producto por ID y actualizar sus campos
+            ProductResponseDTO actualizado = service.actualizarProducto(id, dto);
+            return ResponseEntity.ok(actualizado);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al actualizar: " + e.getMessage());
+        }
+    }
+    
     @GetMapping("/filter-price-{precioMaximo}")
     public List<ProductResponseDTO> listarMasBaratos(@PathVariable double precioMaximo) throws ProductNotExistsException{
         return service.filtrarPorPrecio(precioMaximo);

@@ -6,6 +6,8 @@ import java.util.List;
 import com.ProjectoJava.objetos.DTO.request.ProductRequestDTO;
 import com.ProjectoJava.objetos.DTO.response.ProductResponseDTO;
 import com.ProjectoJava.objetos.entity.Product;
+import com.ProjectoJava.objetos.entity.Category;
+import com.ProjectoJava.objetos.repository.CategoryRepository;
 import com.ProjectoJava.objetos.repository.ProductRepository;
 import exceptions.NoStockException;
 import exceptions.ProductExistsException;
@@ -16,13 +18,16 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProductService {
+    @Autowired
     private ProductRepository productRepositoryJPA;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Autowired
     public ProductService(ProductRepository repositorio) {
         this.productRepositoryJPA = repositorio;
     }
-
 
     public ProductResponseDTO agregarProducto(ProductRequestDTO nuevoDTO) throws ProductExistsException {
         if (productRepositoryJPA.existsByTitleIgnoreCase(nuevoDTO.getTitle())){
@@ -32,6 +37,10 @@ public class ProductService {
         productoNuevo.setTitle(nuevoDTO.getTitle());
         productoNuevo.setPrice(nuevoDTO.getPrice());
         productoNuevo.setStock(nuevoDTO.getStock());
+        Category categoria = categoryRepository.findById(nuevoDTO.getCategory())
+        .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + nuevoDTO.getCategory()));
+    
+        productoNuevo.setCategory(categoria);
         Product productoGuardado = productRepositoryJPA.save(productoNuevo);
         return new ProductResponseDTO(productoGuardado);
     }
@@ -67,10 +76,27 @@ public class ProductService {
         return new ProductResponseDTO(productoBuscado);
     }
 
+    public ProductResponseDTO actualizarProducto(long id, ProductRequestDTO PRDTO) throws ProductNotExistsException{
+        Product productoExistente = productRepositoryJPA.findById(id)
+            .orElseThrow(() -> new ProductNotExistsException("Producto no encontrado con ID: " + id));
+        productoExistente.setTitle(PRDTO.getTitle());
+        productoExistente.setPrice(PRDTO.getPrice());
+        productoExistente.setStock(PRDTO.getStock());
 
-    public void eliminarProductoPorId(long id) throws ProductNotExistsException {
-        if (!productRepositoryJPA.existsById(id)) {
-            throw new ProductNotExistsException("Producto no encontrado con ID: " + id);
+        Category cat = categoryRepository.findById(PRDTO.getCategory())
+                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+        productoExistente.setCategory(cat);
+
+        Product productoActualizado = productRepositoryJPA.save(productoExistente);
+        return new ProductResponseDTO(productoActualizado);
+    }
+
+    public void eliminarProductoPorId(long id) throws ProductNotExistsException{
+
+        if(!productRepositoryJPA.existsById(id)){
+
+            throw new ProductNotExistsException("Producto no encontrado con ID: "+ id);
+
         }
         this.productRepositoryJPA.deleteById(id);
     }

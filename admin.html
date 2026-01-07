@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Administración - TTech Resto</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f8f9fa; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { color: #333; }
+        input, select { margin: 5px; padding: 10px; width: 200px; border: 1px solid #ddd; border-radius: 5px; }
+        #category-select { width: 100%; display: block; margin: 10px 0; border: 2px solid #007bff; }
+        button { padding: 10px 15px; cursor: pointer; border: none; border-radius: 5px; transition: 0.3s; }
+        .btn-add { background-color: #28a745; color: white; }
+        .btn-delete { background-color: #dc3545; color: white; }
+        .btn-edit { background-color: #007bff; color: white; padding: 5px 10px; margin-right: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🛠️ Panel de Administración</h2>
+
+    <div style="background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <h3>Nueva Categoría</h3>
+        <input type="text" id="new-category-name" placeholder="Ej: Bebidas">
+        <button class="btn-add" onclick="crearCategoria()">Crear Categoría</button>
+    </div>
+
+    <hr>
+
+    <div id="form-nuevo">
+        <h3>Gestión de Producto</h3> 
+        <input type="text" id="title" placeholder="Nombre (ej: Pizza)">
+        <input type="number" id="price" placeholder="Precio">
+        <input type="number" id="stock" placeholder="Stock Inicial">            
+        
+        <select id="category-select">
+            <option value="">Cargando categorías...</option>
+        </select>
+        
+        <button id="btn-servidor" class="btn-add" onclick="agregarProducto()">➕ Guardar Producto</button>
+        <button id="btn-cancelar" style="display:none; background:#6c757d; color:white;" onclick="limpiarFormulario()">Cancelar</button>
+    </div>
+
+    <h3>Inventario Actual</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-productos"></tbody>
+    </table>
+</div>
+
+<script>
+    let editandoId = null;
+    let productosCargados = [];
+    const API_PRODUCTS = "http://localhost:8081/products";
+    const API_CATEGORIES = "http://localhost:8081/categories";
+
+    // CARGAR CATEGORÍAS
+    function cargarCategoriasSelect() {
+        fetch(`${API_CATEGORIES}/list`)
+            .then(res => res.json())
+            .then(categorias => {
+                const select = document.getElementById('category-select');
+                select.innerHTML = '<option value="">Seleccione una categoría</option>';
+                categorias.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.id;
+                    option.textContent = cat.name;
+                    select.appendChild(option);
+                });
+            })
+            .catch(err => console.error("Error cargando categorías:", err));
+    }
+
+    // PREPARAR EDICIÓN
+    function prepararEdicion(id) {
+        const p = productosCargados.find(prod => prod.id === id);
+        if(!p) return;
+        
+        editandoId = p.id;
+        document.getElementById('title').value = p.title;
+        document.getElementById('price').value = p.price;
+        document.getElementById('stock').value = p.stock;
+        if(p.category) document.getElementById('category-select').value = p.category.id;
+
+        const btn = document.getElementById("btn-servidor");
+        btn.innerText = "💾 Guardar Cambios";
+        btn.style.backgroundColor = "#ff9800";
+        btn.onclick = ejecutarActualizacion;
+        document.getElementById("btn-cancelar").style.display = "inline-block";
+    }
+
+    // ACTUALIZAR
+    function ejecutarActualizacion() {
+        const datosEditados = {
+            // Asegúrate de que estos nombres coincidan EXACTO con los de tu clase Java
+            title: document.getElementById('title').value,
+            price: parseFloat(document.getElementById('price').value),
+            stock: parseInt(document.getElementById('stock').value),
+            category: parseInt(document.getElementById('category-select').value)
+        };
+
+        console.log("Enviando JSON:", JSON.stringify(datosEditados));
+
+        fetch(`${API_PRODUCTS}/update/${editandoId}`, {
+            method: 'PUT',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(datosEditados)
+        })
+        .then(res => {
+            if(res.ok) {
+                alert("✅ Producto actualizado");
+                limpiarFormulario();
+                cargarProductos();
+            } else {
+                // Si falla, intentamos ver qué error devuelve el Java
+                res.text().then(text => console.error("Error del servidor:", text));
+                alert("Error 400: El servidor rechazó los datos. Revisa la consola.");
+            }
+        });
+    }
+
+    // AGREGAR
+    function agregarProducto() {
+        const catId = document.getElementById('category-select').value;
+        if(!catId) return alert("Selecciona categoría");
+
+        const nuevo = {
+            title: document.getElementById('title').value,
+            price: parseFloat(document.getElementById('price').value),
+            stock: parseInt(document.getElementById('stock').value),
+            category: { id: parseInt(catId) }
+        };
+
+        fetch(`${API_PRODUCTS}/nuevo-producto`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevo)
+        }).then(res => {
+            if(res.ok) {
+                cargarProductos();
+                limpiarFormulario();
+            }
+        });
+    }
+
+    // LIMPIAR
+    function limpiarFormulario() {
+        editandoId = null;
+        document.getElementById('title').value = "";
+        document.getElementById('price').value = "";
+        document.getElementById('stock').value = "";
+        document.getElementById('category-select').value = "";
+        const btn = document.getElementById("btn-servidor");
+        btn.innerText = "➕ Guardar Producto";
+        btn.style.backgroundColor = "#28a745";
+        btn.onclick = agregarProducto;
+        document.getElementById("btn-cancelar").style.display = "none";
+    }
+
+    // CARGAR PRODUCTOS
+    function cargarProductos() {
+        fetch(`${API_PRODUCTS}/list`)
+            .then(res => res.json())
+            .then(data => {
+                productosCargados = data;
+                document.getElementById('tabla-productos').innerHTML = data.map(p => `
+                    <tr>
+                        <td>${p.id}</td>
+                        <td>${p.title}</td>
+                        <td>${p.category ? p.category.name : '---'}</td>
+                        <td>$${p.price}</td>
+                        <td>${p.stock}</td>
+                        <td>
+                            <button class="btn-edit" onclick="prepararEdicion(${p.id})">📝</button>
+                            <button class="btn-delete" onclick="eliminarProducto(${p.id})">🗑️</button>
+                        </td>
+                    </tr>
+                `).join('');
+            });
+    }
+
+    function eliminarProducto(id) {
+        if(confirm("¿Borrar?")) {
+            fetch(`${API_PRODUCTS}/delete/${id}`, { method: 'DELETE' }).then(() => cargarProductos());
+        }
+    }
+
+    function crearCategoria() {
+        const name = document.getElementById('new-category-name').value;
+        fetch(`${API_CATEGORIES}/add`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name })
+        }).then(() => {
+            document.getElementById('new-category-name').value = "";
+            cargarCategoriasSelect();
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        cargarProductos();
+        cargarCategoriasSelect();
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,28 @@
+package com.ProjectoJava.objetos.controller;
+
+import com.ProjectoJava.objetos.entity.Category;
+import com.ProjectoJava.objetos.repository.CategoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/categories")
+@CrossOrigin(origins = "*") // Para que el frontend pueda entrar
+public class CategoryController {
+
+    @Autowired
+    private CategoryRepository repository;
+
+    @GetMapping("/list")
+    public List<Category> listar() {
+        return repository.findAll();
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity<Category> agregar(@RequestBody Category nueva) {
+        return ResponseEntity.ok(repository.save(nueva));
+    }
+}

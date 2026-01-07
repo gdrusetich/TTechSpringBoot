@@ -4,7 +4,6 @@ import com.ProjectoJava.objetos.DTO.response.OrderLineResponseDTO;
 import com.ProjectoJava.objetos.DTO.response.OrderResponseDTO;
 import com.ProjectoJava.objetos.DTO.response.ProductResponseDTO;
 import com.ProjectoJava.objetos.entity.OrderLine;
-import com.ProjectoJava.objetos.entity.Product;
 import com.ProjectoJava.objetos.entity.Order;
 import com.ProjectoJava.objetos.repository.OrderRepository;
 import exceptions.NoStockException;
