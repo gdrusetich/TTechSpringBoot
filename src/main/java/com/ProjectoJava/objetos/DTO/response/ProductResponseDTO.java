@@ -8,6 +8,7 @@ public class ProductResponseDTO {
     private double price;
     private Integer stock;
     private Category category;
+    private String imageURL;
 
     public ProductResponseDTO(Product unProducto){
         this.id = unProducto.getId();
@@ -15,6 +16,7 @@ public class ProductResponseDTO {
         this.stock = unProducto.getStock();
         this.price = unProducto.getPrice();
         this.category = unProducto.getCategory();
+        this.imageURL = unProducto.getImageURL();
     }
 
     public Long getId() {return this.id;}
@@ -22,5 +24,6 @@ public class ProductResponseDTO {
     public int getStock() {return this.stock;}
     public double getPrice() {return this.price;}
     public Category getCategory(){return this.category;}
+    public String getImageURL(){return this.imageURL;}
 }
 

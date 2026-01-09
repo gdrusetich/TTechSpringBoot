@@ -67,8 +67,6 @@ public class ProductService {
         return productosFiltrados;
     }
 
-
-
     public ProductResponseDTO buscarProductoPorId(Long id) throws ProductNotExistsException {
         Product productoBuscado = productRepositoryJPA.findById(id)
                 .orElseThrow(() -> new ProductNotExistsException("Producto no encontrado con ID: " + id));
@@ -86,6 +84,11 @@ public class ProductService {
         Category cat = categoryRepository.findById(PRDTO.getCategory())
                     .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
         productoExistente.setCategory(cat);
+
+    if (PRDTO.getImageURL() != null) {
+            // Solo actualizamos el nombre si el DTO trae una imagen nueva
+            productoExistente.setImageURL(PRDTO.getImageURL());
+        }
 
         Product productoActualizado = productRepositoryJPA.save(productoExistente);
         return new ProductResponseDTO(productoActualizado);

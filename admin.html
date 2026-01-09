@@ -4,201 +4,290 @@
     <meta charset="UTF-8">
     <title>Panel de Administración - TTech Resto</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f8f9fa; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h2 { color: #333; }
-        input, select { margin: 5px; padding: 10px; width: 200px; border: 1px solid #ddd; border-radius: 5px; }
-        #category-select { width: 100%; display: block; margin: 10px 0; border: 2px solid #007bff; }
-        button { padding: 10px 15px; cursor: pointer; border: none; border-radius: 5px; transition: 0.3s; }
+        /* CONFIGURACIÓN DEL LAYOUT */
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f4f7f6;
+            display: flex;
+            height: 100vh;
+            overflow: hidden; /* El scroll general desaparece */
+        }
+
+        /* BARRA LATERAL (Panel de Administración) */
+        .sidebar {
+            width: 350px;
+            min-width: 350px;
+            background-color: #ffffff;
+            border-right: 1px solid #e0e0e0;
+            padding: 25px;
+            overflow-y: auto; /* Si el panel es muy largo, tiene su propio scroll */
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+        .sidebar.oculto {
+            width: 0;
+            min-width: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            border: none;
+        }
+
+        .btn-colapsar {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            width: 40px;
+            height: 40px;
+            background: #2c3e50;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        #tabla-productos img {
+           transition: width 0.3s ease, height 0.3s ease;
+        }
+
+        .sidebar.oculto ~ .main-content img {
+            width: 300px !important;
+            height: 180px !important;
+        }
+
+        /* CONTENIDO PRINCIPAL (Inventario) */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto; /* Aquí es donde ocurre el scroll de la tabla */
+            background-color: #f8f9fa;
+        }
+
+        /* ESTILOS DE COMPONENTES */
+        h2, h3 { color: #333; margin-top: 0; }
+        .section-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        
+        input, select { 
+            margin: 8px 0; 
+            padding: 12px; 
+            width: 100%; 
+            border: 1px solid #ddd; 
+            border-radius: 6px; 
+            box-sizing: border-box; /* Para que el padding no estire el ancho */
+        }
+
+        button { padding: 12px 15px; cursor: pointer; border: none; border-radius: 6px; font-weight: bold; transition: 0.3s; width: 100%; }
+        
         .btn-add { background-color: #28a745; color: white; }
-        .btn-delete { background-color: #dc3545; color: white; }
-        .btn-edit { background-color: #007bff; color: white; padding: 5px 10px; margin-right: 5px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #f2f2f2; }
+        .btn-add:hover { background-color: #218838; }
+        .btn-delete { background-color: #dc3545; color: white; width: auto; padding: 6px 10px; }
+        .btn-edit { background-color: #007bff; color: white; width: auto; padding: 6px 10px; margin-bottom: 5px; }
+
+        /* TABLA */
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        th, td { border-bottom: 1px solid #eee; padding: 15px; text-align: left; }
+        th { background-color: #2c3e50; color: white; }
+        tr:hover { background-color: #f1f1f1; }
+
+        #category-select { border: 2px solid #007bff; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>🛠️ Panel de Administración</h2>
-
-    <div style="background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-        <h3>Nueva Categoría</h3>
-        <input type="text" id="new-category-name" placeholder="Ej: Bebidas">
-        <button class="btn-add" onclick="crearCategoria()">Crear Categoría</button>
-    </div>
-
-    <hr>
-
-    <div id="form-nuevo">
-        <h3>Gestión de Producto</h3> 
-        <input type="text" id="title" placeholder="Nombre (ej: Pizza)">
-        <input type="number" id="price" placeholder="Precio">
-        <input type="number" id="stock" placeholder="Stock Inicial">            
+    <aside class="sidebar">
+        <h2>🛠️ Panel Admin</h2>
         
-        <select id="category-select">
-            <option value="">Cargando categorías...</option>
-        </select>
-        
-        <button id="btn-servidor" class="btn-add" onclick="agregarProducto()">➕ Guardar Producto</button>
-        <button id="btn-cancelar" style="display:none; background:#6c757d; color:white;" onclick="limpiarFormulario()">Cancelar</button>
-    </div>
+        <div class="section-box">
+            <label>🔍 Filtrar por Categoría:</label>
+            <select id="filtro-categoria" onchange="aplicarFiltro()">
+                <option value="todos">Todas las categorías</option>
+            </select>
+        </div>
 
-    <h3>Inventario Actual</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Categoría</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody id="tabla-productos"></tbody>
-    </table>
-</div>
+        <div class="section-box">
+            <h3>Nueva Categoría</h3>
+            <input type="text" id="new-category-name" placeholder="Ej: Bebidas">
+            <button class="btn-add" onclick="crearCategoria()">Crear Categoría</button>
+        </div>
+
+        <div id="form-nuevo" class="section-box">
+            <h3>Gestión de Producto</h3> 
+            <input type="text" id="title" placeholder="Nombre (ej: Panacom)">
+            <input type="number" id="price" placeholder="Precio">
+            <input type="number" id="stock" placeholder="Stock Inicial">
+            <label style="font-size: 12px; color: #666;">Imagen del producto:</label>
+            <input type="file" id="imagen-file" accept="image/*">
+            
+            <select id="category-select">
+                <option value="">Cargando categorías...</option>
+            </select>
+            
+            <button id="btn-servidor" class="btn-add">➕ Guardar Producto</button>
+            <button id="btn-cancelar" style="display:none; background:#6c757d; color:white; margin-top: 10px;" onclick="limpiarFormulario()">Cancelar Edición</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <h3>📦 Inventario Actual</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-productos"></tbody>
+        </table>
+    </main>
 
 <script>
+    // --- TU LÓGICA DE JAVASCRIPT SE MANTIENE EXACTAMENTE IGUAL ---
     let editandoId = null;
     let productosCargados = [];
     const API_PRODUCTS = "http://localhost:8081/products";
     const API_CATEGORIES = "http://localhost:8081/categories";
 
-    // CARGAR CATEGORÍAS
     function cargarCategoriasSelect() {
         fetch(`${API_CATEGORIES}/list`)
             .then(res => res.json())
             .then(categorias => {
                 const select = document.getElementById('category-select');
+                const filtro = document.getElementById('filtro-categoria');
                 select.innerHTML = '<option value="">Seleccione una categoría</option>';
+                filtro.innerHTML = '<option value="todos">Todas las categorias</option>';
                 categorias.forEach(cat => {
                     const option = document.createElement('option');
                     option.value = cat.id;
                     option.textContent = cat.name;
                     select.appendChild(option);
+                    const optFiltro = document.createElement('option');
+                    optFiltro.value = cat.name;
+                    optFiltro.textContent = cat.name;
+                    filtro.appendChild(optFiltro);
                 });
             })
             .catch(err => console.error("Error cargando categorías:", err));
     }
 
-    // PREPARAR EDICIÓN
+    function aplicarFiltro() {
+        const valor = document.getElementById('filtro-categoria').value;
+        const filas = document.querySelectorAll("#tabla-productos tr");
+        filas.forEach(fila => {
+            const catFila = fila.cells[3].textContent;
+            fila.style.display = (valor === "todos" || catFila === valor) ? "" : "none";
+        });
+    }
+
     function prepararEdicion(id) {
         const p = productosCargados.find(prod => prod.id === id);
         if(!p) return;
-        
         editandoId = p.id;
         document.getElementById('title').value = p.title;
         document.getElementById('price').value = p.price;
         document.getElementById('stock').value = p.stock;
         if(p.category) document.getElementById('category-select').value = p.category.id;
-
         const btn = document.getElementById("btn-servidor");
         btn.innerText = "💾 Guardar Cambios";
         btn.style.backgroundColor = "#ff9800";
-        btn.onclick = ejecutarActualizacion;
-        document.getElementById("btn-cancelar").style.display = "inline-block";
+        btn.onclick = () => ejecutarActualizacion(id);
+        document.getElementById("btn-cancelar").style.display = "block";
     }
 
-    // ACTUALIZAR
-    function ejecutarActualizacion() {
-        const datosEditados = {
-            // Asegúrate de que estos nombres coincidan EXACTO con los de tu clase Java
-            title: document.getElementById('title').value,
-            price: parseFloat(document.getElementById('price').value),
-            stock: parseInt(document.getElementById('stock').value),
-            category: parseInt(document.getElementById('category-select').value)
-        };
+    function ejecutarActualizacion(id) {
+        const fileInput = document.getElementById('imagen-file');
+        const formData = new FormData();
+        formData.append("title", document.getElementById('title').value);
+        formData.append("price", document.getElementById('price').value);
+        formData.append("stock", document.getElementById('stock').value);
+        formData.append("category", document.getElementById('category-select').value);
+        if (fileInput.files[0]) formData.append("image", fileInput.files[0]);
 
-        console.log("Enviando JSON:", JSON.stringify(datosEditados));
-
-        fetch(`${API_PRODUCTS}/update/${editandoId}`, {
-            method: 'PUT',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(datosEditados)
-        })
+        fetch(`${API_PRODUCTS}/update/${id}`, { method: 'PUT', body: formData })
         .then(res => {
-            if(res.ok) {
-                alert("✅ Producto actualizado");
-                limpiarFormulario();
-                cargarProductos();
-            } else {
-                // Si falla, intentamos ver qué error devuelve el Java
-                res.text().then(text => console.error("Error del servidor:", text));
-                alert("Error 400: El servidor rechazó los datos. Revisa la consola.");
-            }
+            if(res.ok) { alert("¡Actualizado!"); limpiarFormulario(); cargarProductos(); }
+            else { res.text().then(text => alert("Error: " + text)); }
         });
     }
 
-    // AGREGAR
     function agregarProducto() {
-        const catId = document.getElementById('category-select').value;
-        if(!catId) return alert("Selecciona categoría");
+        const fileInput = document.getElementById('imagen-file');
+        const formData = new FormData();
+        formData.append("title", document.getElementById('title').value);
+        formData.append("price", document.getElementById('price').value);
+        formData.append("stock", document.getElementById('stock').value);
+        formData.append("category", document.getElementById('category-select').value);
+        if (fileInput.files[0]) formData.append("image", fileInput.files[0]);
 
-        const nuevo = {
-            title: document.getElementById('title').value,
-            price: parseFloat(document.getElementById('price').value),
-            stock: parseInt(document.getElementById('stock').value),
-            category: { id: parseInt(catId) }
-        };
-
-        fetch(`${API_PRODUCTS}/nuevo-producto`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(nuevo)
-        }).then(res => {
-            if(res.ok) {
-                cargarProductos();
-                limpiarFormulario();
-            }
-        });
+        fetch(`${API_PRODUCTS}/nuevo-producto`, { method: 'POST', body: formData })
+        .then(res => { if(res.ok) { alert("Guardado"); cargarProductos(); limpiarFormulario(); } });
     }
 
-    // LIMPIAR
     function limpiarFormulario() {
-        editandoId = null;
         document.getElementById('title').value = "";
         document.getElementById('price').value = "";
         document.getElementById('stock').value = "";
         document.getElementById('category-select').value = "";
+        document.getElementById('imagen-file').value = "";
         const btn = document.getElementById("btn-servidor");
         btn.innerText = "➕ Guardar Producto";
         btn.style.backgroundColor = "#28a745";
         btn.onclick = agregarProducto;
         document.getElementById("btn-cancelar").style.display = "none";
+        editandoId = null;
     }
 
-    // CARGAR PRODUCTOS
     function cargarProductos() {
         fetch(`${API_PRODUCTS}/list`)
             .then(res => res.json())
-            .then(data => {
-                productosCargados = data;
-                document.getElementById('tabla-productos').innerHTML = data.map(p => `
-                    <tr>
-                        <td>${p.id}</td>
-                        <td>${p.title}</td>
-                        <td>${p.category ? p.category.name : '---'}</td>
-                        <td>$${p.price}</td>
-                        <td>${p.stock}</td>
-                        <td>
-                            <button class="btn-edit" onclick="prepararEdicion(${p.id})">📝</button>
-                            <button class="btn-delete" onclick="eliminarProducto(${p.id})">🗑️</button>
-                        </td>
-                    </tr>
-                `).join('');
+            .then(productos => {
+                productosCargados = productos;
+                const tabla = document.getElementById('tabla-productos');                
+                let htmlFinal = "";
+                productos.forEach(p => {
+                    const rtaImagen = p.imageURL ? `http://localhost:8081/uploads/${p.imageURL}` : 'https://via.placeholder.com/100?text=Sin+Foto';
+                    htmlFinal += `
+                        <tr>
+                            <td>${p.id}</td>
+                            <td>
+                                <img src="${rtaImagen}" 
+                                style="width: 100px; height: 60px; object-fit: contain; background: #fff; border-radius: 4px; border: 1px solid #ddd;"
+                                onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/3/3f/Placeholder_view_vector.svg';">
+                            </td>
+                            <td><strong>${p.title}</strong></td>
+                            <td>${p.category ? p.category.name : 'S/C'}</td>
+                            <td>$${p.price}</td>
+                            <td>${p.stock}</td>
+                            <td>
+                                <button class="btn-edit" onclick="prepararEdicion(${p.id})">Editar</button>
+                                <button class="btn-delete" onclick="eliminarProducto(${p.id})">Borrar</button>
+                            </td>
+                        </tr>`;
+                });
+                tabla.innerHTML = htmlFinal;
             });
     }
 
     function eliminarProducto(id) {
-        if(confirm("¿Borrar?")) {
-            fetch(`${API_PRODUCTS}/delete/${id}`, { method: 'DELETE' }).then(() => cargarProductos());
-        }
+        if(confirm("¿Borrar?")) fetch(`${API_PRODUCTS}/delete/${id}`, { method: 'DELETE' }).then(() => cargarProductos());
     }
 
     function crearCategoria() {
@@ -213,11 +302,21 @@
         });
     }
 
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('oculto');
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         cargarProductos();
         cargarCategoriasSelect();
     });
+    document.getElementById("btn-servidor").onclick = agregarProducto;
+ 
+ 
 </script>
-
+<div class="btn-colapsar" onclick="toggleSidebar()" title="Mostrar/Ocultar Panel">
+    ☰
+</div>
 </body>
 </html>
