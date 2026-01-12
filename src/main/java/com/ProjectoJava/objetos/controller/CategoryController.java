@@ -25,4 +25,10 @@ public class CategoryController {
     public ResponseEntity<Category> agregar(@RequestBody Category nueva) {
         return ResponseEntity.ok(repository.save(nueva));
     }
+    @PutMapping("/update/{id}")
+    public Category update(@PathVariable Long id, @RequestBody Category category) {
+        category.setId(id);
+        return repository.save(category);
+    }
+
 }

@@ -110,18 +110,36 @@
 
     <aside class="sidebar">
         <h2>🛠️ Panel Admin</h2>
-        
-        <div class="section-box">
-            <label>🔍 Filtrar por Categoría:</label>
-            <select id="filtro-categoria" onchange="aplicarFiltro()">
-                <option value="todos">Todas las categorías</option>
+
+        <div class="filtros-admin">
+            <label>Filtrar por Principal:</label>
+            <select id="filtro-categoria-padre" onchange="actualizarSubcategoriasFiltro()">
+                </select>
+
+            <label>Subcategoría:</label>
+            <select id="filtro-subcategoria" onchange="aplicarFiltroDoble()">
+                <option value="todos">Todas las subcategorías</option>
             </select>
         </div>
 
-        <div class="section-box">
-            <h3>Nueva Categoría</h3>
-            <input type="text" id="new-category-name" placeholder="Ej: Bebidas">
-            <button class="btn-add" onclick="crearCategoria()">Crear Categoría</button>
+        <div class="admin-section">
+            <h3>Gestión de Categorías</h3>
+            <label>Nombre:</label>
+            <input type="text" id="new-category-name" placeholder="Ej: Parlantes" required>
+
+            <label>Categoría / Padre:</label>
+            <select id="cat-parent">
+                <option value="">Ninguna (Es Categoría Principal)</option>
+            </select>
+            
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button onclick="guardarNuevaCategoria()" class="btn-add" style="flex: 1;">Guardar</button>
+                <button onclick="prepararEdicionCategoria()" class="btn-edit" style="flex: 1; margin-bottom: 0;">Editar</button>
+            </div>
+            
+            <button id="btn-cancelar-cat" onclick="cancelarEdicionCat()" style="display:none; background:#6c757d; color:white; margin-top: 10px;">
+                Cancelar Edición
+            </button>
         </div>
 
         <div id="form-nuevo" class="section-box">
@@ -143,6 +161,11 @@
 
     <main class="main-content">
         <h3>📦 Inventario Actual</h3>
+        <div class="admin-controls" style="margin-bottom: 20px;">
+            <input type="text" id="busquedaAdmin" placeholder="Filtrar por nombre o ID..." 
+                onkeyup="filtrarTablaAdmin()" 
+                style="padding: 10px; width: 100%; border-radius: 5px; border: 1px solid #ccc;">
+        </div>
         <table>
             <thead>
                 <tr>
@@ -163,39 +186,226 @@
     // --- TU LÓGICA DE JAVASCRIPT SE MANTIENE EXACTAMENTE IGUAL ---
     let editandoId = null;
     let productosCargados = [];
-    const API_PRODUCTS = "http://localhost:8081/products";
-    const API_CATEGORIES = "http://localhost:8081/categories";
+    const API_PRODUCTS = "http://192.168.1.41:8081/products";
+    const API_CATEGORIES = "http://192.168.1.41:8081/categories";
+
+    let editandoCatId = null; // Para saber qué categoría estamos editando
+    let categoriasData = [];
+
+    function prepararEdicionCategoria() {
+        const idSeleccionado = document.getElementById('cat-parent').value;
+
+        if (!idSeleccionado) {
+            alert("Por favor, selecciona una categoría del desplegable para poder editarla.");
+            return;
+        }
+
+        // Buscamos la categoría por ID dentro de nuestra lista guardada
+        const cat = categoriasData.find(c => c.id == idSeleccionado);
+        
+        if (cat) {
+            editandoCatId = cat.id; // Marcamos que estamos editando este ID
+            
+            // 1. Ponemos el nombre en el cuadro de texto
+            document.getElementById('new-category-name').value = cat.name;
+            
+            // 2. Seleccionamos su padre si es que tiene uno
+            const selectPadre = document.getElementById('cat-parent');
+            selectPadre.value = cat.parent ? cat.parent.id : "";
+            
+            // 3. Cambiamos visualmente para avisar que estamos editando
+            document.getElementById('btn-cancelar-cat').style.display = "block";
+            document.querySelector('.admin-section h3').innerText = "Editando Categoría: " + cat.name;
+        } else {
+            alert("No se encontraron los datos de esa categoría.");
+        }
+    }
+
+    function cancelarEdicionCat() {
+        editandoCatId = null;
+        document.getElementById('new-category-name').value = "";
+        document.getElementById('cat-parent').value = "";
+        document.getElementById('btn-cancelar-cat').style.display = "none";
+    }
+
 
     function cargarCategoriasSelect() {
-        fetch(`${API_CATEGORIES}/list`)
+        fetch(API_CATEGORIES + "/list")
             .then(res => res.json())
-            .then(categorias => {
-                const select = document.getElementById('category-select');
-                const filtro = document.getElementById('filtro-categoria');
-                select.innerHTML = '<option value="">Seleccione una categoría</option>';
-                filtro.innerHTML = '<option value="todos">Todas las categorias</option>';
-                categorias.forEach(cat => {
-                    const option = document.createElement('option');
-                    option.value = cat.id;
-                    option.textContent = cat.name;
-                    select.appendChild(option);
-                    const optFiltro = document.createElement('option');
-                    optFiltro.value = cat.name;
-                    optFiltro.textContent = cat.name;
-                    filtro.appendChild(optFiltro);
+            .then(data => {
+                categoriasData = data; // <--- ESTO ES CLAVE: guarda la info para poder editar
+                const select = document.getElementById('cat-parent');
+                //const filtro = document.getElementById('filtro-categoria');
+                const principales = categoriasData.filter(c => c.parent === null);
+                const filtroPadre = document.getElementById('filtro-categoria-padre');
+                
+                // Limpiamos y llenamos como siempre
+                const opcionesBase = '<option value="">Ninguna (Es Categoría Principal)</option>';
+                filtroPadre.innerHTML = '<option value="todos">Todas las principales</option>';
+                principales.forEach(cat => {
+                    filtroPadre.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
                 });
-            })
-            .catch(err => console.error("Error cargando categorías:", err));
+                
+                select.innerHTML = opcionesBase;
+                if (filtro) filtro.innerHTML = '<option value="todos">Todas las categorías</option>';
+
+                data.forEach(cat => {
+                    const opt = `<option value="${cat.id}">${cat.name}</option>`;
+                    select.innerHTML += opt;
+                    if (filtro) filtro.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+                });
+            });
     }
 
     function aplicarFiltro() {
-        const valor = document.getElementById('filtro-categoria').value;
+        const valorSeleccionado = document.getElementById('filtro-categoria').value; // Ej: "Musica"
         const filas = document.querySelectorAll("#tabla-productos tr");
         filas.forEach(fila => {
-            const catFila = fila.cells[3].textContent;
-            fila.style.display = (valor === "todos" || catFila === valor) ? "" : "none";
+            const idProducto = parseInt(fila.cells[0].textContent);
+            const producto = productosCargados.find(p => p.id === idProducto);
+
+            if (valorSeleccionado === "todos") {
+                fila.style.display = "";
+                return;
+            }
+
+            // Lógica inteligente:
+            // Mostramos si: el nombre de su categoría coincide O si el nombre de su categoría PADRE coincide
+            const nombreCat = producto.category ? producto.category.name : '';
+            const nombrePadre = (producto.category && producto.category.parent) ? producto.category.parent.name : '';
+
+            if (nombreCat === valorSeleccionado || nombrePadre === valorSeleccionado) {
+                fila.style.display = "";
+            } else {
+                fila.style.display = "none";
+            }
         });
     }
+
+    function actualizarSubcategoriasFiltro() {
+        const padreId = document.getElementById('filtro-categoria-padre').value;
+        const filtroSub = document.getElementById('filtro-subcategoria');
+        
+        filtroSub.innerHTML = '<option value="todos">Todas las subcategorías</option>';
+
+        if (padreId !== "todos") {
+            // Buscamos las hijas de ese padre
+            const hijas = categoriasData.filter(c => c.parent && c.parent.id == padreId);
+            hijas.forEach(h => {
+                filtroSub.innerHTML += `<option value="${h.id}">${h.name}</option>`;
+            });
+        }
+        
+        aplicarFiltroDoble(); // Ejecutamos el filtro al cambiar
+    }
+
+    function aplicarFiltroDoble() {
+        const padreId = document.getElementById('filtro-categoria-padre').value;
+        const subId = document.getElementById('filtro-subcategoria').value;
+        const filas = document.querySelectorAll("#tabla-productos tr");
+
+        filas.forEach(fila => {
+            const idProducto = parseInt(fila.cells[0].textContent);
+            const p = productosCargados.find(prod => prod.id === idProducto);
+
+            if (!p) return;
+
+            let mostrar = false;
+
+            if (padreId === "todos") {
+                mostrar = true; // Si no hay filtro, mostramos todo
+            } else {
+                const esMismaPrincipal = p.category && p.category.id == padreId;
+                const esHijaDePrincipal = p.category && p.category.parent && p.category.parent.id == padreId;
+
+                if (subId === "todos") {
+                    // Si eligió "Música" pero "Todas las sub", mostramos Música y sus hijas
+                    mostrar = esMismaPrincipal || esHijaDePrincipal;
+                } else {
+                    // Si eligió una sub específica (ej: Stereo)
+                    mostrar = p.category && p.category.id == subId;
+                }
+            }
+
+            fila.style.display = mostrar ? "" : "none";
+        });
+    }
+
+    function aplicarFiltro() {
+        const valorSeleccionado = document.getElementById('filtro-categoria').value; // Ej: "Musica"
+        const filas = document.querySelectorAll("#tabla-productos tr");
+        filas.forEach(fila => {
+            const idProducto = parseInt(fila.cells[0].textContent);
+            const producto = productosCargados.find(p => p.id === idProducto);
+
+            if (valorSeleccionado === "todos") {
+                fila.style.display = "";
+                return;
+            }
+
+            // Lógica inteligente:
+            // Mostramos si: el nombre de su categoría coincide O si el nombre de su categoría PADRE coincide
+            const nombreCat = producto.category ? producto.category.name : '';
+            const nombrePadre = (producto.category && producto.category.parent) ? producto.category.parent.name : '';
+
+            if (nombreCat === valorSeleccionado || nombrePadre === valorSeleccionado) {
+                fila.style.display = "";
+            } else {
+                fila.style.display = "none";
+            }
+        });
+    }
+
+    function actualizarSubcategoriasFiltro() {
+        const padreId = document.getElementById('filtro-categoria-padre').value;
+        const filtroSub = document.getElementById('filtro-subcategoria');
+        
+        filtroSub.innerHTML = '<option value="todos">Todas las subcategorías</option>';
+
+        if (padreId !== "todos") {
+            // Buscamos las hijas de ese padre
+            const hijas = categoriasData.filter(c => c.parent && c.parent.id == padreId);
+            hijas.forEach(h => {
+                filtroSub.innerHTML += `<option value="${h.id}">${h.name}</option>`;
+            });
+        }
+        
+        aplicarFiltroDoble(); // Ejecutamos el filtro al cambiar
+    }
+
+    function aplicarFiltroDoble() {
+        const padreId = document.getElementById('filtro-categoria-padre').value;
+        const subId = document.getElementById('filtro-subcategoria').value;
+        const filas = document.querySelectorAll("#tabla-productos tr");
+
+        filas.forEach(fila => {
+            const idProducto = parseInt(fila.cells[0].textContent);
+            const p = productosCargados.find(prod => prod.id === idProducto);
+
+            if (!p) return;
+
+            let mostrar = false;
+
+            if (padreId === "todos") {
+                mostrar = true; // Si no hay filtro, mostramos todo
+            } else {
+                const esMismaPrincipal = p.category && p.category.id == padreId;
+                const esHijaDePrincipal = p.category && p.category.parent && p.category.parent.id == padreId;
+
+                if (subId === "todos") {
+                    // Si eligió "Música" pero "Todas las sub", mostramos Música y sus hijas
+                    mostrar = esMismaPrincipal || esHijaDePrincipal;
+                } else {
+                    // Si eligió una sub específica (ej: Stereo)
+                    mostrar = p.category && p.category.id == subId;
+                }
+            }
+
+            fila.style.display = mostrar ? "" : "none";
+        });
+    }
+
+
 
     function prepararEdicion(id) {
         const p = productosCargados.find(prod => prod.id === id);
@@ -262,8 +472,20 @@
                 productosCargados = productos;
                 const tabla = document.getElementById('tabla-productos');                
                 let htmlFinal = "";
+
                 productos.forEach(p => {
-                    const rtaImagen = p.imageURL ? `http://localhost:8081/uploads/${p.imageURL}` : 'https://via.placeholder.com/100?text=Sin+Foto';
+                    const rtaImagen = p.imageURL ? `http://192.168.1.41:8081/uploads/${p.imageURL}` : 'https://via.placeholder.com/100?text=Sin+Foto';
+                    
+                    // --- Lógica de Categoría/Subcategoría ---
+                    const nombreCat = p.category ? p.category.name : 'S/C';
+                    const nombrePadre = (p.category && p.category.parent) ? p.category.parent.name : '';
+                    
+                    // Si hay padre, mostramos "Música > Stereo". Si no, solo "Música"
+                    const categoriaTexto = nombrePadre 
+                        ? `<span style="color: #888; font-size: 0.85em;">${nombrePadre} ></span> ${nombreCat}` 
+                        : nombreCat;
+                    // ----------------------------------------
+
                     htmlFinal += `
                         <tr>
                             <td>${p.id}</td>
@@ -273,8 +495,7 @@
                                 onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/3/3f/Placeholder_view_vector.svg';">
                             </td>
                             <td><strong>${p.title}</strong></td>
-                            <td>${p.category ? p.category.name : 'S/C'}</td>
-                            <td>$${p.price}</td>
+                            <td>${categoriaTexto}</td> <td>$${p.price.toLocaleString('es-AR')}</td>
                             <td>${p.stock}</td>
                             <td>
                                 <button class="btn-edit" onclick="prepararEdicion(${p.id})">Editar</button>
@@ -290,15 +511,48 @@
         if(confirm("¿Borrar?")) fetch(`${API_PRODUCTS}/delete/${id}`, { method: 'DELETE' }).then(() => cargarProductos());
     }
 
-    function crearCategoria() {
-        const name = document.getElementById('new-category-name').value;
-        fetch(`${API_CATEGORIES}/add`, {
-            method: 'POST',
+    function filtrarTablaAdmin() {
+        const filtro = document.getElementById('busquedaAdmin').value.toLowerCase();
+        const filas = document.querySelectorAll('#tabla-productos-body tr');
+
+        filas.forEach(fila => {
+            // Buscamos en todas las celdas de la fila (ID, Nombre, etc.)
+            const textoFila = fila.innerText.toLowerCase();
+            
+            if (textoFila.includes(filtro)) {
+                fila.style.display = "";
+            } else {
+                fila.style.display = "none";
+            }
+        });
+    }
+
+    function guardarNuevaCategoria() {
+        const nombre = document.getElementById('new-category-name').value;
+        const padreId = document.getElementById('cat-parent').value;
+        
+        if (!nombre) { alert("Escribí un nombre"); return; }
+
+        const categoriaData = {
+            name: nombre,
+            parent: padreId ? { id: parseInt(padreId) } : null 
+        };
+
+        // Si editandoCatId tiene algo, es un UPDATE, si no, es un ADD
+        const url = editandoCatId ? `${API_CATEGORIES}/update/${editandoCatId}` : `${API_CATEGORIES}/add`;
+        const metodo = editandoCatId ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: metodo,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: name })
-        }).then(() => {
-            document.getElementById('new-category-name').value = "";
-            cargarCategoriasSelect();
+            body: JSON.stringify(categoriaData)
+        })
+        .then(res => {
+            if (res.ok) {
+                alert(editandoCatId ? "Categoría actualizada" : "Categoría guardada");
+                cancelarEdicionCat(); // Limpia todo
+                cargarCategoriasSelect(); // Refresca los desplegables
+            }
         });
     }
 
