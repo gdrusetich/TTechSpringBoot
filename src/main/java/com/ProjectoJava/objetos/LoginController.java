@@ -11,33 +11,46 @@ import jakarta.servlet.http.HttpSession;
 public class LoginController {
 
     @Value("${admin.user}")
-    private String usuarioCorrecto;
+    private String adminUser;
 
     @Value("${admin.pass}")
-    private String claveCorrecta;
+    private String adminPass;
 
-    @PostMapping("/login")
-    public String procesarLogin(@RequestParam String user, @RequestParam String pass, HttpSession session) {
-        if (usuarioCorrecto.equals(user) && claveCorrecta.equals(pass)) {
-            session.setAttribute("usuarioLogueado", true);
+    // --- LOGIN DE ADMINISTRADOR ---
+    @PostMapping("/login-admin")
+    public String loginAdmin(@RequestParam String user, @RequestParam String pass, HttpSession session) {
+        if (adminUser.equals(user) && adminPass.equals(pass)) {
+            session.setAttribute("rol", "ADMIN");
             return "redirect:/admin";
         }
-        return "redirect:/login.html?error=true";
+        return "redirect:/login-admin.html?error=true";
     }
+
+    // --- LOGIN DE CLIENTES (Usuarios comunes) ---
+    @PostMapping("/login-cliente")
+    public String loginCliente(@RequestParam String user, @RequestParam String pass, HttpSession session) {
+        // Aquí luego conectarás con tu base de datos de clientes
+        // Por ahora, un ejemplo simple:
+        if ("cliente".equals(user) && "123".equals(pass)) {
+            session.setAttribute("rol", "CLIENTE");
+            return "redirect:/test.html"; // Al loguearse, vuelve a ver los precios
+        }
+        return "redirect:/login-cliente.html?error=true";
+    }
+
+    // --- RUTAS DE ACCESO ---
 
     @GetMapping("/admin")
     public String mostrarAdmin(HttpSession session) {
-        if (session.getAttribute("usuarioLogueado") != null) {
+        if ("ADMIN".equals(session.getAttribute("rol"))) {
             return "admin";
         }
-        return "redirect:/login.html";
+        return "redirect:/login-admin.html";
     }
 
-    // 3. EL SALIDA: Limpia todo
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/test.html";
     }
-
 }
