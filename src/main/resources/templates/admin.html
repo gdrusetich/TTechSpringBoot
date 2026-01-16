@@ -602,51 +602,67 @@
             });
         }
 
-    function cargarUsuarios() {
-        fetch('/usuarios/listar')
-            .then(res => res.json())
-            .then(usuarios => {
-                const tabla = document.getElementById('tabla-usuarios-body');
-                tabla.innerHTML = ""; 
-                usuarios.forEach(u => {
-                    tabla.innerHTML += `
-                        <tr style="border-bottom: 1px solid #444;">
-                            <td>${u.id}</td>
-                            <td>${u.username}</td>
-                            <td>${u.password}</td> <td><span class="badge">${u.role}</span></td>
-                            <td>
-                                <button onclick="prepararEdicionUsuario(${u.id}, '${u.username}')" style="color:#ff9800; cursor:pointer; background:none; border:1px solid #ff9800; border-radius:4px; padding:2px 5px; margin-right:5px;">✏️ Editar</button>
-                                <button onclick="eliminarUsuario(${u.id})" style="color:#ff5252; cursor:pointer; background:none; border:none;">🗑️ Borrar</button>
-                            </td>
-                        </tr>
-                    `;
+        function cargarUsuarios() {
+            fetch('/usuarios/listar')
+                .then(res => res.json())
+                .then(usuarios => {
+                    const tabla = document.getElementById('tabla-usuarios-body');
+                    tabla.innerHTML = ""; 
+                    usuarios.forEach(u => {
+                        tabla.innerHTML += `
+                            <tr style="border-bottom: 1px solid #444;">
+                                <td>${u.id}</td>
+                                <td>${u.username}</td>
+                                <td>${u.password}</td> <td><span class="badge">${u.role}</span></td>
+                                <td>
+                                    <button onclick="prepararEdicionUsuario(${u.id}, '${u.username}')" style="color:#ff9800; cursor:pointer; background:none; border:1px solid #ff9800; border-radius:4px; padding:2px 5px; margin-right:5px;">✏️ Editar</button>
+                                    <button onclick="eliminarUsuario(${u.id})" style="color:#ff5252; cursor:pointer; background:none; border:none;">🗑️ Borrar</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
                 });
-            });
-    }
-
-    // Función nueva para capturar los datos y enviarlos al Java
-    function prepararEdicionUsuario(id, nombreActual) {
-        const nuevoNombre = prompt("Nuevo nombre de usuario:", nombreActual);
-        const nuevaClave = prompt("Nueva contraseña:");
-
-        if (nuevoNombre && nuevaClave) {
-            const params = new URLSearchParams();
-            params.append('id', id);
-            params.append('username', nuevoNombre);
-            params.append('password', nuevaClave);
-
-            fetch('/usuarios/editar-desde-admin', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params
-            }).then(res => {
-                if (res.ok) {
-                    alert("Usuario actualizado");
-                    cargarUsuarios(); // Recargamos la tabla
-                }
-            });
         }
-    }
+
+        function prepararEdicionUsuario(id, nombreActual) {
+            const nuevoNombre = prompt("Nuevo nombre de usuario:", nombreActual);
+            const nuevaClave = prompt("Nueva contraseña:");
+
+            if (nuevoNombre && nuevaClave) {
+                const params = new URLSearchParams();
+                params.append('id', id);
+                params.append('username', nuevoNombre);
+                params.append('password', nuevaClave);
+
+                fetch('/usuarios/editar-desde-admin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: params
+                }).then(res => {
+                    if (res.ok) {
+                        alert("Usuario actualizado");
+                        cargarUsuarios(); // Recargamos la tabla
+                    }
+                });
+            }
+        }
+
+        function eliminarUsuario(id) {
+        if (confirm("¿Estás seguro de que querés eliminar a este usuario?")) {
+            // Llamamos al endpoint de Java
+            fetch(`/usuarios/eliminar/${id}`)
+                .then(res => {
+                    // Como tu Java devuelve un "redirect", el fetch lo va a seguir
+                    // pero lo importante es que si sale bien, recargamos la tablita
+                    alert("Usuario eliminado con éxito");
+                    cargarUsuarios(); // Esta función actualiza la lista sola
+                })
+                .catch(err => {
+                    console.error("Error:", err);
+                    alert("No se pudo eliminar el usuario");
+                });
+            }
+        }
 
         function mostrarSeccion(seccion) {
             if (seccion === 'usuarios') {
