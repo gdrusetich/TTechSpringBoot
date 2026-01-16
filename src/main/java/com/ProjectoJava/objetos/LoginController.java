@@ -1,5 +1,9 @@
 package com.ProjectoJava.objetos;
 
+import com.ProjectoJava.objetos.entity.User;
+import com.ProjectoJava.objetos.repository.UserRepository;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,48 +13,59 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class LoginController {
-
+    @org.springframework.beans.factory.annotation.Autowired
+    UserRepository userRepository;
     @Value("${admin.user}")
     private String adminUser;
 
     @Value("${admin.pass}")
     private String adminPass;
 
-    // --- LOGIN DE ADMINISTRADOR ---
-    @PostMapping("/login-admin")
-    public String loginAdmin(@RequestParam String user, @RequestParam String pass, HttpSession session) {
+    @PostMapping("/login-universal")
+    public String loginUniversal(@RequestParam String user, @RequestParam String pass, HttpSession session) {
+        System.out.println(">>> LLEGÓ EL PEDIDO AL SERVIDOR <<<");
+        System.out.println("Intentando entrar con: " + user + " y pass: " + pass);
         if (adminUser.equals(user) && adminPass.equals(pass)) {
             session.setAttribute("rol", "ADMIN");
-            return "redirect:/admin";
+            session.setAttribute("usuarioNombre", "Admin");
+            System.out.println("Es Admin! Redirigiendo...");
+            return "redirect:/admin"; // Al panel de control
         }
-        return "redirect:/login-admin.html?error=true";
-    }
 
-    // --- LOGIN DE CLIENTES (Usuarios comunes) ---
-    @PostMapping("/login-cliente")
-    public String loginCliente(@RequestParam String user, @RequestParam String pass, HttpSession session) {
-        // Aquí luego conectarás con tu base de datos de clientes
-        // Por ahora, un ejemplo simple:
-        if ("cliente".equals(user) && "123".equals(pass)) {
+        Optional<User> userOpt = userRepository.findByUsername(user);
+        if (userOpt.isPresent() && userOpt.get().getPassword().equals(pass)) {
+            User u = userOpt.get();
             session.setAttribute("rol", "CLIENTE");
-            return "redirect:/test.html"; // Al loguearse, vuelve a ver los precios
+            session.setAttribute("usuarioId", u.getId());
+            session.setAttribute("usuarioNombre", u.getUsername());
+            System.out.println("Es Cliente! Redirigiendo a test...");
+            return "redirect:/test"; // Al catálogo con precios
         }
-        return "redirect:/login-cliente.html?error=true";
+        System.out.println("Fallo el login!");
+        return "redirect:/login?error=true";
     }
-
-    // --- RUTAS DE ACCESO ---
 
     @GetMapping("/admin")
     public String mostrarAdmin(HttpSession session) {
         if ("ADMIN".equals(session.getAttribute("rol"))) {
             return "admin";
         }
-        return "redirect:/login-admin.html";
+        return "redirect:/login";
+    }
+
+    @GetMapping("/login")
+    public String irAlLogin() {
+        return "login"; // Esto busca 'login.html' dentro de la carpeta 'templates'
+    }
+
+    @GetMapping("/test")
+    public String mostrarTest(HttpSession session) {
+        return "test"; 
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/test.html";
+        return "redirect:/test";
     }
 }

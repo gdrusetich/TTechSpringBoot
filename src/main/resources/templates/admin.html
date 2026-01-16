@@ -157,420 +157,523 @@
             <button id="btn-servidor" class="btn-add">➕ Guardar Producto</button>
             <button id="btn-cancelar" style="display:none; background:#6c757d; color:white; margin-top: 10px;" onclick="limpiarFormulario()">Cancelar Edición</button>
         </div>
+        <div class="section-box">
+            <h3>👤 Crear Nuevo Usuario</h3>
+            <label>Usuario (Nombre de ingreso):</label>
+            <input type="text" id="new-username" placeholder="Ej: juan.perez" required>
+
+            <label>Contraseña:</label>
+            <input type="password" id="new-password" placeholder="Clave123" required>
+
+            <label>Tipo de Usuario:</label>
+            <select id="new-role">
+                <option value="CLIENTE">Cliente</option>
+                <option value="ADMIN">Administrador</option>
+            </select>
+
+            <button onclick="crearUsuarioDesdeAdmin()" class="btn-add" style="margin-top: 10px;">
+                ➕ Crear Usuario
+            </button>
+        </div>
+
     </aside>
 
     <main class="main-content">
-        <h3>📦 Inventario Actual</h3>
-        <div class="admin-controls" style="margin-bottom: 20px;">
-            <input type="text" id="busquedaAdmin" placeholder="Filtrar por nombre o ID..." 
-                onkeyup="filtrarTablaAdmin()" 
-                style="padding: 10px; width: 100%; border-radius: 5px; border: 1px solid #ccc;">
+        <div class="tab-menu" style="margin-bottom: 20px;">
+            <button onclick="mostrarSeccion('productos')" class="btn-tab">📦 Gestionar Productos</button>
+            <button onclick="mostrarSeccion('usuarios')" class="btn-tab">👤 Gestionar Usuarios</button>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Imagen</th>
-                    <th>Nombre</th>
-                    <th>Categoría</th>
-                    <th>Precio</th>
-                    <th>Stock</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="tabla-productos"></tbody>
-        </table>
+
+        <div id="seccion-productos">
+            <h3>📦 Inventario Actual</h3>
+            <div class="admin-controls" style="margin-bottom: 20px;">
+                <input type="text" id="busquedaAdmin" placeholder="Filtrar por nombre o ID..." 
+                    onkeyup="filtrarTablaAdmin()" 
+                    style="padding: 10px; width: 100%; border-radius: 5px; border: 1px solid #ccc;">
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Imagen</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-productos"></tbody>
+            </table>
+        </div>
+
+        <div id="seccion-usuarios" style="display:none;">
+            <h3>👥 Lista de Usuarios Registrados</h3>
+            <table style="width:100%; color: white; background: #222; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #333;">
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Contraseña</th> <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-usuarios-body"></tbody>
+            </table>
+        </div>
     </main>
 
-<script>
-    // --- TU LÓGICA DE JAVASCRIPT SE MANTIENE EXACTAMENTE IGUAL ---
-    let editandoId = null;
-    let productosCargados = [];
-    const API_PRODUCTS = "http://192.168.1.41:8081/products";
-    const API_CATEGORIES = "http://192.168.1.41:8081/categories";
+    <script>
+        // --- TU LÓGICA DE JAVASCRIPT SE MANTIENE EXACTAMENTE IGUAL ---
+        let editandoId = null;
+        let productosCargados = [];
+        const API_PRODUCTS = "http://192.168.1.41:8081/products";
+        const API_CATEGORIES = "http://192.168.1.41:8081/categories";
 
-    let editandoCatId = null; // Para saber qué categoría estamos editando
-    let categoriasData = [];
+        let editandoCatId = null; // Para saber qué categoría estamos editando
+        let categoriasData = [];
 
-    function prepararEdicionCategoria() {
-        const idSeleccionado = document.getElementById('cat-parent').value;
+        function prepararEdicionCategoria() {
+            const idSeleccionado = document.getElementById('cat-parent').value;
 
-        if (!idSeleccionado) {
-            alert("Por favor, selecciona una categoría del desplegable para poder editarla.");
-            return;
-        }
-
-        // Buscamos la categoría por ID dentro de nuestra lista guardada
-        const cat = categoriasData.find(c => c.id == idSeleccionado);
-        
-        if (cat) {
-            editandoCatId = cat.id; // Marcamos que estamos editando este ID
-            
-            // 1. Ponemos el nombre en el cuadro de texto
-            document.getElementById('new-category-name').value = cat.name;
-            
-            // 2. Seleccionamos su padre si es que tiene uno
-            const selectPadre = document.getElementById('cat-parent');
-            selectPadre.value = cat.parent ? cat.parent.id : "";
-            
-            // 3. Cambiamos visualmente para avisar que estamos editando
-            document.getElementById('btn-cancelar-cat').style.display = "block";
-            document.querySelector('.admin-section h3').innerText = "Editando Categoría: " + cat.name;
-        } else {
-            alert("No se encontraron los datos de esa categoría.");
-        }
-    }
-
-    function cancelarEdicionCat() {
-        editandoCatId = null;
-        document.getElementById('new-category-name').value = "";
-        document.getElementById('cat-parent').value = "";
-        document.getElementById('btn-cancelar-cat').style.display = "none";
-    }
-
-
-    function cargarCategoriasSelect() {
-        fetch(API_CATEGORIES + "/list")
-            .then(res => res.json())
-            .then(data => {
-                categoriasData = data; // <--- ESTO ES CLAVE: guarda la info para poder editar
-                const select = document.getElementById('cat-parent');
-                //const filtro = document.getElementById('filtro-categoria');
-                const principales = categoriasData.filter(c => c.parent === null);
-                const filtroPadre = document.getElementById('filtro-categoria-padre');
-                
-                // Limpiamos y llenamos como siempre
-                const opcionesBase = '<option value="">Ninguna (Es Categoría Principal)</option>';
-                filtroPadre.innerHTML = '<option value="todos">Todas las principales</option>';
-                principales.forEach(cat => {
-                    filtroPadre.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
-                });
-                
-                select.innerHTML = opcionesBase;
-                if (filtro) filtro.innerHTML = '<option value="todos">Todas las categorías</option>';
-
-                data.forEach(cat => {
-                    const opt = `<option value="${cat.id}">${cat.name}</option>`;
-                    select.innerHTML += opt;
-                    if (filtro) filtro.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
-                });
-            });
-    }
-
-    function aplicarFiltro() {
-        const valorSeleccionado = document.getElementById('filtro-categoria').value; // Ej: "Musica"
-        const filas = document.querySelectorAll("#tabla-productos tr");
-        filas.forEach(fila => {
-            const idProducto = parseInt(fila.cells[0].textContent);
-            const producto = productosCargados.find(p => p.id === idProducto);
-
-            if (valorSeleccionado === "todos") {
-                fila.style.display = "";
+            if (!idSeleccionado) {
+                alert("Por favor, selecciona una categoría del desplegable para poder editarla.");
                 return;
             }
 
-            // Lógica inteligente:
-            // Mostramos si: el nombre de su categoría coincide O si el nombre de su categoría PADRE coincide
-            const nombreCat = producto.category ? producto.category.name : '';
-            const nombrePadre = (producto.category && producto.category.parent) ? producto.category.parent.name : '';
-
-            if (nombreCat === valorSeleccionado || nombrePadre === valorSeleccionado) {
-                fila.style.display = "";
+            // Buscamos la categoría por ID dentro de nuestra lista guardada
+            const cat = categoriasData.find(c => c.id == idSeleccionado);
+            
+            if (cat) {
+                editandoCatId = cat.id; // Marcamos que estamos editando este ID
+                
+                // 1. Ponemos el nombre en el cuadro de texto
+                document.getElementById('new-category-name').value = cat.name;
+                
+                // 2. Seleccionamos su padre si es que tiene uno
+                const selectPadre = document.getElementById('cat-parent');
+                selectPadre.value = cat.parent ? cat.parent.id : "";
+                
+                // 3. Cambiamos visualmente para avisar que estamos editando
+                document.getElementById('btn-cancelar-cat').style.display = "block";
+                document.querySelector('.admin-section h3').innerText = "Editando Categoría: " + cat.name;
             } else {
-                fila.style.display = "none";
+                alert("No se encontraron los datos de esa categoría.");
             }
-        });
-    }
+        }
 
-    function actualizarSubcategoriasFiltro() {
-        const padreId = document.getElementById('filtro-categoria-padre').value;
-        const filtroSub = document.getElementById('filtro-subcategoria');
-        
-        filtroSub.innerHTML = '<option value="todos">Todas las subcategorías</option>';
+        function cancelarEdicionCat() {
+            editandoCatId = null;
+            document.getElementById('new-category-name').value = "";
+            document.getElementById('cat-parent').value = "";
+            document.getElementById('btn-cancelar-cat').style.display = "none";
+        }
 
-        if (padreId !== "todos") {
-            // Buscamos las hijas de ese padre
-            const hijas = categoriasData.filter(c => c.parent && c.parent.id == padreId);
-            hijas.forEach(h => {
-                filtroSub.innerHTML += `<option value="${h.id}">${h.name}</option>`;
+
+        function cargarCategoriasSelect() {
+            fetch(API_CATEGORIES + "/list")
+                .then(res => res.json())
+                .then(data => {
+                    categoriasData = data; // <--- ESTO ES CLAVE: guarda la info para poder editar
+                    const select = document.getElementById('cat-parent');
+                    //const filtro = document.getElementById('filtro-categoria');
+                    const principales = categoriasData.filter(c => c.parent === null);
+                    const filtroPadre = document.getElementById('filtro-categoria-padre');
+                    
+                    // Limpiamos y llenamos como siempre
+                    const opcionesBase = '<option value="">Ninguna (Es Categoría Principal)</option>';
+                    filtroPadre.innerHTML = '<option value="todos">Todas las principales</option>';
+                    principales.forEach(cat => {
+                        filtroPadre.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+                    });
+                    
+                    select.innerHTML = opcionesBase;
+                    if (filtro) filtro.innerHTML = '<option value="todos">Todas las categorías</option>';
+
+                    data.forEach(cat => {
+                        const opt = `<option value="${cat.id}">${cat.name}</option>`;
+                        select.innerHTML += opt;
+                        if (filtro) filtro.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+                    });
+                });
+        }
+
+        function aplicarFiltro() {
+            const valorSeleccionado = document.getElementById('filtro-categoria').value; // Ej: "Musica"
+            const filas = document.querySelectorAll("#tabla-productos tr");
+            filas.forEach(fila => {
+                const idProducto = parseInt(fila.cells[0].textContent);
+                const producto = productosCargados.find(p => p.id === idProducto);
+
+                if (valorSeleccionado === "todos") {
+                    fila.style.display = "";
+                    return;
+                }
+
+                // Lógica inteligente:
+                // Mostramos si: el nombre de su categoría coincide O si el nombre de su categoría PADRE coincide
+                const nombreCat = producto.category ? producto.category.name : '';
+                const nombrePadre = (producto.category && producto.category.parent) ? producto.category.parent.name : '';
+
+                if (nombreCat === valorSeleccionado || nombrePadre === valorSeleccionado) {
+                    fila.style.display = "";
+                } else {
+                    fila.style.display = "none";
+                }
             });
         }
-        
-        aplicarFiltroDoble(); // Ejecutamos el filtro al cambiar
-    }
 
-    function aplicarFiltroDoble() {
-        const padreId = document.getElementById('filtro-categoria-padre').value;
-        const subId = document.getElementById('filtro-subcategoria').value;
-        const filas = document.querySelectorAll("#tabla-productos tr");
+        function actualizarSubcategoriasFiltro() {
+            const padreId = document.getElementById('filtro-categoria-padre').value;
+            const filtroSub = document.getElementById('filtro-subcategoria');
+            
+            filtroSub.innerHTML = '<option value="todos">Todas las subcategorías</option>';
 
-        filas.forEach(fila => {
-            const idProducto = parseInt(fila.cells[0].textContent);
-            const p = productosCargados.find(prod => prod.id === idProducto);
-
-            if (!p) return;
-
-            let mostrar = false;
-
-            if (padreId === "todos") {
-                mostrar = true; // Si no hay filtro, mostramos todo
-            } else {
-                const esMismaPrincipal = p.category && p.category.id == padreId;
-                const esHijaDePrincipal = p.category && p.category.parent && p.category.parent.id == padreId;
-
-                if (subId === "todos") {
-                    // Si eligió "Música" pero "Todas las sub", mostramos Música y sus hijas
-                    mostrar = esMismaPrincipal || esHijaDePrincipal;
-                } else {
-                    // Si eligió una sub específica (ej: Stereo)
-                    mostrar = p.category && p.category.id == subId;
-                }
+            if (padreId !== "todos") {
+                // Buscamos las hijas de ese padre
+                const hijas = categoriasData.filter(c => c.parent && c.parent.id == padreId);
+                hijas.forEach(h => {
+                    filtroSub.innerHTML += `<option value="${h.id}">${h.name}</option>`;
+                });
             }
+            
+            aplicarFiltroDoble(); // Ejecutamos el filtro al cambiar
+        }
 
-            fila.style.display = mostrar ? "" : "none";
-        });
-    }
+        function aplicarFiltroDoble() {
+            const padreId = document.getElementById('filtro-categoria-padre').value;
+            const subId = document.getElementById('filtro-subcategoria').value;
+            const filas = document.querySelectorAll("#tabla-productos tr");
 
-    function aplicarFiltro() {
-        const valorSeleccionado = document.getElementById('filtro-categoria').value; // Ej: "Musica"
-        const filas = document.querySelectorAll("#tabla-productos tr");
-        filas.forEach(fila => {
-            const idProducto = parseInt(fila.cells[0].textContent);
-            const producto = productosCargados.find(p => p.id === idProducto);
+            filas.forEach(fila => {
+                const idProducto = parseInt(fila.cells[0].textContent);
+                const p = productosCargados.find(prod => prod.id === idProducto);
 
-            if (valorSeleccionado === "todos") {
-                fila.style.display = "";
+                if (!p) return;
+
+                let mostrar = false;
+
+                if (padreId === "todos") {
+                    mostrar = true; // Si no hay filtro, mostramos todo
+                } else {
+                    const esMismaPrincipal = p.category && p.category.id == padreId;
+                    const esHijaDePrincipal = p.category && p.category.parent && p.category.parent.id == padreId;
+
+                    if (subId === "todos") {
+                        // Si eligió "Música" pero "Todas las sub", mostramos Música y sus hijas
+                        mostrar = esMismaPrincipal || esHijaDePrincipal;
+                    } else {
+                        // Si eligió una sub específica (ej: Stereo)
+                        mostrar = p.category && p.category.id == subId;
+                    }
+                }
+
+                fila.style.display = mostrar ? "" : "none";
+            });
+        }
+
+        function actualizarSubcategoriasFiltro() {
+            const padreId = document.getElementById('filtro-categoria-padre').value;
+            const filtroSub = document.getElementById('filtro-subcategoria');
+            
+            filtroSub.innerHTML = '<option value="todos">Todas las subcategorías</option>';
+
+            if (padreId !== "todos") {
+                // Buscamos las hijas de ese padre
+                const hijas = categoriasData.filter(c => c.parent && c.parent.id == padreId);
+                hijas.forEach(h => {
+                    filtroSub.innerHTML += `<option value="${h.id}">${h.name}</option>`;
+                });
+            }
+            
+            aplicarFiltroDoble(); // Ejecutamos el filtro al cambiar
+        }
+
+        function aplicarFiltroDoble() {
+            const padreId = document.getElementById('filtro-categoria-padre').value;
+            const subId = document.getElementById('filtro-subcategoria').value;
+            const filas = document.querySelectorAll("#tabla-productos tr");
+
+            filas.forEach(fila => {
+                const idProducto = parseInt(fila.cells[0].textContent);
+                const p = productosCargados.find(prod => prod.id === idProducto);
+
+                if (!p) return;
+
+                let mostrar = false;
+
+                if (padreId === "todos") {
+                    mostrar = true; // Si no hay filtro, mostramos todo
+                } else {
+                    const esMismaPrincipal = p.category && p.category.id == padreId;
+                    const esHijaDePrincipal = p.category && p.category.parent && p.category.parent.id == padreId;
+
+                    if (subId === "todos") {
+                        // Si eligió "Música" pero "Todas las sub", mostramos Música y sus hijas
+                        mostrar = esMismaPrincipal || esHijaDePrincipal;
+                    } else {
+                        // Si eligió una sub específica (ej: Stereo)
+                        mostrar = p.category && p.category.id == subId;
+                    }
+                }
+
+                fila.style.display = mostrar ? "" : "none";
+            });
+        }
+
+        function prepararEdicion(id) {
+            const p = productosCargados.find(prod => prod.id === id);
+            if(!p) return;
+            editandoId = p.id;
+            document.getElementById('title').value = p.title;
+            document.getElementById('price').value = p.price;
+            document.getElementById('stock').value = p.stock;
+            if(p.category) document.getElementById('category-select').value = p.category.id;
+            const btn = document.getElementById("btn-servidor");
+            btn.innerText = "💾 Guardar Cambios";
+            btn.style.backgroundColor = "#ff9800";
+            btn.onclick = () => ejecutarActualizacion(id);
+            document.getElementById("btn-cancelar").style.display = "block";
+        }
+
+        function ejecutarActualizacion(id) {
+            const fileInput = document.getElementById('imagen-file');
+            const formData = new FormData();
+            formData.append("title", document.getElementById('title').value);
+            formData.append("price", document.getElementById('price').value);
+            formData.append("stock", document.getElementById('stock').value);
+            formData.append("category", document.getElementById('category-select').value);
+            if (fileInput.files[0]) formData.append("image", fileInput.files[0]);
+
+            fetch(`${API_PRODUCTS}/update/${id}`, { method: 'PUT', body: formData })
+            .then(res => {
+                if(res.ok) { alert("¡Actualizado!"); limpiarFormulario(); cargarProductos(); }
+                else { res.text().then(text => alert("Error: " + text)); }
+            });
+        }
+
+        function agregarProducto() {
+            const fileInput = document.getElementById('imagen-file');
+            const formData = new FormData();
+            formData.append("title", document.getElementById('title').value);
+            formData.append("price", document.getElementById('price').value);
+            formData.append("stock", document.getElementById('stock').value);
+            formData.append("category", document.getElementById('category-select').value);
+            if (fileInput.files[0]) formData.append("image", fileInput.files[0]);
+
+            fetch(`${API_PRODUCTS}/nuevo-producto`, { method: 'POST', body: formData })
+            .then(res => { if(res.ok) { alert("Guardado"); cargarProductos(); limpiarFormulario(); } });
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('title').value = "";
+            document.getElementById('price').value = "";
+            document.getElementById('stock').value = "";
+            document.getElementById('category-select').value = "";
+            document.getElementById('imagen-file').value = "";
+            const btn = document.getElementById("btn-servidor");
+            btn.innerText = "➕ Guardar Producto";
+            btn.style.backgroundColor = "#28a745";
+            btn.onclick = agregarProducto;
+            document.getElementById("btn-cancelar").style.display = "none";
+            editandoId = null;
+        }
+
+        function cargarProductos() {
+            fetch(`${API_PRODUCTS}/list`)
+                .then(res => res.json())
+                .then(productos => {
+                    productosCargados = productos;
+                    const tabla = document.getElementById('tabla-productos');                
+                    let htmlFinal = "";
+
+                    productos.forEach(p => {
+                        const rtaImagen = p.imageURL ? `http://192.168.1.41:8081/uploads/${p.imageURL}` : 'https://via.placeholder.com/100?text=Sin+Foto';
+                        
+                        // --- Lógica de Categoría/Subcategoría ---
+                        const nombreCat = p.category ? p.category.name : 'S/C';
+                        const nombrePadre = (p.category && p.category.parent) ? p.category.parent.name : '';
+                        
+                        // Si hay padre, mostramos "Música > Stereo". Si no, solo "Música"
+                        const categoriaTexto = nombrePadre 
+                            ? `<span style="color: #888; font-size: 0.85em;">${nombrePadre} ></span> ${nombreCat}` 
+                            : nombreCat;
+                        // ----------------------------------------
+
+                        htmlFinal += `
+                            <tr>
+                                <td>${p.id}</td>
+                                <td>
+                                    <img src="${rtaImagen}" 
+                                    style="width: 100px; height: 60px; object-fit: contain; background: #fff; border-radius: 4px; border: 1px solid #ddd;"
+                                    onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/3/3f/Placeholder_view_vector.svg';">
+                                </td>
+                                <td><strong>${p.title}</strong></td>
+                                <td>${categoriaTexto}</td> <td>$${p.price.toLocaleString('es-AR')}</td>
+                                <td>${p.stock}</td>
+                                <td>
+                                    <button class="btn-edit" onclick="prepararEdicion(${p.id})">Editar</button>
+                                    <button class="btn-delete" onclick="eliminarProducto(${p.id})">Borrar</button>
+                                </td>
+                            </tr>`;
+                    });
+                    tabla.innerHTML = htmlFinal;
+                });
+        }
+
+        function eliminarProducto(id) {
+            if(confirm("¿Borrar?")) fetch(`${API_PRODUCTS}/delete/${id}`, { method: 'DELETE' }).then(() => cargarProductos());
+        }
+
+        function crearUsuarioDesdeAdmin() {
+            const user = document.getElementById('new-username').value;
+            const pass = document.getElementById('new-password').value;
+            const role = document.getElementById('new-role').value;
+
+            if (!user || !pass) {
+                alert("Por favor, completa usuario y contraseña.");
                 return;
             }
 
-            // Lógica inteligente:
-            // Mostramos si: el nombre de su categoría coincide O si el nombre de su categoría PADRE coincide
-            const nombreCat = producto.category ? producto.category.name : '';
-            const nombrePadre = (producto.category && producto.category.parent) ? producto.category.parent.name : '';
+            const params = new URLSearchParams();
+            params.append('username', user);
+            params.append('password', pass);
+            params.append('role', role);
 
-            if (nombreCat === valorSeleccionado || nombrePadre === valorSeleccionado) {
-                fila.style.display = "";
-            } else {
-                fila.style.display = "none";
-            }
-        });
-    }
-
-    function actualizarSubcategoriasFiltro() {
-        const padreId = document.getElementById('filtro-categoria-padre').value;
-        const filtroSub = document.getElementById('filtro-subcategoria');
-        
-        filtroSub.innerHTML = '<option value="todos">Todas las subcategorías</option>';
-
-        if (padreId !== "todos") {
-            // Buscamos las hijas de ese padre
-            const hijas = categoriasData.filter(c => c.parent && c.parent.id == padreId);
-            hijas.forEach(h => {
-                filtroSub.innerHTML += `<option value="${h.id}">${h.name}</option>`;
+            fetch('/usuarios/guardar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            })
+            .then(res => {
+                if (res.ok) {
+                    alert("Usuario creado con éxito");
+                    // Limpiamos los campos
+                    document.getElementById('new-username').value = "";
+                    document.getElementById('new-password').value = "";
+                } else {
+                    alert("Error al crear el usuario. Quizás ya existe.");
+                }
             });
         }
-        
-        aplicarFiltroDoble(); // Ejecutamos el filtro al cambiar
-    }
 
-    function aplicarFiltroDoble() {
-        const padreId = document.getElementById('filtro-categoria-padre').value;
-        const subId = document.getElementById('filtro-subcategoria').value;
-        const filas = document.querySelectorAll("#tabla-productos tr");
-
-        filas.forEach(fila => {
-            const idProducto = parseInt(fila.cells[0].textContent);
-            const p = productosCargados.find(prod => prod.id === idProducto);
-
-            if (!p) return;
-
-            let mostrar = false;
-
-            if (padreId === "todos") {
-                mostrar = true; // Si no hay filtro, mostramos todo
-            } else {
-                const esMismaPrincipal = p.category && p.category.id == padreId;
-                const esHijaDePrincipal = p.category && p.category.parent && p.category.parent.id == padreId;
-
-                if (subId === "todos") {
-                    // Si eligió "Música" pero "Todas las sub", mostramos Música y sus hijas
-                    mostrar = esMismaPrincipal || esHijaDePrincipal;
-                } else {
-                    // Si eligió una sub específica (ej: Stereo)
-                    mostrar = p.category && p.category.id == subId;
-                }
-            }
-
-            fila.style.display = mostrar ? "" : "none";
-        });
-    }
-
-
-
-    function prepararEdicion(id) {
-        const p = productosCargados.find(prod => prod.id === id);
-        if(!p) return;
-        editandoId = p.id;
-        document.getElementById('title').value = p.title;
-        document.getElementById('price').value = p.price;
-        document.getElementById('stock').value = p.stock;
-        if(p.category) document.getElementById('category-select').value = p.category.id;
-        const btn = document.getElementById("btn-servidor");
-        btn.innerText = "💾 Guardar Cambios";
-        btn.style.backgroundColor = "#ff9800";
-        btn.onclick = () => ejecutarActualizacion(id);
-        document.getElementById("btn-cancelar").style.display = "block";
-    }
-
-    function ejecutarActualizacion(id) {
-        const fileInput = document.getElementById('imagen-file');
-        const formData = new FormData();
-        formData.append("title", document.getElementById('title').value);
-        formData.append("price", document.getElementById('price').value);
-        formData.append("stock", document.getElementById('stock').value);
-        formData.append("category", document.getElementById('category-select').value);
-        if (fileInput.files[0]) formData.append("image", fileInput.files[0]);
-
-        fetch(`${API_PRODUCTS}/update/${id}`, { method: 'PUT', body: formData })
-        .then(res => {
-            if(res.ok) { alert("¡Actualizado!"); limpiarFormulario(); cargarProductos(); }
-            else { res.text().then(text => alert("Error: " + text)); }
-        });
-    }
-
-    function agregarProducto() {
-        const fileInput = document.getElementById('imagen-file');
-        const formData = new FormData();
-        formData.append("title", document.getElementById('title').value);
-        formData.append("price", document.getElementById('price').value);
-        formData.append("stock", document.getElementById('stock').value);
-        formData.append("category", document.getElementById('category-select').value);
-        if (fileInput.files[0]) formData.append("image", fileInput.files[0]);
-
-        fetch(`${API_PRODUCTS}/nuevo-producto`, { method: 'POST', body: formData })
-        .then(res => { if(res.ok) { alert("Guardado"); cargarProductos(); limpiarFormulario(); } });
-    }
-
-    function limpiarFormulario() {
-        document.getElementById('title').value = "";
-        document.getElementById('price').value = "";
-        document.getElementById('stock').value = "";
-        document.getElementById('category-select').value = "";
-        document.getElementById('imagen-file').value = "";
-        const btn = document.getElementById("btn-servidor");
-        btn.innerText = "➕ Guardar Producto";
-        btn.style.backgroundColor = "#28a745";
-        btn.onclick = agregarProducto;
-        document.getElementById("btn-cancelar").style.display = "none";
-        editandoId = null;
-    }
-
-    function cargarProductos() {
-        fetch(`${API_PRODUCTS}/list`)
+    function cargarUsuarios() {
+        fetch('/usuarios/listar')
             .then(res => res.json())
-            .then(productos => {
-                productosCargados = productos;
-                const tabla = document.getElementById('tabla-productos');                
-                let htmlFinal = "";
-
-                productos.forEach(p => {
-                    const rtaImagen = p.imageURL ? `http://192.168.1.41:8081/uploads/${p.imageURL}` : 'https://via.placeholder.com/100?text=Sin+Foto';
-                    
-                    // --- Lógica de Categoría/Subcategoría ---
-                    const nombreCat = p.category ? p.category.name : 'S/C';
-                    const nombrePadre = (p.category && p.category.parent) ? p.category.parent.name : '';
-                    
-                    // Si hay padre, mostramos "Música > Stereo". Si no, solo "Música"
-                    const categoriaTexto = nombrePadre 
-                        ? `<span style="color: #888; font-size: 0.85em;">${nombrePadre} ></span> ${nombreCat}` 
-                        : nombreCat;
-                    // ----------------------------------------
-
-                    htmlFinal += `
-                        <tr>
-                            <td>${p.id}</td>
+            .then(usuarios => {
+                const tabla = document.getElementById('tabla-usuarios-body');
+                tabla.innerHTML = ""; 
+                usuarios.forEach(u => {
+                    tabla.innerHTML += `
+                        <tr style="border-bottom: 1px solid #444;">
+                            <td>${u.id}</td>
+                            <td>${u.username}</td>
+                            <td>${u.password}</td> <td><span class="badge">${u.role}</span></td>
                             <td>
-                                <img src="${rtaImagen}" 
-                                style="width: 100px; height: 60px; object-fit: contain; background: #fff; border-radius: 4px; border: 1px solid #ddd;"
-                                onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/3/3f/Placeholder_view_vector.svg';">
+                                <button onclick="prepararEdicion(${u.id}, '${u.username}')" style="color:#ff9800; cursor:pointer; background:none; border:1px solid #ff9800; border-radius:4px; padding:2px 5px; margin-right:5px;">✏️ Editar</button>
+                                <button onclick="eliminarUsuario(${u.id})" style="color:#ff5252; cursor:pointer; background:none; border:none;">🗑️ Borrar</button>
                             </td>
-                            <td><strong>${p.title}</strong></td>
-                            <td>${categoriaTexto}</td> <td>$${p.price.toLocaleString('es-AR')}</td>
-                            <td>${p.stock}</td>
-                            <td>
-                                <button class="btn-edit" onclick="prepararEdicion(${p.id})">Editar</button>
-                                <button class="btn-delete" onclick="eliminarProducto(${p.id})">Borrar</button>
-                            </td>
-                        </tr>`;
+                        </tr>
+                    `;
                 });
-                tabla.innerHTML = htmlFinal;
             });
     }
 
-    function eliminarProducto(id) {
-        if(confirm("¿Borrar?")) fetch(`${API_PRODUCTS}/delete/${id}`, { method: 'DELETE' }).then(() => cargarProductos());
+    // Función nueva para capturar los datos y enviarlos al Java
+    function prepararEdicion(id, nombreActual) {
+        const nuevoNombre = prompt("Nuevo nombre de usuario:", nombreActual);
+        const nuevaClave = prompt("Nueva contraseña:");
+
+        if (nuevoNombre && nuevaClave) {
+            const params = new URLSearchParams();
+            params.append('id', id);
+            params.append('username', nuevoNombre);
+            params.append('password', nuevaClave);
+
+            fetch('/usuarios/editar-desde-admin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            }).then(res => {
+                if (res.ok) {
+                    alert("Usuario actualizado");
+                    cargarUsuarios(); // Recargamos la tabla
+                }
+            });
+        }
     }
 
-    function filtrarTablaAdmin() {
-        const filtro = document.getElementById('busquedaAdmin').value.toLowerCase();
-        const filas = document.querySelectorAll('#tabla-productos-body tr');
-
-        filas.forEach(fila => {
-            // Buscamos en todas las celdas de la fila (ID, Nombre, etc.)
-            const textoFila = fila.innerText.toLowerCase();
-            
-            if (textoFila.includes(filtro)) {
-                fila.style.display = "";
+        function mostrarSeccion(seccion) {
+            if (seccion === 'usuarios') {
+                document.getElementById('seccion-usuarios').style.display = 'block';
+                document.getElementById('seccion-productos').style.display = 'none';
+                cargarUsuarios();
             } else {
-                fila.style.display = "none";
+                document.getElementById('seccion-usuarios').style.display = 'none';
+                document.getElementById('seccion-productos').style.display = 'block';
             }
+        }
+
+        function filtrarTablaAdmin() {
+            const filtro = document.getElementById('busquedaAdmin').value.toLowerCase();
+            const filas = document.querySelectorAll('#tabla-productos-body tr');
+
+            filas.forEach(fila => {
+                // Buscamos en todas las celdas de la fila (ID, Nombre, etc.)
+                const textoFila = fila.innerText.toLowerCase();
+                
+                if (textoFila.includes(filtro)) {
+                    fila.style.display = "";
+                } else {
+                    fila.style.display = "none";
+                }
+            });
+        }
+
+        function guardarNuevaCategoria() {
+            const nombre = document.getElementById('new-category-name').value;
+            const padreId = document.getElementById('cat-parent').value;
+            
+            if (!nombre) { alert("Escribí un nombre"); return; }
+
+            const categoriaData = {
+                name: nombre,
+                parent: padreId ? { id: parseInt(padreId) } : null 
+            };
+
+            // Si editandoCatId tiene algo, es un UPDATE, si no, es un ADD
+            const url = editandoCatId ? `${API_CATEGORIES}/update/${editandoCatId}` : `${API_CATEGORIES}/add`;
+            const metodo = editandoCatId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: metodo,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(categoriaData)
+            })
+            .then(res => {
+                if (res.ok) {
+                    alert(editandoCatId ? "Categoría actualizada" : "Categoría guardada");
+                    cancelarEdicionCat(); // Limpia todo
+                    cargarCategoriasSelect(); // Refresca los desplegables
+                }
+            });
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('oculto');
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            cargarProductos();
+            cargarCategoriasSelect();
         });
-    }
-
-    function guardarNuevaCategoria() {
-        const nombre = document.getElementById('new-category-name').value;
-        const padreId = document.getElementById('cat-parent').value;
-        
-        if (!nombre) { alert("Escribí un nombre"); return; }
-
-        const categoriaData = {
-            name: nombre,
-            parent: padreId ? { id: parseInt(padreId) } : null 
-        };
-
-        // Si editandoCatId tiene algo, es un UPDATE, si no, es un ADD
-        const url = editandoCatId ? `${API_CATEGORIES}/update/${editandoCatId}` : `${API_CATEGORIES}/add`;
-        const metodo = editandoCatId ? 'PUT' : 'POST';
-
-        fetch(url, {
-            method: metodo,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(categoriaData)
-        })
-        .then(res => {
-            if (res.ok) {
-                alert(editandoCatId ? "Categoría actualizada" : "Categoría guardada");
-                cancelarEdicionCat(); // Limpia todo
-                cargarCategoriasSelect(); // Refresca los desplegables
-            }
-        });
-    }
-
-    function toggleSidebar() {
-        const sidebar = document.querySelector('.sidebar');
-        sidebar.classList.toggle('oculto');
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-        cargarProductos();
-        cargarCategoriasSelect();
-    });
-    document.getElementById("btn-servidor").onclick = agregarProducto;
- 
- 
-</script>
-<div class="btn-colapsar" onclick="toggleSidebar()" title="Mostrar/Ocultar Panel">
-    ☰
-</div>
+        document.getElementById("btn-servidor").onclick = agregarProducto;
+    
+    
+    </script>
+    <div class="btn-colapsar" onclick="toggleSidebar()" title="Mostrar/Ocultar Panel">
+        ☰
+    </div>
 </body>
 </html>

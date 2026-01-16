@@ -55,6 +55,8 @@ public class ProductService {
         return listaDTO;
     }
 
+
+
     public List<ProductResponseDTO> filtrarPorPrecio(double precioMaximo){
         List<Product> listaDeProductos = productRepositoryJPA.findAll();
         List<ProductResponseDTO> productosFiltrados = new ArrayList<>();
@@ -67,10 +69,13 @@ public class ProductService {
         return productosFiltrados;
     }
 
+    public List<Product> listarPorCategoria(Long categoryId) {
+        return productRepositoryJPA.findByCategoryId(categoryId);
+    }
+
     public ProductResponseDTO buscarProductoPorId(Long id) throws ProductNotExistsException {
         Product productoBuscado = productRepositoryJPA.findById(id)
                 .orElseThrow(() -> new ProductNotExistsException("Producto no encontrado con ID: " + id));
-
         return new ProductResponseDTO(productoBuscado);
     }
 
@@ -89,17 +94,13 @@ public class ProductService {
             // Solo actualizamos el nombre si el DTO trae una imagen nueva
             productoExistente.setImageURL(PRDTO.getImageURL());
         }
-
         Product productoActualizado = productRepositoryJPA.save(productoExistente);
         return new ProductResponseDTO(productoActualizado);
     }
 
     public void eliminarProductoPorId(long id) throws ProductNotExistsException{
-
         if(!productRepositoryJPA.existsById(id)){
-
             throw new ProductNotExistsException("Producto no encontrado con ID: "+ id);
-
         }
         this.productRepositoryJPA.deleteById(id);
     }

@@ -10,10 +10,14 @@ import org.springframework.web.multipart.MultipartFile; // Para recibir la image
 
 import com.ProjectoJava.objetos.DTO.request.ProductRequestDTO;
 import com.ProjectoJava.objetos.DTO.response.ProductResponseDTO;
+import com.ProjectoJava.objetos.entity.Product;
+
 import exceptions.ProductExistsException;
 
 import com.ProjectoJava.objetos.service.ProductService;
 import exceptions.ProductNotExistsException;
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +39,11 @@ public class ProductController {
     @GetMapping("/list")                //Para obtener datos, utilizo Get.
     public List<ProductResponseDTO> listarProductos(){
         return service.listarProductos();
+    }
+
+    @GetMapping("/categoria/{id}")
+    public List<Product> listarPorCategoria(@PathVariable Long id) {
+        return service.listarPorCategoria(id);
     }
 
     @PostMapping("/nuevo-producto")
@@ -129,6 +138,11 @@ public class ProductController {
     @GetMapping("/filter-price-{precioMaximo}")
     public List<ProductResponseDTO> listarMasBaratos(@PathVariable double precioMaximo) throws ProductNotExistsException{
         return service.filtrarPorPrecio(precioMaximo);
+    }
+
+    @GetMapping("/test")
+    public String mostrarCatalogo(HttpSession session) {
+        return "test"; 
     }
 
 }

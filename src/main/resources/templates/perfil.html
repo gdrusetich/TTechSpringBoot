@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Mi Perfil</title>
+    <link rel="stylesheet" href="/css/style.css"> </head>
+<body>
+    <div class="container">
+        <h2>Modificar mis datos</h2>
+        <form action="/usuarios/actualizar-perfil" method="post">
+            <label>Nuevo nombre de usuario:</label>
+            <input type="text" name="nuevoUser" th:value="${session.usuarioNombre}" required>
+            
+            <label>Nueva contraseña:</label>
+            <input type="password" name="nuevoPass" required>
+            
+            <button type="submit">Guardar Cambios</button>
+            <a href="/test.html">Cancelar</a>
+        </form>
+    </div>
+</body>
+</html>
