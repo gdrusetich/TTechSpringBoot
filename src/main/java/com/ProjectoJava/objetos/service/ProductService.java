@@ -85,6 +85,7 @@ public class ProductService {
         productoExistente.setTitle(PRDTO.getTitle());
         productoExistente.setPrice(PRDTO.getPrice());
         productoExistente.setStock(PRDTO.getStock());
+        productoExistente.setDescription(PRDTO.getDescription());
 
         Category cat = categoryRepository.findById(PRDTO.getCategory())
                     .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));

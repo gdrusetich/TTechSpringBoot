@@ -64,15 +64,13 @@
             height: 180px !important;
         }
 
-        /* CONTENIDO PRINCIPAL (Inventario) */
         .main-content {
             flex-grow: 1;
             padding: 30px;
-            overflow-y: auto; /* Aquí es donde ocurre el scroll de la tabla */
+            overflow-y: auto;
             background-color: #f8f9fa;
         }
 
-        /* ESTILOS DE COMPONENTES */
         h2, h3 { color: #333; margin-top: 0; }
         .section-box {
             background: #f8f9fa;
@@ -147,14 +145,33 @@
             <input type="text" id="title" placeholder="Nombre (ej: Panacom)">
             <input type="number" id="price" placeholder="Precio">
             <input type="number" id="stock" placeholder="Stock Inicial">
-            <label style="font-size: 12px; color: #666;">Imagen del producto:</label>
+            
+            <div style="margin-top: 10px; text-align: left;">
+                <label style="font-size: 13px; color: #bb86fc; font-weight: bold; margin-left: 5px;">Descripción:</label>
+                <textarea id="description" rows="4" 
+                    placeholder="Características del producto (ej: Bluetooth 5.0, 10W RMS...)"
+                    style="
+                        width: 100%; 
+                        padding: 10px; 
+                        margin-top: 5px;
+                        background: #1e1e1e; 
+                        color: #e0e0e0; 
+                        border: 1px solid #333; 
+                        border-radius: 8px; 
+                        font-family: 'Segoe UI', sans-serif;
+                        resize: vertical;
+                        box-sizing: border-box;
+                    "></textarea>
+            </div>
+
+            <label style="font-size: 12px; color: #666; display: block; margin-top: 10px;">Imagen del producto:</label>
             <input type="file" id="imagen-file" accept="image/*">
             
-            <select id="category-select">
+            <select id="category-select" style="margin-top: 10px;">
                 <option value="">Cargando categorías...</option>
             </select>
             
-            <button id="btn-servidor" class="btn-add">➕ Guardar Producto</button>
+            <button id="btn-servidor" class="btn-add" style="margin-top: 15px;">➕ Guardar Producto</button>
             <button id="btn-cancelar" style="display:none; background:#6c757d; color:white; margin-top: 10px;" onclick="limpiarFormulario()">Cancelar Edición</button>
         </div>
         <div class="section-box">
@@ -274,27 +291,33 @@
             fetch(API_CATEGORIES + "/list")
                 .then(res => res.json())
                 .then(data => {
-                    categoriasData = data; // <--- ESTO ES CLAVE: guarda la info para poder editar
-                    const select = document.getElementById('cat-parent');
-                    //const filtro = document.getElementById('filtro-categoria');
-                    const principales = categoriasData.filter(c => c.parent === null);
-                    const filtroPadre = document.getElementById('filtro-categoria-padre');
+                    categoriasData = data; 
                     
-                    // Limpiamos y llenamos como siempre
-                    const opcionesBase = '<option value="">Ninguna (Es Categoría Principal)</option>';
-                    filtroPadre.innerHTML = '<option value="todos">Todas las principales</option>';
-                    principales.forEach(cat => {
-                        filtroPadre.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
-                    });
-                    
-                    select.innerHTML = opcionesBase;
-                    if (filtro) filtro.innerHTML = '<option value="todos">Todas las categorías</option>';
+                    // 1. Select para gestionar Categorías (Padre/Hija)
+                    const selectParent = document.getElementById('cat-parent');
+                    // 2. Select para el Formulario de Productos (EL QUE IMPORTA AHORA)
+                    const selectProd = document.getElementById('category-select'); 
+
+                    let opciones = '<option value="">Seleccione una categoría...</option>';
 
                     data.forEach(cat => {
-                        const opt = `<option value="${cat.id}">${cat.name}</option>`;
-                        select.innerHTML += opt;
-                        if (filtro) filtro.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+                        // Si tiene padre, es una subcategoría (le ponemos un guion)
+                        const prefijo = cat.parent ? "── " : "⭐ ";
+                        opciones += `<option value="${cat.id}">${prefijo}${cat.name}</option>`;
                     });
+
+                    if(selectParent) selectParent.innerHTML = opciones;
+                    if(selectProd) selectProd.innerHTML = opciones;
+                    
+                    // Filtros de la tabla (opcional)
+                    const filtroPadre = document.getElementById('filtro-categoria-padre');
+                    if(filtroPadre) {
+                        let optsFiltro = '<option value="todos">Todas las principales</option>';
+                        data.filter(c => !c.parent).forEach(c => {
+                            optsFiltro += `<option value="${c.id}">${c.name}</option>`;
+                        });
+                        filtroPadre.innerHTML = optsFiltro;
+                    }
                 });
         }
 
@@ -421,35 +444,56 @@
             });
         }
 
-        function prepararEdicion(id) {
+        function prepararEdicionProducto(id) {
             const p = productosCargados.find(prod => prod.id === id);
-            if(!p) return;
+            if(!p) {
+                    console.error("No se encontró el producto con ID:", id);
+                    return;
+                }
             editandoId = p.id;
             document.getElementById('title').value = p.title;
             document.getElementById('price').value = p.price;
             document.getElementById('stock').value = p.stock;
-            if(p.category) document.getElementById('category-select').value = p.category.id;
+            document.getElementById('description').value = p.description || "";
+            if (p.category) document.getElementById('category-select').value = p.category.id;
+            
             const btn = document.getElementById("btn-servidor");
             btn.innerText = "💾 Guardar Cambios";
             btn.style.backgroundColor = "#ff9800";
-            btn.onclick = () => ejecutarActualizacion(id);
+            btn.onclick = function() { ejecutarActualizacion(id); };
             document.getElementById("btn-cancelar").style.display = "block";
+            window.scrollTo({ top: 0, behavior: 'smooth' });//Soll agregue esto, lo demas estaba.
         }
 
         function ejecutarActualizacion(id) {
-            const fileInput = document.getElementById('imagen-file');
             const formData = new FormData();
             formData.append("title", document.getElementById('title').value);
             formData.append("price", document.getElementById('price').value);
             formData.append("stock", document.getElementById('stock').value);
+            formData.append('description', document.getElementById('description').value);
             formData.append("category", document.getElementById('category-select').value);
-            if (fileInput.files[0]) formData.append("image", fileInput.files[0]);
+            
+            // USAMOS EL ID QUE ESTÁ EN TU HTML: "imagen-file"
+            const inputFoto = document.getElementById('imagen-file'); 
+            
+            if (inputFoto && inputFoto.files[0]) {
+                formData.append('image', inputFoto.files[0]);
+            }
 
-            fetch(`${API_PRODUCTS}/update/${id}`, { method: 'PUT', body: formData })
+            fetch(`${API_PRODUCTS}/update/${id}`, { 
+                method: 'PUT', 
+                body: formData 
+            })
             .then(res => {
-                if(res.ok) { alert("¡Actualizado!"); limpiarFormulario(); cargarProductos(); }
-                else { res.text().then(text => alert("Error: " + text)); }
-            });
+                if(res.ok) { 
+                    alert("¡Producto Actualizado!"); 
+                    limpiarFormulario(); 
+                    cargarProductos(); 
+                } else { 
+                    res.text().then(text => alert("Error del servidor: " + text)); 
+                }
+            })
+            .catch(err => alert("Error de conexión: " + err));
         }
 
         function agregarProducto() {
@@ -469,6 +513,7 @@
             document.getElementById('title').value = "";
             document.getElementById('price').value = "";
             document.getElementById('stock').value = "";
+            document.getElementById('description').value = "";
             document.getElementById('category-select').value = "";
             document.getElementById('imagen-file').value = "";
             const btn = document.getElementById("btn-servidor");
@@ -512,7 +557,7 @@
                                 <td>${categoriaTexto}</td> <td>$${p.price.toLocaleString('es-AR')}</td>
                                 <td>${p.stock}</td>
                                 <td>
-                                    <button class="btn-edit" onclick="prepararEdicion(${p.id})">Editar</button>
+                                    <button class="btn-edit" onclick="prepararEdicionProducto(${p.id})">Editar</button>
                                     <button class="btn-delete" onclick="eliminarProducto(${p.id})">Borrar</button>
                                 </td>
                             </tr>`;
@@ -570,7 +615,7 @@
                             <td>${u.username}</td>
                             <td>${u.password}</td> <td><span class="badge">${u.role}</span></td>
                             <td>
-                                <button onclick="prepararEdicion(${u.id}, '${u.username}')" style="color:#ff9800; cursor:pointer; background:none; border:1px solid #ff9800; border-radius:4px; padding:2px 5px; margin-right:5px;">✏️ Editar</button>
+                                <button onclick="prepararEdicionUsuario(${u.id}, '${u.username}')" style="color:#ff9800; cursor:pointer; background:none; border:1px solid #ff9800; border-radius:4px; padding:2px 5px; margin-right:5px;">✏️ Editar</button>
                                 <button onclick="eliminarUsuario(${u.id})" style="color:#ff5252; cursor:pointer; background:none; border:none;">🗑️ Borrar</button>
                             </td>
                         </tr>
@@ -580,7 +625,7 @@
     }
 
     // Función nueva para capturar los datos y enviarlos al Java
-    function prepararEdicion(id, nombreActual) {
+    function prepararEdicionUsuario(id, nombreActual) {
         const nuevoNombre = prompt("Nuevo nombre de usuario:", nombreActual);
         const nuevaClave = prompt("Nueva contraseña:");
 
@@ -616,12 +661,10 @@
 
         function filtrarTablaAdmin() {
             const filtro = document.getElementById('busquedaAdmin').value.toLowerCase();
-            const filas = document.querySelectorAll('#tabla-productos-body tr');
+            const filas = document.querySelectorAll('#tabla-productos tr');
 
             filas.forEach(fila => {
-                // Buscamos en todas las celdas de la fila (ID, Nombre, etc.)
                 const textoFila = fila.innerText.toLowerCase();
-                
                 if (textoFila.includes(filtro)) {
                     fila.style.display = "";
                 } else {

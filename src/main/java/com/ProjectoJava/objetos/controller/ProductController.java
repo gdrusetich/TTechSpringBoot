@@ -51,6 +51,7 @@ public class ProductController {
     @RequestParam("title") String title,
     @RequestParam("price") Double price,
     @RequestParam("stock") Integer stock,
+    @RequestParam("description") String description,
     @RequestParam("category") Long categoryId,
     @RequestParam(value = "image", required = false) MultipartFile image) throws ProductExistsException{
         try {
@@ -67,7 +68,7 @@ public class ProductController {
                     return ResponseEntity.internalServerError().body("Error al guardar la imagen: " + e.getMessage());
                 }
             } 
-            ProductRequestDTO productoCreado = new ProductRequestDTO(title, price, stock, categoryId, nombreFinal);
+            ProductRequestDTO productoCreado = new ProductRequestDTO(title, price, stock, description, categoryId, nombreFinal);
             return ResponseEntity.ok(service.agregarProducto(productoCreado));
         } catch (ProductExistsException e) {
             return ResponseEntity.badRequest().body("Error: "+e.getMessage());
@@ -100,6 +101,7 @@ public class ProductController {
         @RequestParam("title") String title,
         @RequestParam("price") Double price,
         @RequestParam("stock") Integer stock,
+        @RequestParam("description") String description,
         @RequestParam("category") Long categoryId,
         @RequestParam(value = "image", required = false) MultipartFile image // Imagen opcional
     ) {
@@ -125,7 +127,7 @@ public class ProductController {
             }
 
             // 2. Creamos el DTO con los datos recibidos
-            ProductRequestDTO dto = new ProductRequestDTO(title, price, stock, categoryId, nombreImagen);
+            ProductRequestDTO dto = new ProductRequestDTO(title, price, stock, description, categoryId, nombreImagen);
 
             // 3. El service hace el resto
             ProductResponseDTO actualizado = service.actualizarProducto(id, dto);
