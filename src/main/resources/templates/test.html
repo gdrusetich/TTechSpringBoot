@@ -261,14 +261,11 @@
     });
 
     function cargarProductos(datos = null) {
-        
-        // Si ya tenemos los datos (porque filtramos), los procesamos directo
         if (datos) {
             renderizarCards(datos);
             return;
         }
-
-        // Si no hay datos, vamos a buscarlos todos (carga inicial)
+        
         fetch(`${API_URL}/products/list`)
             .then(response => response.json())
             .then(data => {
@@ -340,7 +337,7 @@
     }
 
     function enviarWhatsApp(producto) {
-        const numero = "54911XXXXXXXX"; // TU NUMERO
+        const numero = "5491137869814"; // TU NUMERO
         const mensaje = encodeURIComponent(`Hola! Quisiera pedir el producto: ${producto}`);
         window.open(`https://wa.me/${numero}?text=${mensaje}`, '_blank');
     }

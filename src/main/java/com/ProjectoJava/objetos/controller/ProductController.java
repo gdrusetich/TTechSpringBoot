@@ -1,9 +1,11 @@
 package com.ProjectoJava.objetos.controller;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
 import java.util.UUID;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.Files;
 import java.io.IOException;
 import org.springframework.web.multipart.MultipartFile; // Para recibir la imagen
 
@@ -41,9 +43,10 @@ public class ProductController {
         return service.listarProductos();
     }
 
-    @GetMapping("/categoria/{id}")
-    public List<Product> listarPorCategoria(@PathVariable Long id) {
-        return service.listarPorCategoria(id);
+    @GetMapping("/categoria/{categoryId}")
+    public List<ProductResponseDTO> obtenerProductosPorCategoria(@PathVariable Long categoryId) {
+        System.out.println("Solicitando productos para categoría ID: " + categoryId);
+        return service.filtrarPorCategoria(categoryId);
     }
 
     @PostMapping("/nuevo-producto")
@@ -52,23 +55,25 @@ public class ProductController {
     @RequestParam("price") Double price,
     @RequestParam("stock") Integer stock,
     @RequestParam("description") String description,
-    @RequestParam("category") Long categoryId,
-    @RequestParam(value = "image", required = false) MultipartFile image) throws ProductExistsException{
+    @RequestParam("category") Set<Long> categoriesId,
+    @RequestParam(value = "images", required = false) List<MultipartFile> images) throws ProductExistsException, IOException{
         try {
-            String nombreFinal = null;
-            if(image!= null && !image.isEmpty()) {
-                nombreFinal = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
-                try {
-                    if (image != null && !image.isEmpty()) {
-                        nombreFinal = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
-                        Path ruta = Paths.get("uploads").resolve(nombreFinal).toAbsolutePath();                        
-                        Files.copy(image.getInputStream(), ruta, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                    }
-                } catch (IOException e) {
-                    return ResponseEntity.internalServerError().body("Error al guardar la imagen: " + e.getMessage());
-                }
-            } 
-            ProductRequestDTO productoCreado = new ProductRequestDTO(title, price, stock, description, categoryId, nombreFinal);
+            List<String> nombresArchivos = new ArrayList<>();
+
+            if (images != null && !images.isEmpty()) {
+                        for (MultipartFile image : images) {
+                            if (image != null && !image.isEmpty()) {
+                                String nombreFinal = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
+                                Path ruta = Paths.get("uploads").resolve(nombreFinal).toAbsolutePath();
+      
+                                if (!Files.exists(ruta.getParent())) Files.createDirectories(ruta.getParent());
+                                
+                                Files.copy(image.getInputStream(), ruta, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                                nombresArchivos.add(nombreFinal); // Guardamos el nombre en una lista
+                            }
+                        }
+                    } 
+            ProductRequestDTO productoCreado = new ProductRequestDTO(title, price, stock, description, categoriesId, nombresArchivos);
             return ResponseEntity.ok(service.agregarProducto(productoCreado));
         } catch (ProductExistsException e) {
             return ResponseEntity.badRequest().body("Error: "+e.getMessage());
@@ -102,34 +107,34 @@ public class ProductController {
         @RequestParam("price") Double price,
         @RequestParam("stock") Integer stock,
         @RequestParam("description") String description,
-        @RequestParam("category") Long categoryId,
-        @RequestParam(value = "image", required = false) MultipartFile image // Imagen opcional
+        @RequestParam("category") Set<Long> categoriesId,
+        @RequestParam(value = "images", required = false) List<MultipartFile> images // Imagen opcional
     ) {
         try {
-            String nombreImagen = null;            
+            List<String> nombreArchivosNuevos = new ArrayList<>();
             // 1. Si el usuario subió una imagen nueva, la procesamos
-            if (image != null && !image.isEmpty()) {
-                String originalName = image.getOriginalFilename();
-                String extension = "";
-                if(originalName != null && originalName.contains(".")){
-                    extension = originalName.substring(originalName.lastIndexOf("."));
-                } else {
-                    extension = ".jpg";
-                }
-                nombreImagen = UUID.randomUUID().toString() + extension; 
-                Path ruta = Paths.get("uploads").resolve(nombreImagen).toAbsolutePath();
-                if(!Files.exists(ruta.getParent())){
-                    Files.createDirectories(ruta.getParent());
-                }
+            if (images != null && !images.isEmpty()) {
+                for(MultipartFile img: images){
+                    if(!img.isEmpty()){
+                        String nombreFinal = UUID.randomUUID().toString() + "_" + img.getOriginalFilename();
+                        Path ruta = Paths.get("uploads").resolve(nombreFinal).toAbsolutePath();
+                        String extension = "";
+                        if(nombreFinal != null && nombreFinal.contains(".")){
+                            extension = nombreFinal.substring(nombreFinal.lastIndexOf("."));
+                        } else {
+                            extension = ".jpg";
+                        }
+                        if(!Files.exists(ruta.getParent()))
+                            Files.createDirectories(ruta.getParent());
 
-                Files.copy(image.getInputStream(), ruta, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("Archivo guardado físicamente como: " + nombreImagen);
+                        Files.copy(img.getInputStream(), ruta, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                        nombreArchivosNuevos.add(nombreFinal);
+                    }
+                }
             }
+            
+            ProductRequestDTO dto = new ProductRequestDTO(title, price, stock, description, categoriesId, nombreArchivosNuevos);
 
-            // 2. Creamos el DTO con los datos recibidos
-            ProductRequestDTO dto = new ProductRequestDTO(title, price, stock, description, categoryId, nombreImagen);
-
-            // 3. El service hace el resto
             ProductResponseDTO actualizado = service.actualizarProducto(id, dto);
             return ResponseEntity.ok(actualizado);            
         } catch (Exception e) {
@@ -142,9 +147,9 @@ public class ProductController {
         return service.filtrarPorPrecio(precioMaximo);
     }
 
-    @GetMapping("/test")
+    @GetMapping("/client")
     public String mostrarCatalogo(HttpSession session) {
-        return "test"; 
+        return "client"; 
     }
 
 }

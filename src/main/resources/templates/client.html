@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu TTech - El Turco</title>
+    <link rel="stylesheet" th:href="@{/client.css}">
+</head>
+<body>
+    <div id="menu-usuario" class="user-menu-top">
+        <div th:if="${session.usuarioNombre != null}">
+            <span class="user-greeting">
+                Hola, <span th:text="${session.usuarioNombre}"></span>!
+            </span>
+            <br>
+            <a href="/perfil.html" class="edit-profile">⚙️ Editar Perfil</a>
+            <br>
+            <a href="/logout" class="logout-link">Cerrar Sesión</a>
+        </div>
+    </div>
+
+    <div class="header-container">
+        <h1 class="logo-title">EL TURCO</h1>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="busqueda" placeholder="Buscar producto..." 
+               onkeyup="filtrarPorTexto()" class="search-input">
+    </div>
+
+    <div class="filter-container">
+        <div id="categorias-nav"></div>
+        <div id="subcategorias-nav" class="sub-nav"></div>
+    </div>
+
+    <div id="lista-productos">Cargando menú...</div>
+
+    <div id="tooltip-descripcion" class="tooltip"></div>
+
+    <footer class="footer-admin">
+        <a href="/login">Acceso Admin</a>
+    </footer>
+
+    <script th:inline="javascript">
+        const rolSesion = /*[[${session.rol}]]*/ null;
+        const nombreUsuario = /*[[${session.usuarioNombre}]]*/ 'Invitado';
+        const usuarioLogueado = /*[[${session.usuarioNombre != null}]]*/ false;
+    </script>
+    <script th:src="@{/client.js}"></script>
+</body>
+</html>

@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry; // Opcion
 public class WebConfig implements WebMvcConfigurer {
 
 @Override
-public void addResourceHandlers(ResourceHandlerRegistry registry) {
+public void addResourceHandlers(@SuppressWarnings("null") ResourceHandlerRegistry registry) {
     // 1. Obtenemos la ruta absoluta y la limpiamos para Windows
     java.io.File uploadDir = new java.io.File("uploads");
     String rootPath = uploadDir.getAbsolutePath();
@@ -30,7 +30,7 @@ public void addResourceHandlers(ResourceHandlerRegistry registry) {
 }
     // Ya que estamos aquí, esto ayuda si el Frontend y Backend tienen problemas de permisos
     @Override
-    public void addCorsMappings(CorsRegistry registry) {
+    public void addCorsMappings(@SuppressWarnings("null") CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE");

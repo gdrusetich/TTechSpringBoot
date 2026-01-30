@@ -1,7 +1,9 @@
 package com.ProjectoJava.objetos.controller;
 
+import com.ProjectoJava.objetos.DTO.response.CategoryResponseDTO;
 import com.ProjectoJava.objetos.entity.Category;
 import com.ProjectoJava.objetos.repository.CategoryRepository;
+import com.ProjectoJava.objetos.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +17,18 @@ public class CategoryController {
 
     @Autowired
     private CategoryRepository repository;
+    
+    @Autowired
+    private CategoryService service;
 
     @GetMapping("/list")
     public List<Category> listar() {
         return repository.findAll();
+    }
+
+    @GetMapping("/{id}/ancestros")
+    public List<CategoryResponseDTO> getAncestros(@PathVariable Long id) {
+        return service.obtenerAncestrosDTO(id);
     }
 
     @PostMapping("/add")

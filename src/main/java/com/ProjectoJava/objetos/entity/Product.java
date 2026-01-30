@@ -1,4 +1,8 @@
 package com.ProjectoJava.objetos.entity;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import jakarta.persistence.*;
 
 
@@ -14,14 +18,20 @@ public class Product {
 
     private double price;
     private int stock;
+
     @Column(columnDefinition = "TEXT")
     private String description;
-    @ManyToOne 
-    @JoinColumn(name = "category_id") 
-    private Category category;
 
-    @Column(nullable = true, name = "image_url")
-    private String imageURL;
+    @ManyToMany
+    @JoinTable(
+        name = "product_categories",
+        joinColumns = @JoinColumn(name = "product_id"),
+        inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private Set<Category> categories = new HashSet<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Image> images = new ArrayList<>();
     
     public Product(){}
 
@@ -30,18 +40,19 @@ public class Product {
     public double getPrice( ){return this.price;}
     public int getStock( ){return this.stock;}
     public String getDescription(){return this.description;}
-    public Category getCategory(){return this.category;}
-    public String getImageURL(){return this.imageURL;}
+    public Set<Category> getCategories(){return this.categories;}
+    public List<Image> getImages(){return this.images;}
 
     public void setTitle(String newTitle){this.title = newTitle;}
     public void setPrice(double newPrice){this.price = newPrice;}
     public void setStock(int nuevoStock){this.stock = nuevoStock;}
     public void setDescription(String nuevaDescripcion){this.description = nuevaDescripcion;}
-    public void setCategory(Category nuevaCategoria){this.category = nuevaCategoria;}
-    public void setImageURL(String nuevaImagen){this.imageURL = nuevaImagen;}
-
-    double precioConDescuento(){
-        return price - price * 0.2;
+    public void setCategories(Set<Category> nuevaCategoria){this.categories = nuevaCategoria;}
+    public void setImageURL(List<Image> nuevaImagen){this.images  = nuevaImagen;}
+    public void addCategory(Category unCategory){this.categories.add(unCategory);}
+    public void addImage(Image unaImagen){this.images.add(unaImagen);}
+    double precioConDescuento(double descuento){
+        return price - price * descuento;
     }
 
 

@@ -1,12 +1,17 @@
 package com.ProjectoJava.objetos.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.ProjectoJava.objetos.DTO.request.ProductRequestDTO;
 import com.ProjectoJava.objetos.DTO.response.ProductResponseDTO;
 import com.ProjectoJava.objetos.entity.Product;
 import com.ProjectoJava.objetos.entity.Category;
+import com.ProjectoJava.objetos.entity.Image;
 import com.ProjectoJava.objetos.repository.CategoryRepository;
 import com.ProjectoJava.objetos.repository.ProductRepository;
 import exceptions.NoStockException;
@@ -25,6 +30,9 @@ public class ProductService {
     private CategoryRepository categoryRepository;
 
     @Autowired
+    private CategoryService categoryService;
+
+    @Autowired
     public ProductService(ProductRepository repositorio) {
         this.productRepositoryJPA = repositorio;
     }
@@ -37,10 +45,9 @@ public class ProductService {
         productoNuevo.setTitle(nuevoDTO.getTitle());
         productoNuevo.setPrice(nuevoDTO.getPrice());
         productoNuevo.setStock(nuevoDTO.getStock());
-        Category categoria = categoryRepository.findById(nuevoDTO.getCategory())
-        .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + nuevoDTO.getCategory()));
-    
-        productoNuevo.setCategory(categoria);
+        List<Category> categoriasEncontradas = categoryRepository.findAllById(nuevoDTO.getCategories());
+
+        productoNuevo.setCategories(new HashSet<>(categoriasEncontradas));
         Product productoGuardado = productRepositoryJPA.save(productoNuevo);
         return new ProductResponseDTO(productoGuardado);
     }
@@ -55,8 +62,6 @@ public class ProductService {
         return listaDTO;
     }
 
-
-
     public List<ProductResponseDTO> filtrarPorPrecio(double precioMaximo){
         List<Product> listaDeProductos = productRepositoryJPA.findAll();
         List<ProductResponseDTO> productosFiltrados = new ArrayList<>();
@@ -69,9 +74,40 @@ public class ProductService {
         return productosFiltrados;
     }
 
-    public List<Product> listarPorCategoria(Long categoryId) {
-        return productRepositoryJPA.findByCategoryId(categoryId);
+    public List<Category> obtenerCategoriasDeProducto(Long productId) {
+        Product producto = productRepositoryJPA.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        return new ArrayList<>(producto.getCategories());
     }
+
+    public List<ProductResponseDTO> filtrarPorCategoria(Long categoryId) {
+        List<Long> idsFiltrar = new ArrayList<>();
+        idsFiltrar.add(categoryId);
+        
+        categoryRepository.findByParent_Id(categoryId)
+                        .forEach(hija -> idsFiltrar.add(hija.getId()));
+
+        List<Product> productos = productRepositoryJPA.findByCategories_IdIn(idsFiltrar);
+        
+        return productos.stream()
+                .map(ProductResponseDTO::new)
+                .collect(Collectors.toList());
+    }
+ 
+
+    public Map<String, List<Category>> obtenerMapaCategoriasPorProducto(Long productId) {
+        Product producto = productRepositoryJPA.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        Map<String, List<Category>> mapaResultados = new HashMap<>();
+
+        for (Category cat : producto.getCategories()) {
+            mapaResultados.put(cat.getName(), categoryService.obtenerAncestros(cat.getId()));
+        }
+
+        return mapaResultados;
+    }
+
 
     public ProductResponseDTO buscarProductoPorId(Long id) throws ProductNotExistsException {
         Product productoBuscado = productRepositoryJPA.findById(id)
@@ -87,16 +123,22 @@ public class ProductService {
         productoExistente.setStock(PRDTO.getStock());
         productoExistente.setDescription(PRDTO.getDescription());
 
-        Category cat = categoryRepository.findById(PRDTO.getCategory())
-                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
-        productoExistente.setCategory(cat);
+        List<Category> categoriasEncontradas = categoryRepository.findAllById(PRDTO.getCategories());
+        productoExistente.setCategories(new HashSet<>(categoriasEncontradas));
 
-    if (PRDTO.getImageURL() != null) {
-            // Solo actualizamos el nombre si el DTO trae una imagen nueva
-            productoExistente.setImageURL(PRDTO.getImageURL());
-        }
-        Product productoActualizado = productRepositoryJPA.save(productoExistente);
-        return new ProductResponseDTO(productoActualizado);
+        if (PRDTO.getImageURL() != null && !PRDTO.getImageURL().isEmpty()) {
+                // Solo actualizamos el nombre si el DTO trae una imagen nueva
+            productoExistente.getImages().clear();
+            for(String nombreArchivo : PRDTO.getImageURL()){
+                Image nuevaImagen = new Image();
+                nuevaImagen.setUrl(nombreArchivo);
+                nuevaImagen.setProduct(productoExistente); // Vínculo bidireccional
+                productoExistente.getImages().add(nuevaImagen);
+            }
+            
+            }
+            Product productoActualizado = productRepositoryJPA.save(productoExistente);
+            return new ProductResponseDTO(productoActualizado);
     }
 
     public void eliminarProductoPorId(long id) throws ProductNotExistsException{
@@ -130,8 +172,6 @@ public class ProductService {
         this.productRepositoryJPA.save(productoAACtualizar);
         return productoAACtualizar;
     }
-
-
 
 }
 
