@@ -14,8 +14,19 @@ public class ViewController {
         return "client"; 
     }
 
+    // SOLO UNO para detalle, y sin parámetros
     @GetMapping("/detalle")
-    public String mostrarDetalle(@RequestParam Long id) {
-        return "detalle";
+    public String detalle() {
+        return "detalle"; 
+    }
+
+    @GetMapping("/admin")
+    public String admin() {
+        return "test"; 
+    }
+
+    @GetMapping("/detalle-admin")
+    public String detalleAdmin() {
+        return "detalleadmin"; 
     }
 }

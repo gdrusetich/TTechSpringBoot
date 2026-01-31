@@ -12,7 +12,6 @@ import org.springframework.web.multipart.MultipartFile; // Para recibir la image
 
 import com.ProjectoJava.objetos.DTO.request.ProductRequestDTO;
 import com.ProjectoJava.objetos.DTO.response.ProductResponseDTO;
-import com.ProjectoJava.objetos.entity.Product;
 
 import exceptions.ProductExistsException;
 
@@ -28,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController         //Anotación que explicita a Springboot que la clase es un Controller
 @CrossOrigin(origins = "*")
-/*@CrossOrigin(origins = "${frontend.url}")*/
 @RequestMapping("/products")
 public class ProductController {
     private ProductService service;

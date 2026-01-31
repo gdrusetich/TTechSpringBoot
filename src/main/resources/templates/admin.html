@@ -109,17 +109,6 @@
     <aside class="sidebar">
         <h2>🛠️ Panel Admin</h2>
 
-        <div class="filtros-admin">
-            <label>Filtrar por Principal:</label>
-            <select id="filtro-categoria-padre" onchange="actualizarSubcategoriasFiltro()">
-                </select>
-
-            <label>Subcategoría:</label>
-            <select id="filtro-subcategoria" onchange="aplicarFiltroDoble()">
-                <option value="todos">Todas las subcategorías</option>
-            </select>
-        </div>
-
         <div class="admin-section">
             <h3>Gestión de Categorías</h3>
             <label>Nombre:</label>
@@ -140,40 +129,6 @@
             </button>
         </div>
 
-        <div id="form-nuevo" class="section-box">
-            <h3>Gestión de Producto</h3> 
-            <input type="text" id="title" placeholder="Nombre (ej: Panacom)">
-            <input type="number" id="price" placeholder="Precio">
-            <input type="number" id="stock" placeholder="Stock Inicial">
-            
-            <div style="margin-top: 10px; text-align: left;">
-                <label style="font-size: 13px; color: #bb86fc; font-weight: bold; margin-left: 5px;">Descripción:</label>
-                <textarea id="description" rows="4" 
-                    placeholder="Características del producto (ej: Bluetooth 5.0, 10W RMS...)"
-                    style="
-                        width: 100%; 
-                        padding: 10px; 
-                        margin-top: 5px;
-                        background: #1e1e1e; 
-                        color: #e0e0e0; 
-                        border: 1px solid #333; 
-                        border-radius: 8px; 
-                        font-family: 'Segoe UI', sans-serif;
-                        resize: vertical;
-                        box-sizing: border-box;
-                    "></textarea>
-            </div>
-
-            <label style="font-size: 12px; color: #666; display: block; margin-top: 10px;">Imagen del producto:</label>
-            <input type="file" id="imagen-file" accept="image/*">
-            
-            <select id="category-select" style="margin-top: 10px;">
-                <option value="">Cargando categorías...</option>
-            </select>
-            
-            <button id="btn-servidor" class="btn-add" style="margin-top: 15px;">➕ Guardar Producto</button>
-            <button id="btn-cancelar" style="display:none; background:#6c757d; color:white; margin-top: 10px;" onclick="limpiarFormulario()">Cancelar Edición</button>
-        </div>
         <div class="section-box">
             <h3>👤 Crear Nuevo Usuario</h3>
             <label>Usuario (Nombre de ingreso):</label>
@@ -258,20 +213,14 @@
                 return;
             }
 
-            // Buscamos la categoría por ID dentro de nuestra lista guardada
             const cat = categoriasData.find(c => c.id == idSeleccionado);
             
             if (cat) {
                 editandoCatId = cat.id; // Marcamos que estamos editando este ID
-                
-                // 1. Ponemos el nombre en el cuadro de texto
                 document.getElementById('new-category-name').value = cat.name;
-                
-                // 2. Seleccionamos su padre si es que tiene uno
                 const selectPadre = document.getElementById('cat-parent');
                 selectPadre.value = cat.parent ? cat.parent.id : "";
                 
-                // 3. Cambiamos visualmente para avisar que estamos editando
                 document.getElementById('btn-cancelar-cat').style.display = "block";
                 document.querySelector('.admin-section h3').innerText = "Editando Categoría: " + cat.name;
             } else {
@@ -293,9 +242,7 @@
                 .then(data => {
                     categoriasData = data; 
                     
-                    // 1. Select para gestionar Categorías (Padre/Hija)
                     const selectParent = document.getElementById('cat-parent');
-                    // 2. Select para el Formulario de Productos (EL QUE IMPORTA AHORA)
                     const selectProd = document.getElementById('category-select'); 
 
                     let opciones = '<option value="">Seleccione una categoría...</option>';
@@ -309,7 +256,6 @@
                     if(selectParent) selectParent.innerHTML = opciones;
                     if(selectProd) selectProd.innerHTML = opciones;
                     
-                    // Filtros de la tabla (opcional)
                     const filtroPadre = document.getElementById('filtro-categoria-padre');
                     if(filtroPadre) {
                         let optsFiltro = '<option value="todos">Todas las principales</option>';
@@ -333,8 +279,6 @@
                     return;
                 }
 
-                // Lógica inteligente:
-                // Mostramos si: el nombre de su categoría coincide O si el nombre de su categoría PADRE coincide
                 const nombreCat = producto.category ? producto.category.name : '';
                 const nombrePadre = (producto.category && producto.category.parent) ? producto.category.parent.name : '';
 
@@ -353,7 +297,6 @@
             filtroSub.innerHTML = '<option value="todos">Todas las subcategorías</option>';
 
             if (padreId !== "todos") {
-                // Buscamos las hijas de ese padre
                 const hijas = categoriasData.filter(c => c.parent && c.parent.id == padreId);
                 hijas.forEach(h => {
                     filtroSub.innerHTML += `<option value="${h.id}">${h.name}</option>`;
@@ -383,10 +326,8 @@
                     const esHijaDePrincipal = p.category && p.category.parent && p.category.parent.id == padreId;
 
                     if (subId === "todos") {
-                        // Si eligió "Música" pero "Todas las sub", mostramos Música y sus hijas
                         mostrar = esMismaPrincipal || esHijaDePrincipal;
                     } else {
-                        // Si eligió una sub específica (ej: Stereo)
                         mostrar = p.category && p.category.id == subId;
                     }
                 }

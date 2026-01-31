@@ -71,7 +71,7 @@ public class UserController {
                 
                 // Actualizamos el nombre en la sesión para el saludo
                 session.setAttribute("usuarioNombre", nuevoUser);
-                return "redirect:/test.html?actualizado=true";
+                return "redirect:/client.html?actualizado=true";
             }
         }
         // Si el ID es null o no existe, lo mandamos al login

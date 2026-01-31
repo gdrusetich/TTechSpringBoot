@@ -1,31 +1,76 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Detalle del Producto</title>
-    <link rel="stylesheet" href="detalle.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Producto - El Turco</title>
+    
+    <link rel="stylesheet" href="/detalle.css">
 </head>
 <body>
-    <div class="product-container">
-        <div id="thumbnails-container" class="thumbnails-column"></div>
-
-        <div class="main-image-container">
-            <img id="main-product-image" src="" alt="Producto">
-        </div>
-
-        <div class="product-info">
-            <h1 id="product-title">Cargando...</h1>
-            <p id="product-description"></p>
-            <div id="categories-container"></div>
-            
-            <div id="price-container" style="display: none;">
-                <h2 id="product-price"></h2>
+    <header class="main-header">
+        <div class="header-container">
+            <div class="header-left">
+                <h1 class="brand" onclick="window.location.href='/client'">
+                    EL TURCO <span class="electronics">ELECTRONIC'S</span>
+                </h1>
             </div>
 
-            <button id="whatsapp-btn" class="btn-wa">Consultar al Turco</button>
+            <div class="header-right">
+                <div class="user-info">
+                    <span class="welcome-text">Hola, <strong id="username-display">Germán</strong></span>
+                    <button class="btn-edit-profile" onclick="abrirModalPerfil()">Cambiar Perfil</button>
+                </div>
+                <a href="/logout" class="logout-link">Cerrar Sesión 🚪</a>
+            </div>
+        </div>
+    </header>
+
+    <div id="modal-perfil" class="modal">
+        <div class="modal-content">
+            <h3>Editar Mis Datos</h3>
+            <div class="form-group">
+                <label>Nuevo Nombre:</label>
+                <input type="text" id="edit-username" placeholder="Tu nuevo nombre">
+            </div>
+            <div class="form-group">
+                <label>Nueva Contraseña:</label>
+                <input type="password" id="edit-password" placeholder="Tu nueva contraseña">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-save" onclick="guardarCambios()">Guardar Cambios</button>
+                <button class="btn-cancel" onclick="cerrarModalPerfil()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <div class="product-page">
+        <div class="product-container">
+            <div id="thumbnails-container" class="thumbnails-column"></div>
+
+            <div class="main-image-container">
+                <img id="main-product-image" src="/uploads/default.jpg" alt="Producto">
+            </div>
+
+            <div class="product-info">
+                <h1 id="product-title">Cargando...</h1>
+                <div id="categories-container" class="categories-badge-list"></div>
+                <hr>
+                <p id="product-description" class="description-text"></p>
+                <div id="price-container">
+                    <h2 id="product-price"></h2>
+                </div>
+                <button id="whatsapp-btn" class="btn-wa">Consultar al Turco</button>
+            </div>
+        </div>
+
+        <div class="related-products">
+            <h3>Productos similares</h3>
+            <div class="slider-wrapper">
+                <div id="related-container" class="related-slider"></div>
+            </div>
         </div>
     </div>
 
-    <script src="detalle.js"></script>
+    <script src="/detalle.js"></script>
 </body>
 </html>

@@ -39,18 +39,10 @@ public class LoginController {
             session.setAttribute("usuarioId", u.getId());
             session.setAttribute("usuarioNombre", u.getUsername());
             System.out.println("Es Cliente! Redirigiendo a test...");
-            return "redirect:/test"; // Al catálogo con precios
+            return "redirect:/client"; // Al catálogo con precios
         }
         System.out.println("Fallo el login!");
         return "redirect:/login?error=true";
-    }
-
-    @GetMapping("/admin")
-    public String mostrarAdmin(HttpSession session) {
-        if ("ADMIN".equals(session.getAttribute("rol"))) {
-            return "admin";
-        }
-        return "redirect:/login";
     }
 
     @GetMapping("/login")
@@ -58,14 +50,9 @@ public class LoginController {
         return "login"; // Esto busca 'login.html' dentro de la carpeta 'templates'
     }
 
-    @GetMapping("/test")
-    public String mostrarTest(HttpSession session) {
-        return "test"; 
-    }
-
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/test";
+        return "redirect:/client";
     }
 }
