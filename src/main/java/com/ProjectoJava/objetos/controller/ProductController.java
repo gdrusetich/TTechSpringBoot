@@ -145,9 +145,9 @@ public class ProductController {
         return service.filtrarPorPrecio(precioMaximo);
     }
 
-    @GetMapping("/client")
+    @GetMapping("/home")
     public String mostrarCatalogo(HttpSession session) {
-        return "client"; 
+        return "home"; 
     }
 
 }

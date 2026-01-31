@@ -1,6 +1,8 @@
 package com.ProjectoJava.objetos.controller;
 
 import com.ProjectoJava.objetos.repository.UserRepository;
+import com.ProjectoJava.objetos.repository.ProductRepository;
+import com.ProjectoJava.objetos.entity.Product;
 import com.ProjectoJava.objetos.entity.User;
 import java.util.Optional;
 import java.util.List;
@@ -17,6 +19,7 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+    private ProductRepository productRepository;
 
     // 1. Ver la lista de usuarios (solo para el admin)
     @GetMapping("/gestion")
@@ -71,11 +74,11 @@ public class UserController {
                 
                 // Actualizamos el nombre en la sesión para el saludo
                 session.setAttribute("usuarioNombre", nuevoUser);
-                return "redirect:/client.html?actualizado=true";
+                return "redirect:/home.html?actualizado=true";
             }
         }
         // Si el ID es null o no existe, lo mandamos al login
-        return "redirect:/login-cliente.html";
+        return "redirect:/login-homee.html";
     }
 
     @PostMapping("/editar-desde-admin")
@@ -107,6 +110,19 @@ public class UserController {
             userRepository.deleteById(id);
         }
         return "redirect:/usuarios/gestion";
+    }
+
+    @GetMapping("/detalle") 
+    public String verDetalle(@RequestParam("id") Long id, Model model) {
+        // Buscamos el producto en la DB
+        Product producto = productRepository.findById(id).orElse(null);
+        
+        if (producto == null) {
+            return "redirect:/"; // Si no existe, al home
+        }
+
+        model.addAttribute("producto", producto);
+        return "/detalle?id=" + id; // Tu HTML de siempre
     }
 
     @GetMapping("/listar")

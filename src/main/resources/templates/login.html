@@ -11,7 +11,7 @@
         button { width: 100%; padding: 12px; background: #ff9800; border: none; color: black; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         button:hover { background: #e68a00; transform: scale(1.02); }
         .error { color: #ff5252; font-size: 0.9rem; margin-top: 10px; }
-        /* Agregá esto a tu login.html */
+
         .login-container {
             width: 90%;
             max-width: 400px;
@@ -27,11 +27,21 @@
 <body>
     <div class="login-box">
         <h2>Acceso Usuarios</h2> 
-        <form action="/login-universal" method="post">
-            <input type="text" name="user" placeholder="Usuario" required>
-            <input type="password" name="pass" placeholder="Contraseña" required>
-            <button type="submit">INGRESAR</button>
-        </form>
+            <form action="/login-universal" method="POST">
+                <input type="hidden" name="redirectUrl" id="redirectUrl">
+                
+                <input type="text" name="user" placeholder="Usuario">
+                <input type="password" name="pass" placeholder="Password">
+                <button type="submit">Entrar</button>
+            </form>
+
+            <script>
+                // Al cargar el login, vemos si en el localStorage hay una "miguita de pan"
+                const returnUrl = localStorage.getItem("returnUrl");
+                if (returnUrl) {
+                    document.getElementById("redirectUrl").value = returnUrl;
+                }
+            </script>
         
         <p th:if="${param.error}" class="error">Usuario o clave incorrectos</p>
     </div>

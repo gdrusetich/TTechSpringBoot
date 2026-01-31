@@ -4,37 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu TTech - El Turco</title>
-    <link rel="stylesheet" th:href="@{/client.css}">
+    <link rel="stylesheet" th:href="@{/home.css}">
 </head>
 <body>
+    
     <div id="menu-usuario" class="user-menu-top">
         <div th:if="${session.usuarioNombre != null}">
             <span class="user-greeting">
                 Hola, <span th:text="${session.usuarioNombre}"></span>!
             </span>
             <br>
-            <a href="/perfil.html" class="edit-profile">⚙️ Editar Perfil</a>
+            <a href="/perfil" class="edit-profile">⚙️ Editar Perfil</a>
             <br>
             <a href="/logout" class="logout-link">Cerrar Sesión</a>
         </div>
     </div>
 
-    <div class="header-container">
+    <header class="header-container">
         <h1 class="logo-title">EL TURCO</h1>
-    </div>
+    </header>
 
-    <div class="search-container">
-        <input type="text" id="busqueda" placeholder="Buscar producto..." 
-               onkeyup="filtrarPorTexto()" class="search-input">
-    </div>
+    <main class="main-content">
+        <div class="search-container">
+            <input type="text" id="busqueda" placeholder="Buscar producto..." 
+                   onkeyup="filtrarPorTexto()" class="search-input">
+        </div>
 
-    <div class="filter-container">
-        <div id="categorias-nav"></div>
-        <div id="subcategorias-nav" class="sub-nav"></div>
-    </div>
+        <div class="filter-container">
+            <div id="categorias-nav"></div>
+            <div id="subcategorias-nav" class="sub-nav"></div>
+        </div>
 
-    <div id="lista-productos">Cargando menú...</div>
-    <div class="product-card" onclick="window.location.href='/detalle.html?id=1'"></div>
+        <div id="seccion-homee-vista">
+            <div id="lista-productos">Cargando menú...</div>
+        </div>    
+    </main>
+
     <div id="tooltip-descripcion" class="tooltip"></div>
 
     <footer class="footer-admin">
@@ -42,10 +47,11 @@
     </footer>
 
     <script th:inline="javascript">
-        const rolSesion = /*[[${session.rol}]]*/ null;
+        // Esta variable es la única que vive acá porque viene de Java (Thymeleaf)
         const nombreUsuario = /*[[${session.usuarioNombre}]]*/ 'Invitado';
-        const usuarioLogueado = /*[[${session.usuarioNombre != null}]]*/ false;
     </script>
-    <script th:src="@{/client.js}"></script>
+
+    <script th:src="@{/auth-check.js}"></script> 
+    <script th:src="@{/home.js}"></script>
 </body>
 </html>

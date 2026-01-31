@@ -2,16 +2,15 @@ package com.ProjectoJava.objetos.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class ViewController {
 
-    @GetMapping("/client")
-    public String mostrarCliente(HttpSession session) {
-        return "client"; 
+    @GetMapping("/home")
+    public String mostrarhomee(HttpSession session) {
+        return "home"; 
     }
 
     // SOLO UNO para detalle, y sin parámetros
@@ -20,9 +19,16 @@ public class ViewController {
         return "detalle"; 
     }
 
+    @GetMapping("/perfil")
+    public String perfil() {
+        return "perfil"; 
+    }
+
+
+
     @GetMapping("/admin")
     public String admin() {
-        return "test"; 
+        return "admin"; 
     }
 
     @GetMapping("/detalle-admin")

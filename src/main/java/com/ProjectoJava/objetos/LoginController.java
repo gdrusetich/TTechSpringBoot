@@ -22,37 +22,45 @@ public class LoginController {
     private String adminPass;
 
     @PostMapping("/login-universal")
-    public String loginUniversal(@RequestParam String user, @RequestParam String pass, HttpSession session) {
-        System.out.println(">>> LLEGÓ EL PEDIDO AL SERVIDOR <<<");
-        System.out.println("Intentando entrar con: " + user + " y pass: " + pass);
+    public String loginUniversal(
+        @RequestParam String user, 
+        @RequestParam String pass, 
+        @RequestParam(required = false) String redirectUrl, // <-- Recibimos la URL de retorno
+        HttpSession session) {
+        
+        String finalRedirect = (redirectUrl != null && !redirectUrl.isEmpty()) ? redirectUrl : "/home";
+        
+        // Si es Admin
         if (adminUser.equals(user) && adminPass.equals(pass)) {
             session.setAttribute("rol", "ADMIN");
-            session.setAttribute("usuarioNombre", "Admin");
-            System.out.println("Es Admin! Redirigiendo...");
-            return "redirect:/admin"; // Al panel de control
+            return "redirect:/admin?loginSuccess=Admin";
         }
 
+        // Si es homee
         Optional<User> userOpt = userRepository.findByUsername(user);
         if (userOpt.isPresent() && userOpt.get().getPassword().equals(pass)) {
             User u = userOpt.get();
-            session.setAttribute("rol", "CLIENTE");
-            session.setAttribute("usuarioId", u.getId());
+            String rol = u.getRole().toString(); // Asumiendo que tenés un campo role
+            
+            session.setAttribute("rol", rol);
             session.setAttribute("usuarioNombre", u.getUsername());
-            System.out.println("Es Cliente! Redirigiendo a test...");
-            return "redirect:/client"; // Al catálogo con precios
+            
+            // Agregamos el parámetro a la URL de destino
+            String conector = finalRedirect.contains("?") ? "&" : "?";
+            return "redirect:" + finalRedirect + conector + "loginSuccess=" + u.getUsername() + "&rol=" + rol;
         }
-        System.out.println("Fallo el login!");
+
         return "redirect:/login?error=true";
     }
 
     @GetMapping("/login")
     public String irAlLogin() {
-        return "login"; // Esto busca 'login.html' dentro de la carpeta 'templates'
+        return "login";
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/client";
+        return "redirect:/home";
     }
 }

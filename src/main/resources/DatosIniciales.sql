@@ -73,8 +73,8 @@ INSERT INTO image (product_id, url) VALUES (301, 'horno.jpg'), (302, 'horno2.jpg
 -- 1. Limpiamos usuarios previos si es necesario
 DELETE FROM usuarios WHERE username IN ('german', 'laura');
 
--- 2. Insertamos los nuevos usuarios con rol de CLIENTE
+-- 2. Insertamos los nuevos usuarios con rol de homeE
 -- Nota: Si usas BCrypt, el hash de '1234' es: $2a$10$8.UnS8OWY7qBhV4VrkX.3u3yV.n6y.o6f8g6f8g6f8g6f8g6f8g6f
 INSERT INTO usuarios (username, password, role) VALUES 
-('german', '1234', 'CLIENTE'),
-('laura', '1234', 'CLIENTE');
+('german', '1234', 'homeE'),
+('laura', '1234', 'homeE');

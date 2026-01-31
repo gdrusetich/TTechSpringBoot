@@ -11,17 +11,18 @@
     <header class="main-header">
         <div class="header-container">
             <div class="header-left">
-                <h1 class="brand" onclick="window.location.href='/client'">
+                <h1 class="brand" onclick="window.location.href='/home'">
                     EL TURCO <span class="electronics">ELECTRONIC'S</span>
                 </h1>
             </div>
 
-            <div class="header-right">
-                <div class="user-info">
-                    <span class="welcome-text">Hola, <strong id="username-display">Germán</strong></span>
-                    <button class="btn-edit-profile" onclick="abrirModalPerfil()">Cambiar Perfil</button>
-                </div>
-                <a href="/logout" class="logout-link">Cerrar Sesión 🚪</a>
+            <div class="user-controls">
+                <span id="user-greeting"></span>
+                
+                <button id="btn-perfil" onclick="abrirModalPerfil()" style="display:none;">Cambiar Perfil</button>
+                <button id="btn-logout" onclick="logout()" style="display:none;">Cerrar Sesión 🚪</button>
+                
+                <button id="btn-login" onclick="location.href='/login'" style="display:none;">Iniciar Sesión</button>
             </div>
         </div>
     </header>

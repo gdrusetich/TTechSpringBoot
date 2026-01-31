@@ -1,7 +1,6 @@
 package com.ProjectoJava.objetos.entity;
 
 import jakarta.persistence.*;
-import java.util.List;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;

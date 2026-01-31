@@ -234,8 +234,8 @@
     const API_URL = 'http://192.168.1.41:8081';
     const rolSesion = /*[[${session.rol}]]*/ null;
     const nombreUsuario = /*[[${session.usuarioNombre}]]*/ 'Invitado';
-    // El usuario está "logueado" si es ADMIN o CLIENTE
-    let usuarioLogueado = (rolSesion === 'ADMIN' || rolSesion === 'CLIENTE'); 
+    // El usuario está "logueado" si es ADMIN o homeE
+    let usuarioLogueado = (rolSesion === 'ADMIN' || rolSesion === 'homeE'); 
     console.log("Rol detectado:", rolSesion);
     console.log("Sesión recuperada - Rol:", rolSesion, "Nombre:", nombreUsuario);
     let categoriasData = [];
