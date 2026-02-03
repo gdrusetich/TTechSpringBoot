@@ -58,24 +58,38 @@
 
         <div id="seccion-productos">
             <h3>📦 Inventario Actual</h3>
-            <div class="admin-controls" style="margin-bottom: 20px;">
-                <input type="text" id="busquedaAdmin" placeholder="Filtrar por nombre o ID..." 
-                    onkeyup="filtrarTablaAdmin()" 
-                    style="padding: 10px; width: 100%; border-radius: 5px; border: 1px solid #ccc;">
+                
+            <div id="contenedor-filtros" style="margin-bottom: 20px;">
+                <div id="categorias-padres" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn-categoria active" onclick="seleccionarPadre(this, 'TODOS')">Todos</button>
+
+                    <button th:each="cat : ${categoriasPadre}" 
+                            class="btn-categoria" 
+                            th:text="${cat.name}" 
+                            th:onclick="|seleccionarPadre(this, ${cat.id})|">
+                    </button>
+                </div>
+
+                <div id="categorias-hijas" style="display: flex; gap: 8px; margin-top: 10px; margin-left: 20px;"></div>
             </div>
+
+            <input type="text" id="busquedaAdmin" placeholder="Filtrar por nombre o ID..." 
+                onkeyup="ejecutarFiltroFinal()" 
+                style="padding: 10px; width: 100%; margin-bottom: 20px;">
+
             <table>
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Imagen</th>
                         <th>Nombre</th>
-                        <th>Categoría</th>
                         <th>Precio</th>
                         <th>Stock</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody id="tabla-productos"></tbody>
+                <tbody id="tabla-productos">
+                    </tbody>
             </table>
         </div>
 

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalle de Producto - El Turco</title>
     
-    <link rel="stylesheet" href="/detalle.css">
+   <link rel="stylesheet" th:href="@{/detalle.css}">
 </head>
 <body>
     <header class="main-header">
@@ -52,15 +52,39 @@
                 <img id="main-product-image" src="/uploads/default.jpg" alt="Producto">
             </div>
 
-            <div class="product-info">
-                <h1 id="product-title">Cargando...</h1>
-                <div id="categories-container" class="categories-badge-list"></div>
-                <hr>
-                <p id="product-description" class="description-text"></p>
-                <div id="price-container">
-                    <h2 id="product-price"></h2>
+            <div class="product-info" th:if="${producto != null}">
+                <h1 th:text="${producto.title}">Título del Producto</h1>
+                <p th:text="${producto.description}">Descripción...</p>
+
+                <div th:if="${rolActual != 'ADMIN'}">
+                    <button id="whatsapp-btn" class="btn-wa">Consultar al Turco</button>
                 </div>
-                <button id="whatsapp-btn" class="btn-wa">Consultar al Turco</button>
+
+                <div th:if="${rolActual == 'ADMIN'}" class="admin-panel">
+                    <h3>Modo Administrador</h3>
+                    <button class="btn-edit">Editar Stock</button>
+                    <button class="btn-delete">Eliminar Producto</button>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${rolActual == 'ADMIN'}">
+            <h3>Modo Edición (Administrador)</h3>
+            <input type="text" th:value="${producto.title}" name="title" />
+            <button type="submit">Actualizar Stock</button>
+        </div>
+
+        <div th:if="${rolActual != 'ADMIN'}">
+            <h1 th:text="${producto?.title}">Nombre del Producto</h1>
+            <button>Comprar</button>
+        </div>
+
+        <div th:if="${producto != null}">
+            <h1 th:text="${producto.title}">Título</h1>
+            
+            <div sec:authorize="hasRole('ADMIN')">
+                <button class="btn btn-warning">Editar Producto</button>
+                <button class="btn btn-danger">Eliminar Producto</button>
             </div>
         </div>
 

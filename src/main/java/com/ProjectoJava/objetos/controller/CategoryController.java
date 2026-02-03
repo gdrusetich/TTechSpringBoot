@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/categories")
@@ -29,6 +30,14 @@ public class CategoryController {
     @GetMapping("/{id}/ancestros")
     public List<CategoryResponseDTO> getAncestros(@PathVariable Long id) {
         return service.obtenerAncestrosDTO(id);
+    }
+
+    @GetMapping("/{id}/hijos")
+    public List<CategoryResponseDTO> getHijos(@PathVariable Long id) {
+        List<Category> hijas = service.obtenerSubcategorias(id);
+        return hijas.stream()
+                    .map(CategoryResponseDTO::new)
+                    .collect(Collectors.toList());
     }
 
     @PostMapping("/add")

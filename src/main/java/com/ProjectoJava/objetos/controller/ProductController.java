@@ -9,12 +9,13 @@ import java.nio.file.Files;
 import java.io.IOException;
 import org.springframework.web.multipart.MultipartFile; // Para recibir la imagen
 
-
 import com.ProjectoJava.objetos.DTO.request.ProductRequestDTO;
 import com.ProjectoJava.objetos.DTO.response.ProductResponseDTO;
+import com.ProjectoJava.objetos.entity.Product;
+import com.ProjectoJava.objetos.repository.ProductRepository;
 
 import exceptions.ProductExistsException;
-
+//import org.springframework.stereotype.Controller;
 import com.ProjectoJava.objetos.service.ProductService;
 import exceptions.ProductNotExistsException;
 import jakarta.servlet.http.HttpSession;
@@ -22,6 +23,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -29,14 +31,17 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*")
 @RequestMapping("/products")
 public class ProductController {
+    @Autowired
     private ProductService service;
+    @Autowired
+    private ProductRepository repository;
 
     @Autowired
     public ProductController(ProductService service) {
         this.service = service;
     }
 
-    @GetMapping("/list")                //Para obtener datos, utilizo Get.
+    @GetMapping("/list")
     public List<ProductResponseDTO> listarProductos(){
         return service.listarProductos();
     }

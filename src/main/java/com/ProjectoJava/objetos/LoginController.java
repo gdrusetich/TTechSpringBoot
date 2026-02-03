@@ -25,31 +25,44 @@ public class LoginController {
     public String loginUniversal(
         @RequestParam String user, 
         @RequestParam String pass, 
-        @RequestParam(required = false) String redirectUrl, // <-- Recibimos la URL de retorno
+        @RequestParam(required = false) String redirectUrl, 
         HttpSession session) {
         
+        // 1. Definimos a dónde volver
         String finalRedirect = (redirectUrl != null && !redirectUrl.isEmpty()) ? redirectUrl : "/home";
-        
-        // Si es Admin
+
+        // 2. CASO ADMIN HARCODEADO (Creamos un usuario "virtual")
         if (adminUser.equals(user) && adminPass.equals(pass)) {
-            session.setAttribute("rol", "ADMIN");
+            User adminVirtual = new User();
+            adminVirtual.setUsername(adminUser);
+            adminVirtual.setRole("ADMIN"); 
+            
+            session.setAttribute("usuarioLogueado", adminVirtual); // Para que el /admin te deje entrar
+            session.setAttribute("rol", "ADMIN"); // Por si usás el String en otro lado
+            
             return "redirect:/admin?loginSuccess=Admin";
         }
 
-        // Si es homee
+        // 3. CASO USUARIO DE BASE DE DATOS
         Optional<User> userOpt = userRepository.findByUsername(user);
         if (userOpt.isPresent() && userOpt.get().getPassword().equals(pass)) {
             User u = userOpt.get();
-            String rol = u.getRole().toString(); // Asumiendo que tenés un campo role
+            String rol = u.getRole().toString();
             
+            session.setAttribute("usuarioLogueado", u); // Objeto completo para el Controller
             session.setAttribute("rol", rol);
             session.setAttribute("usuarioNombre", u.getUsername());
             
-            // Agregamos el parámetro a la URL de destino
+            session.setAttribute("usuarioId", u.getId());
+            // Si es Admin de DB, mandarlo  al panel de control
+            if ("ADMIN".equals(rol)) {
+                return "redirect:/admin?loginSuccess=" + u.getUsername();
+            }
+
+            // Si es usuario común, respetar el redirectUrl
             String conector = finalRedirect.contains("?") ? "&" : "?";
             return "redirect:" + finalRedirect + conector + "loginSuccess=" + u.getUsername() + "&rol=" + rol;
         }
-
         return "redirect:/login?error=true";
     }
 

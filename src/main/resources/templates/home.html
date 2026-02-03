@@ -48,7 +48,7 @@
 
     <script th:inline="javascript">
         // Esta variable es la única que vive acá porque viene de Java (Thymeleaf)
-        const nombreUsuario = /*[[${session.usuarioNombre}]]*/ 'Invitado';
+        window.nombreUsuario = /*[[${session.usuarioNombre}]]*/ 'Invitado';
     </script>
 
     <script th:src="@{/auth-check.js}"></script> 

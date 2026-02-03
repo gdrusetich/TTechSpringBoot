@@ -12,6 +12,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
     boolean existsByTitleIgnoreCase(String title);
     List<Product> findByCategories_Id(Long categoryId);
 
+    @Query("SELECT p FROM Product p JOIN p.categories c WHERE c.id = :catId OR c.parent.id = :catId")
+    List<Product> findByCategoryIdOrParentId(@Param("catId") Long catId);
+
     @Query("SELECT DISTINCT p FROM Product p " +
             "LEFT JOIN FETCH p.images " + 
             "JOIN p.categories c " +
