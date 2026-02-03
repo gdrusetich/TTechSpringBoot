@@ -9,6 +9,8 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>{
+    Product findById(int id);
+
     boolean existsByTitleIgnoreCase(String title);
     List<Product> findByCategories_Id(Long categoryId);
 

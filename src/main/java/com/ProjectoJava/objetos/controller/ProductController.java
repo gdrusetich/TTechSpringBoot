@@ -107,48 +107,6 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: "+e.getMessage());
         }
     }
-
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> actualizar(
-        @PathVariable Long id, 
-        @RequestParam("title") String title,
-        @RequestParam("price") Double price,
-        @RequestParam("stock") Integer stock,
-        @RequestParam("description") String description,
-        @RequestParam("category") Set<Long> categoriesId,
-        @RequestParam(value = "images", required = false) List<MultipartFile> images // Imagen opcional
-    ) {
-        try {
-            List<String> nombreArchivosNuevos = new ArrayList<>();
-            // 1. Si el usuario subió una imagen nueva, la procesamos
-            if (images != null && !images.isEmpty()) {
-                for(MultipartFile img: images){
-                    if(!img.isEmpty()){
-                        String nombreFinal = UUID.randomUUID().toString() + "_" + img.getOriginalFilename();
-                        Path ruta = Paths.get("uploads").resolve(nombreFinal).toAbsolutePath();
-                        String extension = "";
-                        if(nombreFinal != null && nombreFinal.contains(".")){
-                            extension = nombreFinal.substring(nombreFinal.lastIndexOf("."));
-                        } else {
-                            extension = ".jpg";
-                        }
-                        if(!Files.exists(ruta.getParent()))
-                            Files.createDirectories(ruta.getParent());
-
-                        Files.copy(img.getInputStream(), ruta, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                        nombreArchivosNuevos.add(nombreFinal);
-                    }
-                }
-            }
-            
-            ProductRequestDTO dto = new ProductRequestDTO(title, price, stock, description, categoriesId, nombreArchivosNuevos);
-
-            ProductResponseDTO actualizado = service.actualizarProducto(id, dto);
-            return ResponseEntity.ok(actualizado);            
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al actualizar: " + e.getMessage());
-        }
-    }
     
     @GetMapping("/filter-price-{precioMaximo}")
     public List<ProductResponseDTO> listarMasBaratos(@PathVariable double precioMaximo) throws ProductNotExistsException{
@@ -158,6 +116,49 @@ public class ProductController {
     @GetMapping("/home")
     public String mostrarCatalogo(HttpSession session) {
         return "home"; 
+    }
+
+    @PutMapping("/update-title/{id}")
+    public ResponseEntity<?> updateProductTitle(@PathVariable Long id, @RequestParam String title) {
+        // Buscamos el producto directamente
+        Product producto = repository.findById(id).orElse(null);
+        if (producto == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
+        producto.setTitle(title);
+        repository.save(producto); // Un método simple que haga repository.save
+        
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/update-price/{id}")
+    public ResponseEntity<?> updateProductPrice(@PathVariable Long id, @RequestParam Double price) throws ProductNotExistsException {
+        Product producto = repository.findById(id).orElse(null);
+        if (producto == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
+        producto.setPrice(price);
+        repository.save(producto); // Un método simple que haga repository.save
+        
+        return ResponseEntity.ok().build();
+
+    }
+
+    @PutMapping("/update-stock/{id}")
+    public ResponseEntity<?> updateProductStock(@PathVariable Long id, @RequestParam Integer stock) throws ProductNotExistsException {
+        Product producto = repository.findById(id).orElse(null);
+        if (producto == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
+        producto.setStock(stock);
+        repository.save(producto); // Un método simple que haga repository.save
+        
+        return ResponseEntity.ok().build();
+
+    }
+
+    @PutMapping("/update-description/{id}")
+    public ResponseEntity<?> updateProductDescription(@PathVariable Long id, @RequestParam String description) throws ProductNotExistsException {
+        Product producto = repository.findById(id).orElse(null);
+        if (producto == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
+        producto.setDescription(description);
+        repository.save(producto); // Un método simple que haga repository.save
+        
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}/categories")

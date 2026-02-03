@@ -50,7 +50,7 @@ import jakarta.servlet.http.HttpSession;
 
     @GetMapping("/perfil")
     public String irAlPerfil(HttpSession session) {
-        if (session.getAttribute("usuarioNombre") == null) {
+        if (session.getAttribute("userName") == null) {
             return "redirect:/home"; // Si no está logueado, fuera
         }
         return "perfil"; // Esto carga perfil.html
@@ -58,7 +58,7 @@ import jakarta.servlet.http.HttpSession;
 
     @GetMapping("/admin")
     public String vistaAdmin(HttpSession session, Model model) {
-        User usuario = (User) session.getAttribute("usuarioLogueado");
+        User usuario = (User) session.getAttribute("userLogger");
 
         if (usuario == null || !usuario.getRole().equals("ADMIN")) {
             return "redirect:/home"; 

@@ -118,10 +118,11 @@ public class ProductService {
     public ProductResponseDTO actualizarProducto(long id, ProductRequestDTO PRDTO) throws ProductNotExistsException{
         Product productoExistente = productRepositoryJPA.findById(id)
             .orElseThrow(() -> new ProductNotExistsException("Producto no encontrado con ID: " + id));
-        productoExistente.setTitle(PRDTO.getTitle());
-        productoExistente.setPrice(PRDTO.getPrice());
-        productoExistente.setStock(PRDTO.getStock());
-        productoExistente.setDescription(PRDTO.getDescription());
+
+        if (PRDTO.getTitle() != null && !PRDTO.getTitle().isEmpty()) productoExistente.setTitle(PRDTO.getTitle());
+        if (PRDTO.getPrice() > 0) productoExistente.setPrice(PRDTO.getPrice());
+        if (PRDTO.getStock() >= 0) productoExistente.setStock(PRDTO.getStock());
+        if (PRDTO.getDescription() != null && !PRDTO.getDescription().isEmpty()) productoExistente.setDescription(PRDTO.getDescription());
 
         List<Category> categoriasEncontradas = categoryRepository.findAllById(PRDTO.getCategories());
         productoExistente.setCategories(new HashSet<>(categoriasEncontradas));

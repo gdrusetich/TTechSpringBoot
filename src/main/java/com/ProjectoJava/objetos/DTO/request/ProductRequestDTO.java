@@ -5,12 +5,12 @@ import java.util.List;
 
 public class ProductRequestDTO {
     private String title;
-    private double price;
-    private int stock;
+    private Double price;
+    private Integer stock;
     private String description;
     private Set<Long> idCategories;
     private List<String> imagesNames;
-    public ProductRequestDTO(String title, double price, int stock, String description, Set<Long> idCategories, List<String> imagesNames) {
+    public ProductRequestDTO(String title, Double price, Integer stock, String description, Set<Long> idCategories, List<String> imagesNames) {
         this.title = title;
         this.price = price;
         this.stock = stock;

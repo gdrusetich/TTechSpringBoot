@@ -191,9 +191,9 @@
 </head>
 <body>
     <div id="menu-usuario" style="position: absolute; top: 10px; right: 10px; z-index: 1000; text-align: right;">
-        <div th:if="${session.usuarioNombre != null}">
+        <div th:if="${session.userName != null}">
             <span style="color: #03dac6; font-weight: bold;">
-                Hola, <span th:text="${session.usuarioNombre}"></span>!
+                Hola, <span th:text="${session.userName}"></span>!
             </span>
             <br>
             <a href="/perfil.html" style="color: #bb86fc; text-decoration: none; font-size: 0.9rem;">⚙️ Editar Perfil</a>
@@ -233,9 +233,9 @@
 
     const API_URL = 'http://192.168.1.41:8081';
     const rolSesion = /*[[${session.rol}]]*/ null;
-    const nombreUsuario = /*[[${session.usuarioNombre}]]*/ 'Invitado';
+    const nombreUsuario = /*[[${session.userName}]]*/ 'Invitado';
     // El usuario está "logueado" si es ADMIN o homeE
-    let usuarioLogueado = (rolSesion === 'ADMIN' || rolSesion === 'homeE'); 
+    let userLogger = (rolSesion === 'ADMIN' || rolSesion === 'homeE'); 
     console.log("Rol detectado:", rolSesion);
     console.log("Sesión recuperada - Rol:", rolSesion, "Nombre:", nombreUsuario);
     let categoriasData = [];
@@ -284,7 +284,7 @@
             let precioContenido = "";
             let botonAccion = "";
 
-            if (usuarioLogueado) {
+            if (userLogger) {
                 // Nota: El innerHTML del menu-usuario hacelo AFUERA de este map 
                 // para que no se repita por cada producto, pero lo dejo por ahora.
                 precioContenido = `<span class="price">$ ${p.price.toLocaleString('es-AR')}</span>`;

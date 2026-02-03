@@ -9,9 +9,9 @@
 <body>
     
     <div id="menu-usuario" class="user-menu-top">
-        <div th:if="${session.usuarioNombre != null}">
+        <div th:if="${session.userName != null}">
             <span class="user-greeting">
-                Hola, <span th:text="${session.usuarioNombre}"></span>!
+                Hola, <span th:text="${session.userName}"></span>!
             </span>
             <br>
             <a href="/perfil" class="edit-profile">⚙️ Editar Perfil</a>
@@ -48,7 +48,7 @@
 
     <script th:inline="javascript">
         // Esta variable es la única que vive acá porque viene de Java (Thymeleaf)
-        window.nombreUsuario = /*[[${session.usuarioNombre}]]*/ 'Invitado';
+        window.nombreUsuario = /*[[${session.userName}]]*/ 'Invitado';
     </script>
 
     <script th:src="@{/auth-check.js}"></script> 

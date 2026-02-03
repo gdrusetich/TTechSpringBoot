@@ -72,7 +72,7 @@ public class UserController {
                 userRepository.save(u);
                 
                 // Actualizamos el nombre en la sesión para el saludo
-                session.setAttribute("usuarioNombre", nuevoUser);
+                session.setAttribute("userName", nuevoUser);
                 return "redirect:/home?actualizado=true";
             }
         }
