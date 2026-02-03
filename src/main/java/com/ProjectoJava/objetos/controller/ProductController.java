@@ -1,6 +1,7 @@
 package com.ProjectoJava.objetos.controller;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.nio.file.Path;
@@ -12,7 +13,9 @@ import org.springframework.web.multipart.MultipartFile; // Para recibir la image
 import com.ProjectoJava.objetos.DTO.request.ProductRequestDTO;
 import com.ProjectoJava.objetos.DTO.response.ProductResponseDTO;
 import com.ProjectoJava.objetos.entity.Product;
+import com.ProjectoJava.objetos.entity.Category;
 import com.ProjectoJava.objetos.repository.ProductRepository;
+import com.ProjectoJava.objetos.repository.CategoryRepository;
 
 import exceptions.ProductExistsException;
 //import org.springframework.stereotype.Controller;
@@ -35,6 +38,8 @@ public class ProductController {
     private ProductService service;
     @Autowired
     private ProductRepository repository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Autowired
     public ProductController(ProductService service) {
@@ -153,6 +158,20 @@ public class ProductController {
     @GetMapping("/home")
     public String mostrarCatalogo(HttpSession session) {
         return "home"; 
+    }
+
+    @PutMapping("/{id}/categories")
+    public ResponseEntity<?> updateProductCategories(@PathVariable Long id, @RequestBody List<Long> categoryIds) {
+        return repository.findById(id).map(producto -> {
+            // Buscamos las entidades completas basadas en los IDs que mandó el frontend
+            List<Category> listaCategorias = categoryRepository.findAllById(categoryIds);
+            Set<Category> setCategorias = new HashSet<>(listaCategorias);            
+            // Seteamos la nueva lista (JPA se encarga de limpiar la tabla intermedia y reinsertar)
+            producto.setCategories(setCategorias);
+            repository.save(producto);
+            
+            return ResponseEntity.ok("Categorías actualizadas correctamente");
+        }).orElse(ResponseEntity.notFound().build());
     }
 
 }

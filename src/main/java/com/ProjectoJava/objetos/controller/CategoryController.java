@@ -27,6 +27,14 @@ public class CategoryController {
         return repository.findAll();
     }
 
+    @GetMapping("/all")
+    public List<CategoryResponseDTO> getAllCategories() {
+        // Aquí mapeas tus entidades Category a DTOs
+        return repository.findAll()
+                .stream()
+                .map(cat -> new CategoryResponseDTO(cat))
+                .collect(Collectors.toList());
+    }
     @GetMapping("/{id}/ancestros")
     public List<CategoryResponseDTO> getAncestros(@PathVariable Long id) {
         return service.obtenerAncestrosDTO(id);

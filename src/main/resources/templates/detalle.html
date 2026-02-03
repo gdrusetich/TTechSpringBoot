@@ -17,12 +17,17 @@
             </div>
 
             <div class="user-controls">
-                <span id="user-greeting"></span>
-                
-                <button id="btn-perfil" onclick="abrirModalPerfil()" style="display:none;">Cambiar Perfil</button>
-                <button id="btn-logout" onclick="logout()" style="display:none;">Cerrar Sesión 🚪</button>
-                
-                <button id="btn-login" onclick="location.href='/login'" style="display:none;">Iniciar Sesión</button>
+                <div th:if="${session.usuarioNombre != null}" class="logged-in-info">
+                    <span class="welcome-msg">Hola, [[${session.usuarioNombre}]]!</span>
+                    
+                    <button class="btn-perfil-header" onclick="abrirModalPerfil()">Cambiar Perfil</button>
+                    
+                    <a href="/logout" class="logout-link">Cerrar Sesión</a>
+                </div>
+                <div th:if="${session.usuarioNombre == null}">
+                    <span class="welcome-msg">Hola, Invitado!</span>
+                    <button class="btn-login" onclick="irAlLoginConRetorno()">Iniciar Sesión</button>
+                </div>
             </div>
         </div>
     </header>
@@ -54,12 +59,30 @@
 
             <div class="product-info" th:if="${producto != null}">
                 <h1 th:text="${producto.title}">Título del Producto</h1>
-                <p th:text="${producto.description}">Descripción...</p>
+                <div class="categories-section">
+                    <div id="categories-container" class="categories-container"></div>                
+                    <div th:if="${rolActual == 'ADMIN'}" class="admin-category-edit">
+                        <button class="btn-edit-cat" onclick="abrirEditorCategorias()">✎ Editar Categorías</button>
+                    </div>
+                </div>
+                
+                <div id="modal-categorias" class="modal">
+                    <div class="modal-content">
+                        <h3>Gestionar Categorías del Producto</h3>
+                        <div id="lista-todas-categorias" class="category-grid">
+                            </div>
+                        <div class="modal-actions">
+                            <button class="btn-save" onclick="guardarCategorias()">Actualizar</button>
+                            <button class="btn-cancel" onclick="cerrarModalCategorias()">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
 
                 <div th:if="${rolActual != 'ADMIN'}">
                     <button id="whatsapp-btn" class="btn-wa">Consultar al Turco</button>
                 </div>
-
+            
+                <p th:text="${producto.description}">Descripción...</p>
                 <div th:if="${rolActual == 'ADMIN'}" class="admin-panel">
                     <h3>Modo Administrador</h3>
                     <button class="btn-edit">Editar Stock</button>
@@ -95,7 +118,17 @@
             </div>
         </div>
     </div>
-
     <script src="/detalle.js"></script>
+    <div id="modal-categorias" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h3>Editar Categorías</h3>
+            <div id="lista-todas-categorias" class="category-grid">
+                </div>
+            <div class="modal-buttons">
+                <button onclick="guardarCategorias()" class="btn-save">Guardar Cambios</button>
+                <button onclick="cerrarModalCategorias()" class="btn-cancel">Cancelar</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -6,6 +6,7 @@ INSERT INTO categories (id, name, parent_id) VALUES (3, 'Parlante', 1) ON CONFLI
 INSERT INTO categories (id, name, parent_id) VALUES (4, 'Stereo', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO categories (id, name, parent_id) VALUES (5, 'Hornos', 2) ON CONFLICT (id) DO NOTHING;
 INSERT INTO categories (id, name, parent_id) VALUES (6, 'Microondas', 2) ON CONFLICT (id) DO NOTHING;
+INSERT INTO categories (id, name, parent_id) VALUES (7, 'Bazar', 2) ON CONFLICT (id) DO NOTHING;
 
 -- 2. PRODUCTOS: STEREOS (IDs 101 al 107)
 INSERT INTO product (id_producto, title, price, stock, description) VALUES 
@@ -33,6 +34,9 @@ INSERT INTO product (id_producto, title, price, stock, description) VALUES
 (304, 'Microondas con Grill 25L', 130000, 3, 'Función combinada de microondas y grill para dorar tus comidas.'),
 (305, 'Horno Eléctrico Compacto', 65000, 8, 'Perfecto para departamentos pequeños. 20 litros de capacidad.');
 
+INSERT INTO product (id_producto, title, price, stock, description) VALUES 
+(401, 'Vaso Térmico con Parlante BT', 25000, 15, 'Vaso de acero inoxidable con base desenroscable que incluye un parlante Bluetooth resistente al agua. ¡Música y bebida en uno!')
+ON CONFLICT (id_producto) DO NOTHING;
 -- 5. ASOCIACIÓN PRODUCTO-CATEGORÍA (Tabla Intermedia)
 -- Stereos (Cat 4)
 INSERT INTO product_categories (product_id, category_id) SELECT id_producto, 4 FROM product WHERE id_producto BETWEEN 101 AND 107;
@@ -43,6 +47,9 @@ INSERT INTO product_categories (product_id, category_id) SELECT id_producto, 5 F
 -- Microondas (Cat 6)
 INSERT INTO product_categories (product_id, category_id) SELECT id_producto, 6 FROM product WHERE id_producto IN (303, 304);
 
+INSERT INTO product_categories (product_id, category_id) SELECT id_producto, 1 FROM product WHERE id_producto BETWEEN 101 AND 107 ON CONFLICT DO NOTHING;
+
+INSERT INTO product_categories (product_id, category_id) VALUES  (401, 7), (401, 3) ON CONFLICT DO NOTHING;
 -- 6. IMÁGENES (Referencia básica para que no tire error el JS)
 -- Aquí solo pongo una imagen para el primer stereo como ejemplo, tú completas el resto.
 INSERT INTO image (product_id, url) VALUES (101, 'panacom-ca5023.jpg');
