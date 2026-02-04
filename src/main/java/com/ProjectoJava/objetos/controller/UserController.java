@@ -5,6 +5,7 @@ import com.ProjectoJava.objetos.repository.ProductRepository;
 import com.ProjectoJava.objetos.entity.User;
 import java.util.Optional;
 import java.util.List;
+import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -113,11 +114,13 @@ public class UserController {
 
 
     @GetMapping("/listar")
-        @ResponseBody // Esto devuelve un JSON con los usuarios
-        public List<User> listarUsuarios(HttpSession session) {
-            if (!"ADMIN".equals(session.getAttribute("rol"))) {
-                return null; 
-            }
-            return userRepository.findAll();
+    @ResponseBody
+    public List<User> listarUsuarios(HttpSession session) {
+        String rolEnSesion = (String) session.getAttribute("userRole");
+
+        if (!"ADMIN".equals(rolEnSesion)) {
+            return new ArrayList<>(); 
         }
+        return userRepository.findAll();
+    }
 }

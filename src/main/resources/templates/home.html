@@ -32,10 +32,11 @@
 
         <div class="filter-container">
             <div id="categorias-nav"></div>
-            <div id="subcategorias-nav" class="sub-nav"></div>
+            <div id="subcategorias-nav"></div>
+            <div id="nietos-nav"></div>
         </div>
 
-        <div id="seccion-homee-vista">
+        <div id="seccion-cliente-vista">
             <div id="lista-productos">Cargando menú...</div>
         </div>    
     </main>
@@ -47,7 +48,6 @@
     </footer>
 
     <script th:inline="javascript">
-        // Esta variable es la única que vive acá porque viene de Java (Thymeleaf)
         window.nombreUsuario = /*[[${session.userName}]]*/ 'Invitado';
     </script>
 

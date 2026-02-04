@@ -1,12 +1,14 @@
 -- 1. CATEGORÍAS (Padres e Hijas)
 INSERT INTO categories (id, name, parent_id) VALUES (1, 'Música', NULL) ON CONFLICT (id) DO NOTHING;
 INSERT INTO categories (id, name, parent_id) VALUES (2, 'Cocina', NULL) ON CONFLICT (id) DO NOTHING;
+INSERT INTO categories (id, name, parent_id) VALUES (8, 'Computación', NULL) ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO categories (id, name, parent_id) VALUES (3, 'Parlante', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO categories (id, name, parent_id) VALUES (4, 'Stereo', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO categories (id, name, parent_id) VALUES (5, 'Hornos', 2) ON CONFLICT (id) DO NOTHING;
 INSERT INTO categories (id, name, parent_id) VALUES (6, 'Microondas', 2) ON CONFLICT (id) DO NOTHING;
 INSERT INTO categories (id, name, parent_id) VALUES (7, 'Bazar', 2) ON CONFLICT (id) DO NOTHING;
+INSERT INTO categories (id, name, parent_id) VALUES (9, 'Teclado', 3) ON CONFLICT (id) DO NOTHING;
 
 -- 2. PRODUCTOS: STEREOS (IDs 101 al 107)
 INSERT INTO product (id_producto, title, price, stock, description) VALUES 
@@ -34,9 +36,26 @@ INSERT INTO product (id_producto, title, price, stock, description) VALUES
 (304, 'Microondas con Grill 25L', 130000, 3, 'Función combinada de microondas y grill para dorar tus comidas.'),
 (305, 'Horno Eléctrico Compacto', 65000, 8, 'Perfecto para departamentos pequeños. 20 litros de capacidad.');
 
+--5. Productos: COCINA - Bazar. Musica - Parlante.
 INSERT INTO product (id_producto, title, price, stock, description) VALUES 
 (401, 'Vaso Térmico con Parlante BT', 25000, 15, 'Vaso de acero inoxidable con base desenroscable que incluye un parlante Bluetooth resistente al agua. ¡Música y bebida en uno!')
 ON CONFLICT (id_producto) DO NOTHING;
+
+--6. Productos: Computación - Teclado.
+INSERT INTO product (id_producto, title, price, stock, description) VALUES 
+(601, 'Teclado gamer HyperX Alloy QWERTY Membrana español latinoamérica color negro con luz RGB', 63499, 15, 'Lo que tenés que saber de este producto
+Tipo de switch: Membrana.
+Layout: QWERTY.
+Color de la retroiluminación: RGB.
+Color del teclado: Negro.
+Diseño QWERTY en español latinoamérica para mayor comodidad
+Conexión USB 2.0 para una experiencia de juego fluida
+Retroiluminación RGB personalizable para estilo único
+Resistente a salpicaduras para mayor durabilidad
+105 teclas con acceso rápido y pad numérico
+Teclas antighost para precisión en comandos múltiples')
+ON CONFLICT (id_producto) DO NOTHING;
+
 -- 5. ASOCIACIÓN PRODUCTO-CATEGORÍA (Tabla Intermedia)
 -- Stereos (Cat 4)
 INSERT INTO product_categories (product_id, category_id) SELECT id_producto, 4 FROM product WHERE id_producto BETWEEN 101 AND 107;
@@ -50,6 +69,10 @@ INSERT INTO product_categories (product_id, category_id) SELECT id_producto, 6 F
 INSERT INTO product_categories (product_id, category_id) SELECT id_producto, 1 FROM product WHERE id_producto BETWEEN 101 AND 107 ON CONFLICT DO NOTHING;
 
 INSERT INTO product_categories (product_id, category_id) VALUES  (401, 7), (401, 3) ON CONFLICT DO NOTHING;
+
+-- Computacion (Cat)
+INSERT INTO product_categories (product_id, category_id) VALUES  (601, 8), (601, 9) ON CONFLICT DO NOTHING;
+
 -- 6. IMÁGENES (Referencia básica para que no tire error el JS)
 -- Aquí solo pongo una imagen para el primer stereo como ejemplo, tú completas el resto.
 INSERT INTO image (product_id, url) VALUES (101, 'panacom-ca5023.jpg');
@@ -76,6 +99,8 @@ INSERT INTO image (product_id, url) VALUES (107, 'panacom-ca5102.jpg'), (107, 'p
 -- Imágenes para los otros productos (al menos una para que se vean en Similares)
 INSERT INTO image (product_id, url) VALUES (201, 'parlante.jpg'), (202, 'torre.jpg'), (203, 'pioneer69.jpg'), (204, 'subwoofer.jpg'), (205, 'tweeter.jpg');
 INSERT INTO image (product_id, url) VALUES (301, 'horno.jpg'), (302, 'horno2.jpg'), (303, 'micro.jpg'), (304, 'micro2.jpg'), (305, 'horno3.jpg');
+
+INSERT INTO image (product_id, url) VALUES (601, 'TecladoGamer1.jpg'), (601, 'TecladoGamer2.jpg'), (601, 'TecladoGamer3.jpg'), (601, 'TecladoGamer4.jpg');
 
 -- 1. Limpiamos usuarios previos si es necesario
 DELETE FROM usuarios WHERE username IN ('german', 'laura');
