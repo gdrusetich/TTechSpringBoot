@@ -60,17 +60,18 @@
             <h3>📦 Inventario Actual</h3>
                 
             <div id="contenedor-filtros" style="margin-bottom: 20px;">
-                <div id="categorias-padres" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="btn-categoria active" onclick="seleccionarPadre(this, 'TODOS')">Todos</button>
-
-                    <button th:each="cat : ${categoriasPadre}" 
-                            class="btn-categoria" 
-                            th:text="${cat.name}" 
-                            th:onclick="|seleccionarPadre(this, ${cat.id})|">
+                <div class="categoria-selector">
+                    <p style="color: white; margin-bottom: 10px;">
+                        Categoría seleccionada: <strong id="nombre-seleccionada" style="color: #4CAF50;">Ninguna</strong>
+                    </p>
+                    <input type="hidden" id="categoriaIdInput" name="categoryId">
+                    
+                    <div id="niveles-categorias"></div>
+                    
+                    <button class="filter-btn" onclick="limpiarFiltros()" style="margin-top: 10px; background: #666;">
+                        Limpiar Filtros
                     </button>
                 </div>
-
-                <div id="categorias-hijas" style="display: flex; gap: 8px; margin-top: 10px; margin-left: 20px;"></div>
             </div>
 
             <input type="text" id="busquedaAdmin" placeholder="Filtrar por nombre o ID..." 
