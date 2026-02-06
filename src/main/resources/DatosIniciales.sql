@@ -1,47 +1,45 @@
--- ... (Todo lo que ya tenías de categorías y productos) ...
+-- 1. CATEGORIAS
+INSERT INTO categories (name, parent_id) VALUES ('Musica', NULL) ON CONFLICT DO NOTHING;
+INSERT INTO categories (name, parent_id) VALUES ('Cocina', NULL) ON CONFLICT DO NOTHING;
+INSERT INTO categories (name, parent_id) VALUES ('Computacion', NULL) ON CONFLICT DO NOTHING;
+INSERT INTO categories (name, parent_id) VALUES ('Stereo', 1) ON CONFLICT DO NOTHING;
+INSERT INTO categories (name, parent_id) VALUES ('Teclado', 3) ON CONFLICT DO NOTHING;
+INSERT INTO categories (name, parent_id) VALUES ('Parlante', 1) ON CONFLICT DO NOTHING;
+INSERT INTO categories (name, parent_id) VALUES ('Portatil', 9) ON CONFLICT DO NOTHING;
 
--- 4. ASOCIACIÓN PRODUCTO-CATEGORÍA
-INSERT INTO product_categories (product_id, category_id) SELECT id_producto, 4 FROM product WHERE id_producto BETWEEN 101 AND 107 ON CONFLICT DO NOTHING;
-INSERT INTO product_categories (product_id, category_id) SELECT id_producto, 3 FROM product WHERE id_producto BETWEEN 201 AND 205 ON CONFLICT DO NOTHING;
-INSERT INTO product_categories (product_id, category_id) SELECT id_producto, 5 FROM product WHERE id_producto IN (301, 302, 305) ON CONFLICT DO NOTHING;
-INSERT INTO product_categories (product_id, category_id) SELECT id_producto, 6 FROM product WHERE id_producto IN (303, 304) ON CONFLICT DO NOTHING;
-INSERT INTO product_categories (product_id, category_id) VALUES (401, 7), (401, 3), (601, 8), (601, 9) ON CONFLICT DO NOTHING;
 
--- 5. IMÁGENES (Aquí está lo que te falta)
--- Primero limpiamos para que el INSERT no falle si ya existen
-DELETE FROM image;
+-- 2. PRODUCTOS (Agregamos todos los Panacom que faltaban)
+INSERT INTO product (title, price, stock, description) VALUES 
+('Panacom CA5023', 44799, 10, 'Stereo Panacom High Power'),
+('Panacom CA5025', 47399, 5, 'Stereo Panacom Bluetooth'),
+('Panacom CA5032', 54299, 8, 'Stereo Panacom LED Display'),
+('Panacom CA5089', 67299, 3, 'Stereo Panacom Premium'),
+('Panacom CA5200', 82499, 4, 'Stereo Panacom Pro Series'),
+('Panacom CA5104', 122999, 2, 'Stereo Panacom Ultra V2'),
+('Panacom CA5102', 142199, 6, 'Stereo Panacom Elite'),
+('Teclado Gamer', 25000, 15, 'Teclado Mecanico RGB');
 
--- Stereos con 4 fotos repetidas (para tus miniaturas)
--- 6. IMÁGENES (Solo archivos que existen físicamente)
+-- 3. IMÁGENES (Asociamos cada foto a su producto buscando por el título)
+-- Usamos INSERT INTO ... SELECT para no hardcodear IDs que Hibernate genera solo.
+INSERT INTO image (product_id, url) SELECT id_producto, 'panacom-ca5023.jpg' FROM product WHERE title = 'Panacom CA5023';
+INSERT INTO image (product_id, url) SELECT id_producto, 'panacom-ca5025.jpg' FROM product WHERE title = 'Panacom CA5025';
+INSERT INTO image (product_id, url) SELECT id_producto, 'panacom-ca5032.jpg' FROM product WHERE title = 'Panacom CA5032';
+INSERT INTO image (product_id, url) SELECT id_producto, 'panacom-ca5089.jpg' FROM product WHERE title = 'Panacom CA5089';
+INSERT INTO image (product_id, url) SELECT id_producto, 'panacom-ca5200.jpg' FROM product WHERE title = 'Panacom CA5200';
+INSERT INTO image (product_id, url) SELECT id_producto, 'panacom-ca5104.jpg' FROM product WHERE title = 'Panacom CA5104';
+INSERT INTO image (product_id, url) SELECT id_producto, 'panacom-ca5102.jpg' FROM product WHERE title = 'Panacom CA5102';
+INSERT INTO image (product_id, url) SELECT id_producto, 'TecladoGamer1.jpg' FROM product WHERE title = 'Teclado Gamer';
+INSERT INTO image (product_id, url) SELECT id_producto, 'TecladoGamer2.jpg' FROM product WHERE title = 'Teclado Gamer';
+INSERT INTO image (product_id, url) SELECT id_producto, 'TecladoGamer3.jpg' FROM product WHERE title = 'Teclado Gamer';
+INSERT INTO image (product_id, url) SELECT id_producto, 'TecladoGamer4.jpg' FROM product WHERE title = 'Teclado Gamer';
 
--- Limpiamos todo primero para no tener duplicados "fantasmas"
-DELETE FROM image;
+-- 4. CATEGORÍAS DE PRODUCTO (Relación Muchos a Muchos)
+INSERT INTO product_categories (product_id, category_id) 
+SELECT p.id_producto, c.id FROM product p, categories c WHERE p.title LIKE 'Panacom%' AND c.name = 'Stereo';
 
--- STEREOS (4 fotos por producto, usando el archivo que corresponde a cada modelo)
-INSERT INTO image (product_id, url) VALUES 
-(101, 'panacom-ca5023.jpg'), (101, 'panacom-ca5023.jpg'), (101, 'panacom-ca5023.jpg'), (101, 'panacom-ca5023.jpg'),
-(102, 'panacom-ca5025.jpg'), (102, 'panacom-ca5025.jpg'), (102, 'panacom-ca5025.jpg'), (102, 'panacom-ca5025.jpg'),
-(103, 'panacom-ca5032.jpg'), (103, 'panacom-ca5032.jpg'), (103, 'panacom-ca5032.jpg'), (103, 'panacom-ca5032.jpg'),
-(104, 'panacom-ca5089.jpg'), (104, 'panacom-ca5089.jpg'), (104, 'panacom-ca5089.jpg'), (104, 'panacom-ca5089.jpg'),
-(105, 'panacom-ca5200.jpg'), (105, 'panacom-ca5200.jpg'), (105, 'panacom-ca5200.jpg'), (105, 'panacom-ca5200.jpg'),
-(106, 'panacom-ca5104.jpg'), (106, 'panacom-ca5104.jpg'), (106, 'panacom-ca5104.jpg'), (106, 'panacom-ca5104.jpg'),
-(107, 'panacom-ca5102.jpg'), (107, 'panacom-ca5102.jpg'), (107, 'panacom-ca5102.jpg'), (107, 'panacom-ca5102.jpg');
+INSERT INTO product_categories (product_id, category_id) 
+SELECT p.id_producto, c.id FROM product p, categories c WHERE p.title = 'Teclado Gamer' AND c.name = 'Teclado';
 
--- TECLADO (Tus 4 fotos distintas)
-INSERT INTO image (product_id, url) VALUES 
-(601, 'TecladoGamer1.jpg'), 
-(601, 'TecladoGamer2.jpg'), 
-(601, 'TecladoGamer3.jpg'), 
-(601, 'TecladoGamer4.jpg');
-
--- NOTA: Los productos 201-205 y 301-305 no tendrán imágenes por ahora 
--- hasta que agregues los archivos .jpg a la carpeta /uploads.
-
--- Teclado con sus 4 fotos distintas
-INSERT INTO image (product_id, url) VALUES 
-(601, 'TecladoGamer1.jpg'), (601, 'TecladoGamer2.jpg'), (601, 'TecladoGamer3.jpg'), (601, 'TecladoGamer4.jpg');
-
--- Resto de productos
-INSERT INTO image (product_id, url) VALUES 
-(201, 'parlante.jpg'), (202, 'torre.jpg'), (203, 'pioneer69.jpg'), (204, 'subwoofer.jpg'), (205, 'tweeter.jpg'),
-(301, 'horno.jpg'), (302, 'horno2.jpg'), (303, 'micro.jpg'), (304, 'micro2.jpg'), (305, 'horno3.jpg'), (401, 'vaso.jpg');
+-- 5. USUARIOS
+INSERT INTO usuarios (username, password, role) VALUES ('german', '1234', 'CLIENT') ON CONFLICT DO NOTHING;
+INSERT INTO usuarios (username, password, role) VALUES ('laura', '1234', 'CLIENT') ON CONFLICT DO NOTHING;

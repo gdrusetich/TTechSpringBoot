@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 
 @Service
@@ -46,8 +47,9 @@ public class CategoryService {
         return ancestros;
     }
     
+    @GetMapping("/all")
     public List<Category> listarTodas() {
-        return categoryRepository.findAll();
+        return categoryRepository.findAllByOrderByNameAsc();
     }
 
     public List<CategoryResponseDTO> obtenerAncestrosDTO(Long categoryId) {

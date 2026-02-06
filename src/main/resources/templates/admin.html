@@ -9,24 +9,38 @@
     <aside class="sidebar">
         <h2>🛠️ Panel Admin</h2>
 
-        <div class="admin-section">
-            <h3>Gestión de Categorías</h3>
-            <label>Nombre:</label>
-            <input type="text" id="new-category-name" placeholder="Ej: Parlantes" required>
-
-            <label>Categoría / Padre:</label>
-            <select id="cat-parent">
-                <option value="">Ninguna (Es Categoría Principal)</option>
-            </select>
+        <div class="admin-section" style="max-width: 450px; margin: auto; background: #222; padding: 20px; border-radius: 8px; color: white;">
+            <h3 id="titulo-form-cat" style="margin-top: 0; font-size: 1.2rem; color: #aaa;">Crear Nueva Categoría</h3>
             
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button onclick="guardarNuevaCategoria()" class="btn-add" style="flex: 1;">Guardar</button>
-                <button onclick="prepararEdicionCategoria()" class="btn-edit" style="flex: 1; margin-bottom: 0;">Editar</button>
+            <div style="margin-bottom: 15px;">
+                <label style="font-size: 0.85rem; color: #888;">Nombre de la Categoría:</label>
+                <input type="text" id="new-category-name" placeholder="Ej: Bebidas" 
+                    style="width: 100%; padding: 10px; margin-top: 5px; background: #333; border: 1px solid #444; color: white; border-radius: 4px;">
             </div>
-            
-            <button id="btn-cancelar-cat" onclick="cancelarEdicionCat()" style="display:none; background:#6c757d; color:white; margin-top: 10px;">
-                Cancelar Edición
-            </button>
+
+            <div style="margin-bottom: 20px;">
+                <label style="font-size: 0.85rem; color: #888;">Categoría Padre / Editar Existente:</label>
+                <select id="cat-parent" onchange="actualizarBotones()" style="width: 100%; padding: 10px; margin-top: 5px; background: #333; border: 1px solid #444; color: white; border-radius: 4px;">
+                    <option value="">Cargando...</option>
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button id="btn-guardar-cat" onclick="guardarCategoria()" 
+                        style="flex: 1; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    Guardar
+                </button>
+                
+                <button id="btn-preparar-edicion" onclick="prepararEdicionDesdeSelect()" 
+                        style="flex: 1; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; display: none;">
+                    Editar Seleccionada
+                </button>
+
+                <button id="btn-cancelar-cat" onclick="cancelarEdicionCat()" 
+                        style="padding: 10px; background: #444; color: white; border: none; border-radius: 4px; cursor: pointer; display: none;">
+                    X
+                </button>
+            </div>
         </div>
 
         <div class="section-box">

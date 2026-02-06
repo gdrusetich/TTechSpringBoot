@@ -29,7 +29,6 @@ public class CategoryController {
 
     @GetMapping("/all")
     public List<CategoryResponseDTO> getAllCategories() {
-        // Aquí mapeas tus entidades Category a DTOs
         return repository.findAll()
                 .stream()
                 .map(cat -> new CategoryResponseDTO(cat))
@@ -49,9 +48,24 @@ public class CategoryController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Category> agregar(@RequestBody Category nueva) {
-        return ResponseEntity.ok(repository.save(nueva));
+    public ResponseEntity<?> agregar(@RequestBody Category nueva) {
+        try {
+            // Si el JS mandó un padre con ID, lo vinculamos correctamente
+            if (nueva.getParent() != null && nueva.getParent().getId() != null) {
+                Category padre = repository.findById(nueva.getParent().getId())
+                    .orElseThrow(() -> new RuntimeException("Padre no encontrado"));
+                nueva.setParent(padre);
+            } else {
+                nueva.setParent(null);
+            }
+
+            repository.save(nueva);
+            return ResponseEntity.ok().body("{\"status\": \"success\"}");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
     }
+
     @PutMapping("/update/{id}")
     public Category update(@PathVariable Long id, @RequestBody Category category) {
         category.setId(id);

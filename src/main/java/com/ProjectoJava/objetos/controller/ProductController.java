@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.Files;
 import java.io.IOException;
 import org.springframework.web.multipart.MultipartFile; // Para recibir la imagen
@@ -19,8 +20,10 @@ import com.ProjectoJava.objetos.DTO.request.ProductRequestDTO;
 import com.ProjectoJava.objetos.DTO.response.ProductResponseDTO;
 import com.ProjectoJava.objetos.entity.Product;
 import com.ProjectoJava.objetos.entity.Category;
+import com.ProjectoJava.objetos.entity.Image;
 import com.ProjectoJava.objetos.repository.ProductRepository;
 import com.ProjectoJava.objetos.repository.CategoryRepository;
+import com.ProjectoJava.objetos.repository.ImageRepository;
 
 import exceptions.ProductExistsException;
 //import org.springframework.stereotype.Controller;
@@ -48,6 +51,10 @@ public class ProductController {
     private ProductRepository repository;
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private ImageRepository imageRepository;
+
 
     @Autowired
     public ProductController(ProductService service) {
@@ -210,6 +217,30 @@ public class ProductController {
     public ResponseEntity<Map<String, List<Category>>> obtenerJerarquia(@PathVariable Long productId) {
         Map<String, List<Category>> mapa = service.obtenerMapaCategoriasPorProducto(productId);
         return ResponseEntity.ok(mapa);
+    }
+
+    @PostMapping("/images/upload")
+    public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file, 
+                                        @RequestParam("productId") Long productId) {
+        try {
+            String fileName = file.getOriginalFilename();
+            Path path = Paths.get("uploads/" + fileName);
+            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+
+            Product producto = repository.findById(productId)
+            .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+            Image nuevaImagen = new Image();
+            nuevaImagen.setUrl(fileName);
+            nuevaImagen.setProduct(producto);
+            imageRepository.save(nuevaImagen);
+
+            return ResponseEntity.ok().build();
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body("Error al guardar archivo");
+        }catch (Exception e){
+            return ResponseEntity.status(404).body("Error" + e.getMessage());
+        }
     }
 
 }
