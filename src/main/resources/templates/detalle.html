@@ -60,6 +60,17 @@
 
             <div class="main-image-container">
                 <img id="main-product-image" src="/uploads/default.jpg" alt="Producto">
+                
+                <div th:if="${session.userRole == 'ADMIN'}" class="admin-image-controls">
+                    <button class="btn-img-action btn-delete" onclick="borrarImagenActual()" title="Borrar esta imagen">🗑️ Borrar</button>
+                    
+                    <label for="upload-new-img" class="btn-img-action btn-add">
+                        ➕ Agregar
+                        <input type="file" id="upload-new-img" style="display:none" onchange="subirNuevaImagen(this)">
+                    </label>
+
+                    <button class="btn-img-action btn-main" onclick="marcarComoPrincipal()" title="Hacer imagen de portada">⭐ Principal</button>
+                </div>
             </div>
 
             <div class="product-info" th:if="${producto != null}">

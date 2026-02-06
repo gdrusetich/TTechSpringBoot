@@ -14,12 +14,13 @@ import com.ProjectoJava.objetos.entity.Category;
 import com.ProjectoJava.objetos.entity.Image;
 import com.ProjectoJava.objetos.repository.CategoryRepository;
 import com.ProjectoJava.objetos.repository.ProductRepository;
+import com.ProjectoJava.objetos.repository.ImageRepository;
 import exceptions.NoStockException;
 import exceptions.ProductExistsException;
 import exceptions.ProductNotExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductService {
@@ -28,6 +29,9 @@ public class ProductService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private ImageRepository imageRepository;
 
     @Autowired
     private CategoryService categoryService;
@@ -172,6 +176,17 @@ public class ProductService {
 
         this.productRepositoryJPA.save(productoAACtualizar);
         return productoAACtualizar;
+    }
+
+    @Transactional
+    public void establecerImagenPrincipal(Long productoId, Long imagenId) {
+        Product producto = productRepositoryJPA.findById(productoId)
+            .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        Image imagen = imageRepository.findById(imagenId)
+            .orElseThrow(() -> new RuntimeException("Imagen no encontrada"));
+
+        producto.setMainImage(imagen);
+        productRepositoryJPA.save(producto);
     }
 
 }

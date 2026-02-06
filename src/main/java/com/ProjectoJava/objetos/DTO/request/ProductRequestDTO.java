@@ -9,13 +9,15 @@ public class ProductRequestDTO {
     private Integer stock;
     private String description;
     private Set<Long> idCategories;
+    private Long mainImage;
     private List<String> imagesNames;
-    public ProductRequestDTO(String title, Double price, Integer stock, String description, Set<Long> idCategories, List<String> imagesNames) {
+    public ProductRequestDTO(String title, Double price, Integer stock, String description, Set<Long> idCategories, Long mainImage, List<String> imagesNames) {
         this.title = title;
         this.price = price;
         this.stock = stock;
         this.description = description;
         this.idCategories = idCategories;
+        this.mainImage = mainImage;
         this.imagesNames = imagesNames;
     }
 
@@ -24,6 +26,7 @@ public class ProductRequestDTO {
     public int getStock() {return stock;}
     public String getDescription() {return description;}
     public Set<Long> getCategories() {return idCategories;}
+    public Long getMainImage(){return mainImage;}
     public List<String> getImageURL(){return imagesNames;}
 
     public void setTitle(String aTitle) {this.title = aTitle;}
@@ -32,4 +35,5 @@ public class ProductRequestDTO {
     public void setDescription(String description) {this.description = description;}
     public void setCategories(Set<Long> idCategories) {this.idCategories = idCategories;}
     public void setImages(List<String> imagesNames) {this.imagesNames = imagesNames;}
+    public void setMainImage(Long nuevaImagenId){this.mainImage = nuevaImagenId;}
 }

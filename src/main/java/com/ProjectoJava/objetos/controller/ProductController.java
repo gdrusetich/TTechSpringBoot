@@ -1,4 +1,6 @@
 package com.ProjectoJava.objetos.controller;
+
+import com.ProjectoJava.objetos.service.ImageService;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -9,6 +11,9 @@ import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.io.IOException;
 import org.springframework.web.multipart.MultipartFile; // Para recibir la imagen
+
+import org.springframework.http.ResponseEntity;
+import java.util.Map;
 
 import com.ProjectoJava.objetos.DTO.request.ProductRequestDTO;
 import com.ProjectoJava.objetos.DTO.response.ProductResponseDTO;
@@ -36,6 +41,9 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
     @Autowired
     private ProductService service;
+
+    @Autowired
+    private ImageService imageService;
     @Autowired
     private ProductRepository repository;
     @Autowired
@@ -59,32 +67,39 @@ public class ProductController {
 
     @PostMapping("/nuevo-producto")
     public ResponseEntity<?> agregarProducto(
-    @RequestParam("title") String title,
-    @RequestParam("price") Double price,
-    @RequestParam("stock") Integer stock,
-    @RequestParam("description") String description,
-    @RequestParam("category") Set<Long> categoriesId,
-    @RequestParam(value = "images", required = false) List<MultipartFile> images) throws ProductExistsException, IOException{
+        @RequestParam("title") String title,
+        @RequestParam("price") Double price,
+        @RequestParam("stock") Integer stock,
+        @RequestParam("description") String description,
+        @RequestParam("category") Set<Long> categoriesId,
+        // Lo ponemos opcional por si es un producto nuevo sin imágenes aún
+        @RequestParam(value = "mainImageId", required = false) Long mainImageId, 
+        @RequestParam(value = "images", required = false) List<MultipartFile> images) throws IOException {
+        
         try {
             List<String> nombresArchivos = new ArrayList<>();
 
             if (images != null && !images.isEmpty()) {
-                        for (MultipartFile image : images) {
-                            if (image != null && !image.isEmpty()) {
-                                String nombreFinal = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
-                                Path ruta = Paths.get("uploads").resolve(nombreFinal).toAbsolutePath();
-      
-                                if (!Files.exists(ruta.getParent())) Files.createDirectories(ruta.getParent());
-                                
-                                Files.copy(image.getInputStream(), ruta, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                                nombresArchivos.add(nombreFinal); // Guardamos el nombre en una lista
-                            }
-                        }
-                    } 
-            ProductRequestDTO productoCreado = new ProductRequestDTO(title, price, stock, description, categoriesId, nombresArchivos);
-            return ResponseEntity.ok(service.agregarProducto(productoCreado));
+                for (MultipartFile image : images) {
+                    if (!image.isEmpty()) {
+                        String nombreFinal = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
+                        Path ruta = Paths.get("uploads").resolve(nombreFinal).toAbsolutePath();
+                        
+                        if (!Files.exists(ruta.getParent())) Files.createDirectories(ruta.getParent());
+                        
+                        Files.copy(image.getInputStream(), ruta, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                        nombresArchivos.add(nombreFinal);
+                    }
+                }
+            }
+            
+            // Creamos el DTO con el ID (Long)
+            ProductRequestDTO dto = new ProductRequestDTO(title, price, stock, description, categoriesId, mainImageId, nombresArchivos);
+            
+            return ResponseEntity.ok(service.agregarProducto(dto));
+            
         } catch (ProductExistsException e) {
-            return ResponseEntity.badRequest().body("Error: "+e.getMessage());
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
 
@@ -173,6 +188,28 @@ public class ProductController {
             
             return ResponseEntity.ok("Categorías actualizadas correctamente");
         }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}/main-image/{imageId}")
+    public ResponseEntity<?> setMainImage(@PathVariable Long id, @PathVariable Long imageId) {
+        try {
+            service.establecerImagenPrincipal(id, imageId);
+            return ResponseEntity.ok("Imagen principal actualizada");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/images/{imageId}")
+    public ResponseEntity<?> eliminarImagen(@PathVariable Long imageId) {
+        imageService.deleteImage(imageId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{productId}/categorias-jerarquia")
+    public ResponseEntity<Map<String, List<Category>>> obtenerJerarquia(@PathVariable Long productId) {
+        Map<String, List<Category>> mapa = service.obtenerMapaCategoriasPorProducto(productId);
+        return ResponseEntity.ok(mapa);
     }
 
 }

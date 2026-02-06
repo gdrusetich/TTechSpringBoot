@@ -1,6 +1,7 @@
 package com.ProjectoJava.objetos.DTO.response;
 import com.ProjectoJava.objetos.entity.Product;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProductResponseDTO {
@@ -10,7 +11,8 @@ public class ProductResponseDTO {
     private Integer stock;
     private String description;
     private List<CategoryResponseDTO> categories;
-    private List<String> images;
+    private ImageResponseDTO mainImage;
+    private List<ImageResponseDTO> images;
 
     public ProductResponseDTO(Product p) {
         this.id = p.getId();
@@ -18,9 +20,19 @@ public class ProductResponseDTO {
         this.price = p.getPrice();
         this.stock = p.getStock();
         this.description = p.getDescription();
-        this.images = p.getImages().stream()
-                    .map(img -> img.getUrl())
-                    .collect(Collectors.toList());
+
+        this.images = (p.getImages() != null) 
+                        ? p.getImages().stream()
+                            .map(img -> new ImageResponseDTO(img.getId(), img.getUrl()))
+                            .collect(Collectors.toList())
+                        : new ArrayList<>();
+
+        if (p.getMainImage() != null) {
+            this.mainImage = new ImageResponseDTO(
+                p.getMainImage().getId(), 
+                p.getMainImage().getUrl()
+            );
+        }
 
         this.categories = p.getCategories().stream()
                         .map(cat -> new CategoryResponseDTO(cat))
@@ -34,6 +46,7 @@ public class ProductResponseDTO {
     public int getStock() {return this.stock;}
     public String getDescription() {return this.description;}
     public List<CategoryResponseDTO> getCategories(){return this.categories;}
-    public List<String> getImages(){return this.images;}
+    public ImageResponseDTO getMainImage(){return this.mainImage;}
+    public List<ImageResponseDTO> getImages(){return this.images;}
 }
 

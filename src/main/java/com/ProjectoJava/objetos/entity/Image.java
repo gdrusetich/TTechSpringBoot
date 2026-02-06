@@ -13,6 +13,7 @@ public class Image {
     @JoinColumn(name = "product_id")
     private Product product;
     
+    public Long getId(){return this.id;}
     public String getUrl(){return this.url;}
     public Product getProduct(){return this.product;}
     public void setUrl(String unaUrl){this.url = unaUrl;}
