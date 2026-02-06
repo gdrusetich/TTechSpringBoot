@@ -72,4 +72,14 @@ public class CategoryController {
         return repository.save(category);
     }
 
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> eliminar(@PathVariable Long id) {
+        try {
+            service.borrarCategoria(id);
+            return ResponseEntity.ok().body("{\"status\": \"success\", \"message\": \"Categoría eliminada y jerarquía reestructurada\"}");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
 }

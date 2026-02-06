@@ -1,5 +1,6 @@
 package com.ProjectoJava.objetos.repository;
 import com.ProjectoJava.objetos.entity.Product;
+import com.ProjectoJava.objetos.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,7 +14,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
 
     boolean existsByTitleIgnoreCase(String title);
     List<Product> findByCategories_Id(Long categoryId);
-
+    List<Product >findByCategoriesContaining(Category category);
     @Query("SELECT p FROM Product p JOIN p.categories c WHERE c.id = :catId OR c.parent.id = :catId")
     List<Product> findByCategoryIdOrParentId(@Param("catId") Long catId);
 

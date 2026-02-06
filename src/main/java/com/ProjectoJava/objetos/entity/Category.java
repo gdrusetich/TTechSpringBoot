@@ -17,7 +17,6 @@ public class Category {
 
     @ManyToOne
     @JoinColumn(name = "parent_id")
-    @OnDelete(action = OnDeleteAction.CASCADE) // Si borras el padre, se borran los hijos
     private Category parent;
 
     public Category() {}

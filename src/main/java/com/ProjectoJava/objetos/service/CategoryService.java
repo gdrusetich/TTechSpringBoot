@@ -1,13 +1,15 @@
 package com.ProjectoJava.objetos.service;
 
 import com.ProjectoJava.objetos.repository.CategoryRepository;
+import com.ProjectoJava.objetos.repository.ProductRepository;
 import com.ProjectoJava.objetos.DTO.response.CategoryResponseDTO;
 import com.ProjectoJava.objetos.entity.Category;
+import com.ProjectoJava.objetos.entity.Product;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +20,9 @@ public class CategoryService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     public Category buscarPorId(Long id) {
         return categoryRepository.findById(id)
@@ -57,6 +62,30 @@ public class CategoryService {
         return entidades.stream()
                         .map(CategoryResponseDTO::new)
                         .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void borrarCategoria(Long id) {
+        Category categoriaABorrar = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+
+        Category abuelo = categoriaABorrar.getParent();
+
+        List<Category> hijas = categoryRepository.findByParent_Id(id);
+        for (Category hija : hijas) {
+            hija.setParent(abuelo);
+        }
+        categoryRepository.saveAll(hijas);
+        List<Product> productosAsociados = productRepository.findByCategoriesContaining(categoriaABorrar);
+
+        for (Product producto : productosAsociados) {
+            producto.getCategories().remove(categoriaABorrar);
+            if (abuelo != null) {
+                producto.getCategories().add(abuelo);
+            }
+        }
+        productRepository.saveAll(productosAsociados);
+        categoryRepository.delete(categoriaABorrar);
     }
 
 }
