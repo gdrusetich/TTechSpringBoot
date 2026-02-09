@@ -1,6 +1,7 @@
 package com.ProjectoJava.objetos;
 
 import com.ProjectoJava.objetos.entity.User;
+import com.ProjectoJava.objetos.entity.Role;
 import com.ProjectoJava.objetos.repository.UserRepository;
 import java.util.Optional;
 
@@ -33,8 +34,8 @@ public class LoginController {
         if (adminUser.equals(user) && adminPass.equals(pass)) {
             User adminVirtual = new User();
             adminVirtual.setUsername(adminUser);
-            adminVirtual.setRole("ADMIN"); 
-            
+            adminVirtual.setRole(Role.ADMIN);
+            session.setAttribute("userRole", Role.ADMIN.name());            
             session.setAttribute("userLogger", adminVirtual);
             session.setAttribute("userName", adminUser); // Clave para el saludo
             session.setAttribute("userRole", "ADMIN");      // Clave para el th:if

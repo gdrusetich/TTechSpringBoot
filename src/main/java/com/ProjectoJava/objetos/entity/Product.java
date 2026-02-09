@@ -33,7 +33,6 @@ public class Product {
     @JoinColumn(name = "main_image_id")
     private Image mainImage;
 
-
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Image> images = new LinkedHashSet<>();
     

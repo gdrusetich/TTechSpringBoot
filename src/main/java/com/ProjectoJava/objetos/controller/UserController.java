@@ -3,6 +3,7 @@ package com.ProjectoJava.objetos.controller;
 import com.ProjectoJava.objetos.repository.UserRepository;
 import com.ProjectoJava.objetos.repository.ProductRepository;
 import com.ProjectoJava.objetos.entity.User;
+import com.ProjectoJava.objetos.entity.Role;
 import java.util.Optional;
 import java.util.List;
 import java.util.ArrayList;
@@ -36,8 +37,7 @@ public class UserController {
                                                 @RequestParam String password, 
                                                 @RequestParam String role, 
                                                 HttpSession session) {
-        // 1. Verificamos Seguridad
-        if (!"ADMIN".equals(session.getAttribute("rol"))) {
+        if (!Role.ADMIN.name().equals(session.getAttribute("rol"))) {
             return ResponseEntity.status(403).body("No autorizado");
         }
 
@@ -50,7 +50,7 @@ public class UserController {
             User usuario = new User();
             usuario.setUsername(username);
             usuario.setPassword(password);
-            usuario.setRole(role);            
+            usuario.setRole(Role.valueOf(role));
             userRepository.save(usuario);
             return ResponseEntity.ok("success"); 
         } catch (Exception e) {

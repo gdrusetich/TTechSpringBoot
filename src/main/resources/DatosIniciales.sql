@@ -41,5 +41,5 @@ INSERT INTO product_categories (product_id, category_id)
 SELECT p.id_producto, c.id FROM product p, categories c WHERE p.title = 'Teclado Gamer' AND c.name = 'Teclado';
 
 -- 5. USUARIOS
-INSERT INTO usuarios (username, password, role) VALUES ('german', '1234', 'CLIENT') ON CONFLICT DO NOTHING;
-INSERT INTO usuarios (username, password, role) VALUES ('laura', '1234', 'CLIENT') ON CONFLICT DO NOTHING;
+INSERT INTO usuarios (username, password, role) VALUES ('german', '1234', 'CLIENTE') ON CONFLICT DO NOTHING;
+INSERT INTO usuarios (username, password, role) VALUES ('laura', '1234', 'CLIENTE') ON CONFLICT DO NOTHING;
