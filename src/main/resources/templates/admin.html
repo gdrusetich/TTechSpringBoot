@@ -5,7 +5,6 @@
     
 </head>
 <body>
-    <script th:src="@{/admin.js}"></script>
     <aside class="sidebar">
         <h2>🛠️ Panel Admin</h2>
 
@@ -112,6 +111,30 @@
                 <tbody id="tabla-productos">
                     </tbody>
             </table>
+
+            <section id="seccion-carga-masiva" style="margin-top: 20px;">
+                <h3>📦 Carga Masiva de Productos</h3>
+                <table class="tabla-admin" id="tabla-carga">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Descripción</th>
+                            <th>Categorías (Multiselección)</th>
+                            <th>Fotos</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpo-carga">
+                        </tbody>
+                </table>
+                <div style="margin-top: 10px;">
+                    <button type="button" onclick="agregarFila()" class="btn-editar">➕ Añadir Fila</button>
+                    <button type="button" onclick="guardarTodo()" class="btn-guardar" style="background-color: #ff9800;">🚀 Guardar Todo</button>
+                </div>
+            </section>
+            
         </div>
 
         <div id="seccion-usuarios" style="display:none;">
@@ -132,5 +155,6 @@
     <div class="btn-colapsar" onclick="toggleSidebar()" title="Mostrar/Ocultar Panel">
         ☰
     </div>
+    <script th:src="@{/admin.js}"></script>
 </body>
 </html>

@@ -1,11 +1,14 @@
 -- 1. CATEGORIAS
-INSERT INTO categories (name, parent_id) VALUES ('Musica', NULL) ON CONFLICT DO NOTHING;
-INSERT INTO categories (name, parent_id) VALUES ('Cocina', NULL) ON CONFLICT DO NOTHING;
-INSERT INTO categories (name, parent_id) VALUES ('Computacion', NULL) ON CONFLICT DO NOTHING;
-INSERT INTO categories (name, parent_id) VALUES ('Stereo', 1) ON CONFLICT DO NOTHING;
-INSERT INTO categories (name, parent_id) VALUES ('Teclado', 3) ON CONFLICT DO NOTHING;
-INSERT INTO categories (name, parent_id) VALUES ('Parlante', 1) ON CONFLICT DO NOTHING;
-INSERT INTO categories (name, parent_id) VALUES ('Portatil', 9) ON CONFLICT DO NOTHING;
+INSERT INTO categories (name, parent_id) VALUES ('Musica', NULL) ON CONFLICT DO NOTHING;--1
+INSERT INTO categories (name, parent_id) VALUES ('Cocina', NULL) ON CONFLICT DO NOTHING;--2--
+INSERT INTO categories (name, parent_id) VALUES ('Computacion', NULL) ON CONFLICT DO NOTHING;--3
+INSERT INTO categories (name, parent_id) VALUES ('Stereo', 1) ON CONFLICT DO NOTHING;--4
+INSERT INTO categories (name, parent_id) VALUES ('Teclado', 3) ON CONFLICT DO NOTHING;--5
+INSERT INTO categories (name, parent_id) VALUES ('Parlante', 1) ON CONFLICT DO NOTHING;--6
+INSERT INTO categories (name, parent_id) VALUES ('Portatil', 9) ON CONFLICT DO NOTHING;--7
+INSERT INTO categories (name, parent_id) VALUES ('Mueble', NULL) ON CONFLICT DO NOTHING;--8
+INSERT INTO categories (name, parent_id) VALUES ('Baño', NULL) ON CONFLICT DO NOTHING;--9
+INSERT INTO categories (name, parent_id) VALUES ('Alfombra', NULL) ON CONFLICT DO NOTHING;--10
 
 
 -- 2. PRODUCTOS (Agregamos todos los Panacom que faltaban)
@@ -18,6 +21,36 @@ INSERT INTO product (title, price, stock, description) VALUES
 ('Panacom CA5104', 122999, 2, 'Stereo Panacom Ultra V2'),
 ('Panacom CA5102', 142199, 6, 'Stereo Panacom Elite'),
 ('Teclado Gamer', 25000, 15, 'Teclado Mecanico RGB');
+
+INSERT INTO product (title, price, stock, description) VALUES 
+('ALFOMBRA DE BAÑO MEMORY - BLANCO PARIS -', 5999, 1,'- Medidas: 40 x 60 cm.
+- Suave y absorbente.
+- Antideslizante.
+- Hipoalergénica.' ),
+('Pistola de Agua Eléctrica - WEAL MAKER', 58999, 1, '- Medidas: 26 x 32 cm.
+- Pistola recargable.
+- Alcance: 5-6 metros 
+- Incluye: 1 cargador de agua estándar, 1 cargador de agua de alta capacidad, 1 batería recargable 3.7C Y 1 cargador a USB.'),
+('MASAJEADOR RECARGABLE CON MANGO EXTENSIBLE',35999, 1,'- Potencia: 17W.
+- 9 velocidades para ajustar la intensidad.
+- 9 programas automáticos según tus necesidades.
+- 4 cabezales intercambiables.' ),
+('SOPORTE MOVIL DE 26" A 60" WAVETV. - W-3350M',26899, 1,'- Capacidad: 30kg.
+- Vesa: 40 x 40 cm.
+- Incluye kit de instalación de soporte y manual.
+- Báscula: +2°, -18°.
+- Rotación de 180°.'),
+('LICUADORA C/ JARRA DE PLÁSTICO 1LT - WHITENBLACK',59999, 1, '- Capacidad: 1.5 litros.
+- Jarra de plástico con pico vertedor y tapa extraíble.
+- Potencia: 400W.
+- 2 velocidades + pulsador.
+- Cuchillas de acero inoxidable.
+- Base antideslizante'),
+('PICADORA DE CARNE 800W - DAEWOO', 94999,1,'- Potencia: 800W.
+- Dos discos de corte de 3 y 5 mm.
+- Incluye empujador de carne.
+- Con bandeja receptora.
+- Fácil traslado.');
 
 -- 3. IMÁGENES (Asociamos cada foto a su producto buscando por el título)
 -- Usamos INSERT INTO ... SELECT para no hardcodear IDs que Hibernate genera solo.

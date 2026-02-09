@@ -71,41 +71,42 @@ public class ProductController {
 
     @PostMapping("/nuevo-producto")
     public ResponseEntity<?> agregarProducto(
-        @RequestParam("title") String title,
-        @RequestParam("price") Double price,
-        @RequestParam("stock") Integer stock,
-        @RequestParam("description") String description,
-        @RequestParam("category") Set<Long> categoriesId,
-        // Lo ponemos opcional por si es un producto nuevo sin imágenes aún
-        @RequestParam(value = "mainImageId", required = false) Long mainImageId, 
-        @RequestParam(value = "images", required = false) List<MultipartFile> images) throws IOException {
-        
-        try {
-            List<String> nombresArchivos = new ArrayList<>();
+    @RequestParam("title") String title,
+    @RequestParam("price") Double price,
+    @RequestParam("stock") Integer stock,
+    @RequestParam("description") String description,
+    @RequestParam("category") Set<Long> categoriesId,
+    @RequestParam(value = "mainImageId", required = false) Long mainImageId, 
+    @RequestParam(value = "images", required = false) List<MultipartFile> images) throws IOException {
+    
+    try {
+        List<String> nombresArchivos = new ArrayList<>();
 
-            if (images != null && !images.isEmpty()) {
-                for (MultipartFile image : images) {
-                    if (!image.isEmpty()) {
-                        String nombreFinal = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
-                        Path ruta = Paths.get("uploads").resolve(nombreFinal).toAbsolutePath();
-                        
-                        if (!Files.exists(ruta.getParent())) Files.createDirectories(ruta.getParent());
-                        
-                        Files.copy(image.getInputStream(), ruta, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                        nombresArchivos.add(nombreFinal);
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile image : images) {
+                if (!image.isEmpty()) {
+                    String originalName = image.getOriginalFilename();
+                    String nombreFinal = UUID.randomUUID().toString() + "_" + originalName;                    
+                    Path ruta = Paths.get("uploads").resolve(nombreFinal).toAbsolutePath();
+
+                    if (!Files.exists(ruta.getParent())) {
+                        Files.createDirectories(ruta.getParent());
                     }
+                    Files.copy(image.getInputStream(), ruta, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    nombresArchivos.add(nombreFinal);
                 }
             }
-            
-            // Creamos el DTO con el ID (Long)
-            ProductRequestDTO dto = new ProductRequestDTO(title, price, stock, description, categoriesId, mainImageId, nombresArchivos);
-            
-            return ResponseEntity.ok(service.agregarProducto(dto));
-            
-        } catch (ProductExistsException e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
+        ProductRequestDTO dto = new ProductRequestDTO(title, price, stock, description, categoriesId, mainImageId, nombresArchivos);
+        
+        return ResponseEntity.ok(service.agregarProducto(dto));
+        
+    } catch (ProductExistsException e) {
+        return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+    } catch (Exception e) {
+        return ResponseEntity.internalServerError().body("Error inesperado: " + e.getMessage());
     }
+}
 
     @GetMapping("/find-id/{id}")
     public ResponseEntity<?> buscarProductoPorId(@PathVariable Long id) throws ProductNotExistsException {      //La variable lo busca en la ruta
@@ -216,7 +217,7 @@ public class ProductController {
         return ResponseEntity.ok(mapa);
     }
 
-    @PostMapping("/images/upload")
+    @PostMapping("/images/uploads")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file, 
                                         @RequestParam("productId") Long productId) {
         try {

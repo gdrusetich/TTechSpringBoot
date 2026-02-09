@@ -54,7 +54,7 @@ public class LoginController {
             
             session.setAttribute("userId", u.getId());
             // Si es Admin de DB, mandarlo  al panel de control
-            if ("ADMIN".equals(rol)) {
+            if (u.getRole().name().equals("ADMIN")) {
                 return "redirect:/admin?loginSuccess=" + u.getUsername();
             }
 

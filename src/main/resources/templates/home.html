@@ -47,11 +47,21 @@
         <a href="/login">Acceso Admin</a>
     </footer>
 
-    <script th:inline="javascript">
-        window.nombreUsuario = /*[[${session.userName}]]*/ 'Invitado';
-    </script>
+        <script th:src="@{/auth-check.js}"></script> 
+        <script th:src="@{/home.js}"></script>
 
-    <script th:src="@{/auth-check.js}"></script> 
-    <script th:src="@{/home.js}"></script>
+        <script th:inline="javascript">
+
+        window.nombreUsuario = /*[[${session.userName}]]*/ 'Invitado';
+        const userRole = /*[[${session.userRole}]]*/ null;
+
+        if (userRole) {
+            localStorage.setItem("role", userRole);
+        } else {
+            localStorage.removeItem("role");
+        }
+        </script>
+
 </body>
 </html>
+

@@ -42,17 +42,36 @@ public class ProductService {
     }
 
     public ProductResponseDTO agregarProducto(ProductRequestDTO nuevoDTO) throws ProductExistsException {
+        // 1. Validar existencia
         if (productRepositoryJPA.existsByTitleIgnoreCase(nuevoDTO.getTitle())){
             throw new ProductExistsException("Ya existe un producto con ese titulo");
         }
+
+        // 2. Mapear DTO a Entidad
         Product productoNuevo = new Product();
         productoNuevo.setTitle(nuevoDTO.getTitle());
         productoNuevo.setPrice(nuevoDTO.getPrice());
         productoNuevo.setStock(nuevoDTO.getStock());
-        List<Category> categoriasEncontradas = categoryRepository.findAllById(nuevoDTO.getCategories());
+        productoNuevo.setDescription(nuevoDTO.getDescription()); // ¡No te olvides de la descripción!
 
+        // 3. Cargar Categorías
+        List<Category> categoriasEncontradas = categoryRepository.findAllById(nuevoDTO.getCategories());
         productoNuevo.setCategories(new HashSet<>(categoriasEncontradas));
+
+        // 4. GUARDAR el producto primero (para generar el ID)
         Product productoGuardado = productRepositoryJPA.save(productoNuevo);
+
+        // 5. GUARDAR las imágenes vinculadas al producto guardado
+        if (nuevoDTO.getImageURL() != null && !nuevoDTO.getImageURL().isEmpty()) {
+            for (String nombre : nuevoDTO.getImageURL()) {
+                Image img = new Image();
+                img.setUrl(nombre); 
+                img.setProduct(productoGuardado); // Vinculamos la foto al ID del producto
+                imageRepository.save(img); 
+            }
+        }
+
+        // 6. Retornar la respuesta (fuera del if de las imágenes)
         return new ProductResponseDTO(productoGuardado);
     }
 

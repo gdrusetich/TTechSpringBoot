@@ -3,6 +3,7 @@ package com.ProjectoJava.objetos.controller;
 import com.ProjectoJava.objetos.DTO.response.ProductResponseDTO;
 import com.ProjectoJava.objetos.entity.Product;
 import com.ProjectoJava.objetos.entity.User;
+import com.ProjectoJava.objetos.entity.Role;
 
 import com.ProjectoJava.objetos.repository.CategoryRepository;
 import com.ProjectoJava.objetos.repository.ProductRepository;
@@ -60,7 +61,7 @@ import jakarta.servlet.http.HttpSession;
     public String vistaAdmin(HttpSession session, Model model) {
         User usuario = (User) session.getAttribute("userLogger");
 
-        if (usuario == null || !usuario.getRole().equals("ADMIN")) {
+        if (usuario == null || usuario.getRole() != Role.ADMIN) {
             return "redirect:/home"; 
         }
         model.addAttribute("categoriasPadre", categoryRepository.findByParentIsNull());
