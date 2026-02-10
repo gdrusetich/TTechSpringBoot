@@ -27,33 +27,29 @@ function ejecutarFiltroFinal() {
     const texto = document.getElementById('busquedaAdmin').value.toLowerCase();
     const idFiltro = document.getElementById('categoriaIdInput').value;
 
+    // Si hay un filtro de categoría, obtenemos el ID seleccionado y todos sus hijos/nietos
+    let idsPermitidos = [];
+    if (idFiltro && idFiltro !== "") {
+        idsPermitidos = obtenerIdsDescendientes(idFiltro);
+    }
+
     const filtrados = productosCargados.filter(p => {
-        const nombreProducto = (p.name || p.title || "").toLowerCase();
+        const nombreProducto = (p.title || p.name || "").toLowerCase();
         const coincideTexto = nombreProducto.includes(texto) || p.id.toString().includes(texto);
         
-        if (!coincideTexto) return false;
-        
-        if (!idFiltro || idFiltro === "") return true;
-
+        if (!coincideTexto) return false;        
+        if (idsPermitidos.length === 0) return true;
         if (Array.isArray(p.categories)) {
-            return p.categories.some(cat => {
-                let tempCat = cat;
-                while (tempCat) {
-                    if (tempCat.id == idFiltro) return true;
-                    tempCat = tempCat.parent;
-                }
-                return false;
-            });
-        } 
-        
-        let tempCat = p.category;
-        while (tempCat) {
-            if (tempCat.id == idFiltro) return true;
-            tempCat = tempCat.parent;
+            return p.categories.some(cat => idsPermitidos.includes(Number(cat.id)));
+        }         
+        if (p.category) {
+            const idCatProducto = p.category.id || p.category; // Maneja si es objeto o solo ID
+            return idsPermitidos.includes(Number(idCatProducto));
         }
         
         return false;
     });
+
     renderizarTabla(filtrados);
 }
 
@@ -364,6 +360,17 @@ async function cargarSelectCategorias() {
     } catch (e) {
         console.error("Error en cargarSelectCategorias:", e);
     }
+}
+
+function obtenerIdsDescendientes(idPadre) {
+    let ids = [Number(idPadre)];
+    // Buscamos todas las categorías que tengan este id como parent
+    const hijas = categoriasData.filter(c => c.parent && Number(c.parent.id) === Number(idPadre));
+    
+    hijas.forEach(hija => {
+        ids = ids.concat(obtenerIdsDescendientes(hija.id));
+    });
+    return ids;
 }
 
 function actualizarBotones() {

@@ -241,4 +241,22 @@ public class ProductController {
         }
     }
 
+    @PutMapping("/actualizar-rapido/{id}")
+    public ResponseEntity<?> actualizarProductoRapido(@PathVariable Long id, @RequestBody ProductRequestDTO dto) {
+        Product producto = repository.findById(id).orElse(null);
+        
+        if (producto == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
+        }
+
+        producto.setTitle(dto.getTitle());
+        producto.setPrice(dto.getPrice());
+        producto.setStock(dto.getStock());
+        producto.setDescription(dto.getDescription());
+        
+        repository.save(producto);
+        
+        return ResponseEntity.ok().build();
+    }
+
 }
