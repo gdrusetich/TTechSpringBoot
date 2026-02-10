@@ -1,0 +1,422 @@
+/* ==========================================================================
+   1. HEADER Y NAVEGACIÓN (Lo que aparece arriba)
+   ========================================================================== */
+
+.main-header {
+    background: linear-gradient(180deg, #111 0%, #000 100%);
+    border-bottom: 2px solid #25d366;
+    padding: 15px 0;
+    margin-bottom: 30px;
+    position: sticky; /* Agregado para que no se pierda al bajar */
+    top: 0;
+    z-index: 1000;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.brand {
+    font-size: 2rem;
+    color: #fff;
+    cursor: pointer;
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+.electronics {
+    color: #25d366;
+    font-weight: 300;
+}
+
+/* --- Lado Derecho (Login / Usuario) --- */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.guest-info, .logged-in-info, .admin-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.welcome-text {
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+.admin-badge {
+    color: #ff4d4d;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.logout-link {
+    color: #ff4444;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9rem;
+    border-left: 1px solid #333;
+    padding-left: 20px;
+}
+
+/* --- Menú Desplegable (User Dropdown) --- */
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-dropdown {
+    position: relative;
+    cursor: pointer;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #222;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.5);
+    border-radius: 4px;
+    padding: 10px 0;
+}
+
+.user-dropdown:hover .dropdown-content { display: block; }
+
+.dropdown-content a {
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover { background-color: #333; }
+
+/* ==========================================================================
+   2. PÁGINA DE PRODUCTO (Imagen, Miniaturas e Info)
+   ========================================================================== */
+
+.product-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.product-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 20px;
+}
+
+/* --- Miniaturas --- */
+.thumbnails-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 80px;
+}
+
+.thumb-box {
+    width: 80px;
+    height: 80px;   
+    object-fit: contain;
+    background-color: #222;
+    border: 1px solid #444;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.thumb-box:hover { border-color: #25d366; }
+
+/* --- Imagen Principal --- */
+.main-image-container {
+    flex: 2;
+    text-align: center;
+}
+
+#main-product-image {
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+    background-color: #111;
+}
+
+/* --- Información y Texto --- */
+.product-info {
+    flex: 1.5;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.description-text {
+    min-height: 150px;
+    line-height: 1.6;
+    color: #444;
+}
+
+/* ==========================================================================
+   3. CATEGORÍAS (Badges Naranjas)
+   ========================================================================== */
+
+.categories-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 20px 0;
+}
+
+.category-badge {
+    background: linear-gradient(135deg, #ff9800, #e68a00);
+    color: #000;
+    padding: 5px 15px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+    cursor: default;
+}
+
+.category-badge:hover {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, #ffb74d, #ff9800);
+}
+
+/* ==========================================================================
+   4. PANEL DE ADMINISTRADOR (Botones de edición rápida)
+   ========================================================================== */
+
+.admin-panel {
+    background-color: #f8f9fa;
+    border: 2px dashed #007bff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.admin-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-admin-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.btn-admin-item:hover {
+    background-color: #e9ecef;
+    border-color: #007bff;
+    transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   5. MODALES Y FORMULARIOS (La Zolapa y Edición)
+   ========================================================================== */
+
+/* Fondo oscuro del modal */
+.modal-overlay, .modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: none; /* Se activa por JS */
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+/* Caja del modal */
+.modal-content {
+    background: #1a1a1a;
+    width: 350px;
+    padding: 25px;
+    border-radius: 10px;
+    border: 1px solid #25d366;
+    color: white;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* Estilo para los inputs dentro de los modales */
+.form-group input, .form-control-propio {
+    width: 100%;
+    padding: 10px;
+    background: #000;
+    border: 1px solid #333;
+    color: white;
+    margin-top: 5px;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.btn-save { 
+    background: #25d366; 
+    border: none; 
+    padding: 10px; 
+    cursor: pointer; 
+    color: #000; 
+    font-weight: bold; 
+    width: 100%; 
+    margin-top: 10px; 
+}
+
+.btn-cancel { 
+    background: transparent; 
+    color: #777; 
+    border: none; 
+    width: 100%; 
+    cursor: pointer; 
+    margin-top: 10px; 
+}
+
+/* ==========================================================================
+   6. PRODUCTOS SIMILARES (Slider)
+   ========================================================================== */
+
+.related-products {
+    margin-top: 50px;
+    padding: 20px;
+    overflow: hidden;
+    background: #fdfdfd;
+    border-radius: 10px;
+}
+
+.slider-wrapper {
+    overflow: hidden;
+    width: 100%;
+}
+
+.related-slider {
+    display: flex;
+    gap: 20px; /* IMPORTANTE: Es el +20 del JS */
+    transition: transform 0.5s ease-in-out;
+}
+
+.related-card {
+    min-width: calc(25% - 15px); 
+    max-width: calc(25% - 15px);
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.related-card:hover {
+    transform: translateY(-5px);
+}
+
+.related-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: contain;
+    background-color: #f9f9f9;
+    padding: 10px;
+    display: block;
+}
+
+.related-info {
+    padding: 10px;
+}
+/* ==========================================================================
+   7. CONTROLES DE ADMIN
+   ========================================================================== */
+
+.main-image-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.admin-photo-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    max-width: 400px; /* Para que no se estiren demasiado */
+}
+
+.btn-photo-control {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    background-color: #333;
+    color: white;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background 0.3s;
+}
+
+.btn-photo-control:hover {
+    background-color: #555;
+}
+
+.btn-danger { background-color: #d9534f; }
+.btn-success { background-color: #5cb85c; }
+
+.main-image-container {
+    position: relative; /* Para que los botones se posicionen respecto a la imagen */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.admin-image-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.btn-img-action {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+
+.btn-delete { background-color: #ff4d4d; color: white; }
+.btn-add { background-color: #4CAF50; color: white; display: inline-block; }
+.btn-main { background-color: #ffc107; color: #333; }
+
+.btn-img-action:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}

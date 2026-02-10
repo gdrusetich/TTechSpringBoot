@@ -1,0 +1,165 @@
+/* CONFIGURACIÓN DEL LAYOUT */
+body { 
+    font-family: Arial, sans-serif; 
+    margin: 0; 
+    padding: 0; 
+    background-color: #f4f7f6;
+    display: flex;
+    height: 100vh;
+    overflow: hidden; /* El scroll general desaparece */
+}
+
+/* BARRA LATERAL (Panel de Administración) */
+.sidebar {
+    width: 350px;
+    min-width: 350px;
+    background-color: #ffffff;
+    border-right: 1px solid #e0e0e0;
+    padding: 25px;
+    overflow-y: auto; /* Si el panel es muy largo, tiene su propio scroll */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: all 0.3s ease;
+}
+
+.sidebar button {
+    width: 100%;
+    margin-bottom: 10px;
+}
+.sidebar.oculto {
+    width: 0;
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    border: none;
+}
+
+.btn-colapsar {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000;
+    width: 40px;
+    height: 40px;
+    background: #2c3e50;
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+#tabla-productos img {
+    transition: width 0.3s ease, height 0.3s ease;
+}
+
+.sidebar.oculto ~ .main-content img {
+    width: 300px;
+    height: 180px;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 30px;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+}
+
+h2, h3 { color: #333; margin-top: 0; }
+.section-box {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+input, select { 
+    margin: 8px 0; 
+    padding: 12px; 
+    width: 100%; 
+    border: 1px solid #ddd; 
+    border-radius: 6px; 
+    box-sizing: border-box; /* Para que el padding no estire el ancho */
+}
+
+button {
+    padding: 12px 15px;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: 0.3s;
+    width: auto;
+}
+
+.btn-add { background-color: #28a745; color: white; }
+.btn-add:hover { background-color: #218838; }
+
+/* TABLA */
+table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+th, td { border-bottom: 1px solid #eee; padding: 15px; text-align: left; }
+th { background-color: #2c3e50; color: white; }
+tr:hover { background-color: #f1f1f1; }
+
+#category-select { border: 2px solid #007bff; }
+
+/* Estilo base de los botones de categoría */
+.btn-categoria {
+    width: 95px;            /* Los 2.5 cm que pediste */
+    height: 40px;           /* Altura cómoda */
+    border: 1px solid #ccc;
+    background-color: #f0f0f0; /* Gris por defecto */
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.3s;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Si el nombre es muy largo, pone ... */
+}
+
+/* Estilo para ambos tipos de botones cuando están activos */
+.filter-btn.active, 
+.btn-categoria.active {
+    background-color: #28a745; /* Mantengo tu verde, es más amigable para Admin */
+    color: white;
+    border-color: #1e7e34;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Efecto hover para ambos */
+.filter-btn:hover:not(.active),
+.btn-categoria:hover:not(.active) {
+    background-color: #e2e2e2;
+    cursor: pointer;
+}
+
+/* Estilo base (opcional, por si no lo tienes) */
+.filter-btn, .btn-categoria {
+    padding: 8px 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    transition: all 0.2s;
+}
+
+.d-none {
+    display: none !important; /* Mantenlo, es tu seguro de vida */
+}
+
+.btn-tabla {
+    width: 100px !important; /* Para que no bailen los botones al cambiar */
+    padding: 8px;
+    margin: 2px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    display: inline-block;
+}
