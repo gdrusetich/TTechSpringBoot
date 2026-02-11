@@ -28,9 +28,7 @@ function cargarProductos() {
 }
 
 function renderizarCards(data) {
-    console.log("Lo que llegó del servidor:", data);
     const div = document.getElementById('lista-productos');
-    
     if (!div) return;
     div.innerHTML = ''; 
 
@@ -39,41 +37,41 @@ function renderizarCards(data) {
         return;
     }
 
+    const rutaDefault = `${API_URL}/uploads/default.jpg`;
+    const rutaWA = `${API_URL}/uploads/WhatsApp.png`;
+
     div.innerHTML = data.map(p => {
         const catId = (p.categories && p.categories.length > 0) ? p.categories[0].id : '';
+        const esUsuarioReal = (window.nombreUsuario && window.nombreUsuario !== 'Invitado');
 
-        let fotoUrl;
+        // Lógica de imagen: Principal -> Primera de lista -> Default
+        let fotoUrl = rutaDefault;
         if (p.mainImage && p.mainImage.url) {
             fotoUrl = `${API_URL}/uploads/${p.mainImage.url}`;
         } else if (p.images && p.images.length > 0) {
             const primeraFoto = p.images[0].url ? p.images[0].url : p.images[0];
             fotoUrl = `${API_URL}/uploads/${primeraFoto}`;
-        } else {
-            // Imagen por defecto si no hay nada en la DB
-            fotoUrl = '/img/no-photo.png'; 
         }
 
-        const urlDetalle = `/detalle?id=${p.id}`;
-        const esUsuarioReal = (window.nombreUsuario && window.nombreUsuario !== 'Invitado');
-        
         return `
             <div class="card" data-category-id="${catId}">
-                <div class="img-container" onclick="window.location.href='${urlDetalle}'" style="cursor:pointer;">
-                    <img src="${fotoUrl}" 
-                         alt="${p.title}" 
-                         class="card-img" 
-                         onerror="this.onerror=null; this.src='/img/no-photo.png';">
+                <div class="img-container" onclick="window.location.href='/detalle?id=${p.id}'">
+                    <img src="${fotoUrl}" alt="${p.title}" class="card-img" 
+                         onerror="if (this.src != '${rutaDefault}') this.src = '${rutaDefault}';">
                 </div>
                 <div class="info">
-                    <h3 onmouseover="mostrarDescripcion(event, '${(p.description || '').replace(/'/g, "\\'")}')" 
-                        onmouseout="ocultarDescripcion()">${p.title}</h3>
-                     ${esUsuarioReal 
+                    <h3>${p.title}</h3>
+                    
+                    ${esUsuarioReal 
                         ? `<span class="price">$ ${p.price.toLocaleString('es-AR')}</span>` 
-                        : `<p class="consultar-precio">Logueate para ver precio</p>`}
+                        : ''
+                    }
 
-                    <button class="filter-btn" onclick="${esUsuarioReal ? `enviarWhatsApp('${p.title}')` : `abrirModalLogin()`}">
-                        ${esUsuarioReal ? 'Pedir WA' : 'Ingresar'}
-                    </button>
+                    <div class="botones-container" style="display: flex; justify-content: center; align-items: center; gap: 10px;">
+                        <img src="${rutaWA}" alt="WhatsApp" class="btn-wa-icon" 
+                            onclick="enviarWhatsApp('${p.title}')" 
+                            style="width: 35px; height: 35px;"> ${!esUsuarioReal ? `<button class="filter-btn small" onclick="abrirModalLogin()">Ingresar</button>` : ''}
+                    </div>
                 </div>
             </div>`;
     }).join('');

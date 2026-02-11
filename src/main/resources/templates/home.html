@@ -7,16 +7,14 @@
     <link rel="stylesheet" th:href="@{/home.css}">
 </head>
 <body>
-    
     <div id="menu-usuario" class="user-menu-top">
-        <div th:if="${session.userName != null}">
-            <span class="user-greeting">
-                Hola, <span th:text="${session.userName}"></span>!
-            </span>
-            <br>
-            <a href="/perfil" class="edit-profile">⚙️ Editar Perfil</a>
-            <br>
-            <a href="/logout" class="logout-link">Cerrar Sesión</a>
+        <div th:if="${session.userName == null}">
+            <a href="/login" class="filter-btn">Ingresar</a>
+        </div>
+        <div th:if="${session.userName != null}" class="user-logged-info">
+            <span>Hola, <span th:text="${session.userName}"></span>!</span>
+            <a href="/perfil">⚙️ Perfil</a>
+            <a href="/logout">Cerrar Sesión</a>
         </div>
     </div>
 
