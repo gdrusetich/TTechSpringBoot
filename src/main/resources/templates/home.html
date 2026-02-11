@@ -29,6 +29,11 @@
             <input type="text" id="busqueda" placeholder="Buscar producto..." 
                    onkeyup="filtrarPorTexto()" class="search-input">
         </div>
+        <select id="ordenPrecioHome" onchange="aplicarFiltrosYOrden()" class="tu-clase-css">
+            <option value="default">Relevancia</option>
+            <option value="min">Precio: Menor a Mayor</option>
+            <option value="max">Precio: Mayor a Menor</option>
+        </select>
 
         <div class="filter-container">
             <div id="categorias-nav"></div>

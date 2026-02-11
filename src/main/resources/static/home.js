@@ -1,11 +1,12 @@
 const API_URL = 'http://localhost:8081';
 let categoriasData = [];
+let productosHome = [];
+
 if (typeof userLogger === 'undefined') {
     var userLogger = null;
 }
 const tooltip = document.getElementById('tooltip-descripcion');
 
-// 2. El Listener de Carga (Lo que se ejecuta apenas abrís la página)
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Página cargada. Limpiando miguita de pan...");
     localStorage.removeItem("returnUrl");     
@@ -16,10 +17,13 @@ document.addEventListener("DOMContentLoaded", () => {
 function cargarProductos() {
     fetch(`${API_URL}/products/list`)
         .then(response => response.json())
-        .then(data => renderizarCards(data))
+        .then(data => {
+            productosHome = data; // Guardamos la copia
+            aplicarFiltrosYOrden(); // Llamamos a la nueva función
+        })
         .catch(err => {
-        console.error("Error:", err);
-            document.getElementById('lista-productos').innerHTML = "Error al conectar con el servidor.";
+            console.error("Error:", err);
+            document.getElementById('lista-productos').innerHTML = "Error al conectar.";
         });
 }
 
@@ -27,7 +31,6 @@ function renderizarCards(data) {
     console.log("Lo que llegó del servidor:", data);
     const div = document.getElementById('lista-productos');
     
-    // Limpieza de seguridad
     if (!div) return;
     div.innerHTML = ''; 
 
@@ -37,10 +40,8 @@ function renderizarCards(data) {
     }
 
     div.innerHTML = data.map(p => {
-        // Obtenemos el ID de categoría de forma segura
         const catId = (p.categories && p.categories.length > 0) ? p.categories[0].id : '';
 
-        // LÓGICA DE IMAGEN UNIFICADA
         let fotoUrl;
         if (p.mainImage && p.mainImage.url) {
             fotoUrl = `${API_URL}/uploads/${p.mainImage.url}`;
@@ -81,24 +82,22 @@ function renderizarCards(data) {
 function pedirProductos(url) {
     fetch(url)
         .then(res => {
-            if (!res.ok) {
-                // Si el servidor tira 500, esto captura el error antes de intentar el .json()
-                throw new Error(`Error del servidor: ${res.status}`);
-            }
+            if (!res.ok) throw new Error(`Error: ${res.status}`);
             return res.json();
         })
         .then(data => {
-            // Verificamos que 'data' sea realmente una lista
             if (Array.isArray(data)) {
-                renderizarCards(data);
+                // LA CLAVE: Guardamos lo que llegó del servidor en nuestra variable global
+                productosHome = data; 
+                // Y aplicamos el filtro/orden sobre esos nuevos datos
+                aplicarFiltrosYOrden(); 
             } else {
-                console.error("Los datos recibidos no son una lista:", data);
-                document.getElementById('lista-productos').innerHTML = "Formato de datos incorrecto.";
+                console.error("No es una lista:", data);
             }
         })
         .catch(err => {
             console.error("Error al pedir productos:", err);
-            document.getElementById('lista-productos').innerHTML = "Error al conectar con el servidor.";
+            document.getElementById('lista-productos').innerHTML = "Error al conectar.";
         });
 }
 
@@ -171,10 +170,6 @@ function renderizarNivel(containerId, listaHijos, idPadreActual) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    // Si es subcategoría ponemos HR, si es nieto algo más sutil o nada
-    //container.innerHTML = containerId === 'subcategorias-nav' ? '<hr>' : '<div style="margin-top:5px"></div>';
-    
-    // El "Ver Todo" solo pide productos, no busca más hijos
     container.innerHTML += `<button class="filter-btn sub-btn active" onclick="pedirProductos('${API_URL}/products/categoria/${idPadreActual}'); marcarActivo(this)">Ver Todo</button>`;
 
     listaHijos.forEach(h => {
@@ -213,14 +208,30 @@ function seleccionarCategoria(id, btn) {
 }
 
 function obtenerURLImagenPrincipal(producto) {
-    // 1. Si existe mainImage, la usamos
     if (producto.mainImage && producto.mainImage.url) {
         return `/uploads/${producto.mainImage.url}`;
     }
-    // 2. Si no, si hay imágenes en el array, usamos la primera
     if (producto.images && producto.images.length > 0) {
         return `/uploads/${producto.images[0].url}`;
     }
-    // 3. Si no hay nada, una imagen por defecto
+
     return '/img/no-photo.png';
+}
+
+function aplicarFiltrosYOrden() {
+    const orden = document.getElementById('ordenPrecioHome')?.value || 'default';
+    if (!productosHome || productosHome.length === 0) {
+        renderizarCards([]);
+        return;
+    }
+
+    let copiaProductos = [...productosHome];
+
+    copiaProductos.sort((a, b) => {
+        if (orden === "min") return a.price - b.price;
+        if (orden === "max") return b.price - a.price;
+        return a.id - b.id; 
+    });
+
+    renderizarCards(copiaProductos);
 }
