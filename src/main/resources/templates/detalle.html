@@ -23,7 +23,7 @@
 
                 <div th:if="${session.userRole == 'CLIENTE'}" class="logged-in-info">
                     <span class="welcome-msg">Hola, [[${session.userName}]]!</span>
-                    <button class="btn-perfil-header" onclick="abrirModalPerfil()">Mi Perfil</button>
+                    <button class="btn-perfil-header" onclick="window.location.href='/perfil'">Mi Perfil</button>
                     <a href="/logout" class="logout-link">Cerrar Sesión</a>
                 </div>
 

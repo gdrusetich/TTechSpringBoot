@@ -12,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 
 @Controller
 @RequestMapping("/usuarios") // Todas las rutas empezarán con /usuarios
@@ -20,7 +22,6 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
-    private ProductRepository productRepository;
 
     // 1. Ver la lista de usuarios (solo para el admin)
     @GetMapping("/gestion")
@@ -32,74 +33,95 @@ public class UserController {
         return "gestion-usuarios"; // Crearemos este HTML después
     }
 
+    @Transactional
     @PostMapping("/guardar")
     public ResponseEntity<String> guardarUsuario(@RequestParam String username, 
                                                 @RequestParam String password, 
                                                 @RequestParam String role, 
                                                 HttpSession session) {
-        if (!Role.ADMIN.name().equals(session.getAttribute("rol"))) {
+
+        Object roleSesion = session.getAttribute("userRole");
+        if (roleSesion == null || !roleSesion.toString().equals("ADMIN")) {
+            System.err.println(">>> INTENTO DE CREACIÓN NO AUTORIZADO. Rol: " + roleSesion);
             return ResponseEntity.status(403).body("No autorizado");
         }
-
-        // 2. Verificamos si ya existe el nombre
         if (userRepository.findByUsername(username).isPresent()) {
             return ResponseEntity.status(400).body("El usuario ya existe");
         }
-
         try {
             User usuario = new User();
             usuario.setUsername(username);
             usuario.setPassword(password);
-            usuario.setRole(Role.valueOf(role));
+            usuario.setRole(Role.valueOf(role.toUpperCase()));
             userRepository.save(usuario);
+            System.err.println(">>> USUARIO CREADO: " + username);
             return ResponseEntity.ok("success"); 
         } catch (Exception e) {
+            System.err.println(">>> ERROR AL GUARDAR: " + e.getMessage());
             return ResponseEntity.status(500).body("Error en el servidor");
         }
     }
 
-    @PostMapping("/actualizar-perfil")
-    public String actualizarPerfil(@RequestParam String nuevoUser, 
-                                @RequestParam String nuevoPass, 
-                                HttpSession session) {        
-        Long id = (Long) session.getAttribute("usuarioId");        
+    @Transactional
+    @PostMapping("/actualizar-perfil") // Asegurate que esta ruta coincida con el fetch
+    public ResponseEntity<String> actualizarPerfil(@RequestParam String nuevoUser, 
+                                                @RequestParam String nuevoPass, 
+                                                HttpSession session) {        
+        
+        Long id = (Long) session.getAttribute("userId");        
+        System.err.println(">>> DEBUG: Procesando actualización para ID: " + id);
         
         if (id != null) {
             Optional<User> userOpt = userRepository.findById(id);
             if (userOpt.isPresent()) {
                 User u = userOpt.get();
                 u.setUsername(nuevoUser);
-                u.setPassword(nuevoPass); 
+                
+                if (nuevoPass != null && !nuevoPass.trim().isEmpty()) {
+                    u.setPassword(nuevoPass);
+                }
+                
                 userRepository.save(u);
                 
-                // Actualizamos el nombre en la sesión para el saludo
+                // Actualizamos la sesión para que los cambios se vean en el momento
                 session.setAttribute("userName", nuevoUser);
-                return "redirect:/home?actualizado=true";
+                session.setAttribute("userLogger", u); 
+                
+                return ResponseEntity.ok("success"); // <--- Esto es lo que causaba el Type Mismatch
             }
         }
-        // Si el ID es null o no existe, lo mandamos al login
-        return "redirect:/home";
+        return ResponseEntity.status(400).body("No se pudo actualizar");
     }
 
+    @org.springframework.transaction.annotation.Transactional // Fundamental para que el save() impacte
     @PostMapping("/editar-desde-admin")
     @ResponseBody
     public String editarDesdeAdmin(@RequestParam Long id, 
-                                @RequestParam String username, 
-                                @RequestParam String password, 
-                                HttpSession session) {
-        // Seguridad: Solo el ADMIN puede editar a otros
-        if (!"ADMIN".equals(session.getAttribute("rol"))) {
+                                    @RequestParam String username, 
+                                    @RequestParam String password, 
+                                    HttpSession session) {
+        
+        // 1. Corregimos el nombre a "userRole" que es el que usa tu LoginController
+        Object roleAttr = session.getAttribute("userRole");
+        
+        // 2. Comparamos de forma segura (pasando a String)
+        if (roleAttr == null || !roleAttr.toString().equals("ADMIN")) {
+            System.err.println(">>> ACCESO DENEGADO: El usuario intentó editar sin ser ADMIN. Rol encontrado: " + roleAttr);
             return "No autorizado";
         }
 
         try {
-            User u = userRepository.findById(id).orElseThrow();
+            User u = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            
             u.setUsername(username);
             u.setPassword(password);
-            // El role se mantiene igual
+            
             userRepository.save(u);
+            
+            System.err.println(">>> ÉXITO: Admin actualizó al usuario ID " + id);
             return "success";
         } catch (Exception e) {
+            System.err.println(">>> ERROR EN EDICIÓN ADMIN: " + e.getMessage());
             return "error";
         }
     }

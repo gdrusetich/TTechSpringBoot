@@ -16,17 +16,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
 import jakarta.servlet.http.HttpSession;
 
-    @Controller
-    public class ViewController {
+@Controller
+public class ViewController {
 
-        @Autowired
-        CategoryRepository categoryRepository;
-        @Autowired
-        ProductRepository productRepository;
-        @Autowired
-        UserRepository userRepository;
+    @Autowired
+    CategoryRepository categoryRepository;
+    @Autowired
+    ProductRepository productRepository;
+    @Autowired
+    UserRepository userRepository;
 
-        @GetMapping("/detalle") 
+    @GetMapping("/detalle") 
         public String verDetalle(@RequestParam("id") Long id, Model model, HttpSession session) {
         
         Product producto = productRepository.findById(id).orElse(null);
@@ -48,13 +48,23 @@ import jakarta.servlet.http.HttpSession;
         return "home"; 
     }
 
-
     @GetMapping("/perfil")
     public String irAlPerfil(HttpSession session) {
         if (session.getAttribute("userName") == null) {
             return "redirect:/home"; // Si no está logueado, fuera
         }
         return "perfil"; // Esto carga perfil.html
+    }
+
+    @GetMapping("/products/prices") // Podés dejar la ruta así para que coincida con tu botón
+    public String editarPrecios(HttpSession session) {
+        User usuario = (User) session.getAttribute("userLogger");
+
+        if (usuario == null || usuario.getRole() != Role.ADMIN) {
+            return "redirect:/home"; 
+        }
+        
+        return "prices"; // Busca templates/prices.html
     }
 
     @GetMapping("/admin")

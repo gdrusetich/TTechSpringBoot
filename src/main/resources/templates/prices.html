@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Modificación de Precios - El Turco</title>
+    <link rel="stylesheet" th:href="@{/prices.css}">
+</head>
+<body>
+
+    <div class="header-precios">
+        <h2>📊 Gestión de Precios y Stock</h2>
+        <div class="botones-header">
+            <button class="btn-volver" onclick="window.location.href='/home'">⬅ Volver</button>
+            <button class="btn-guardar-todo" onclick="guardarCambios()">💾 GUARDAR CAMBIOS</button>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre del Producto</th>
+                <th>Precio</th>
+                <th>Stock</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpo-tabla">
+            <tr><td colspan="4">Cargando productos...</td></tr>
+        </tbody>
+    </table>
+
+    <script th:src="@{/prices.js}"></script>
+</body>
+</html>

@@ -65,6 +65,7 @@ function cargarProductos() {
         .catch(err => console.error("Error al cargar productos:", err));
 }
 
+
 function renderizarTabla(lista) {
     const tabla = document.getElementById('tabla-productos');
     let htmlFinal = "";

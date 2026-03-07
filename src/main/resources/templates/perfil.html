@@ -1,21 +1,49 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Mi Perfil</title>
-    <link rel="stylesheet" href="/css/style.css"> </head>
+    <meta charset="UTF-8">
+    <title>Mi Perfil - El Turco</title>
+    <link rel="stylesheet" href="/home.css"> 
+    <link rel="stylesheet" href="/perfil.css">
+</head>
 <body>
-    <div class="container">
-        <h2>Modificar mis datos</h2>
-        <form action="/usuarios/actualizar-perfil" method="post">
-            <label>Nuevo nombre de usuario:</label>
-            <input type="text" name="nuevoUser" th:value="${session.userName}" required>
+    <div class="perfil-container">
+        <h2>⚙️ Mi Perfil</h2>
+        
+        <form onsubmit="event.preventDefault(); actualizarPerfil();">
             
-            <label>Nueva contraseña:</label>
-            <input type="password" name="nuevoPass" required>
-            
-            <button type="submit">Guardar Cambios</button>
-            <a href="/home">Cancelar</a>
+            <div class="form-group">
+                <label>Nombre de Usuario:</label>
+                <input type="text" name="nuevoUser" th:value="${session.userName}" required class="search-input">
+            </div>
+
+            <div class="form-group">
+                <button type="button" onclick="mostrarPassActual()" class="filter-btn">👁️ Ver Contraseña Actual</button>
+                <p id="pass-actual" style="display:none; margin: 10px 0; color: #00ff88;">
+                    Tu clave es: <span th:text="${session.userLogger != null ? session.userLogger.password : 'No disponible'}"></span>
+                </p>
+            </div>
+
+            <hr style="opacity: 0.2; margin: 20px 0;">
+
+            <div class="form-group">
+                <label>Nueva Contraseña (opcional):</label>
+                <input type="password" id="pass1" name="nuevoPass" class="search-input" placeholder="Escribí aquí la nueva">
+            </div>
+
+            <div class="form-group">
+                <label>Repetir Nueva Contraseña:</label>
+                <input type="password" id="pass2" class="search-input" placeholder="Repetila para validar">
+                <p id="error-pass" style="color: #ff5252; display: none; font-size: 0.8rem;">⚠️ Las contraseñas no coinciden</p>
+            </div>
+
+            <div class="perfil-actions" style="margin-top: 25px; display: flex; gap: 10px; align-items: center;">
+                <button type="submit" class="filter-btn" style="background: #2e7d32; flex: 1;">Guardar Cambios</button>
+                <a href="/home" class="filter-btn" style="background: #444; text-decoration: none; text-align: center; flex: 1;">Volver</a>
+            </div>
         </form>
     </div>
+
+    <script src="/perfil.js"></script>
 </body>
 </html>
