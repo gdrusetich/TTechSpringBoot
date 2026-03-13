@@ -27,19 +27,14 @@ public class ViewController {
     UserRepository userRepository;
 
     @GetMapping("/detalle") 
-        public String verDetalle(@RequestParam("id") Long id, Model model, HttpSession session) {
-        
+    public String verDetalle(@RequestParam("id") Long id, Model model, HttpSession session) {
         Product producto = productRepository.findById(id).orElse(null);
-        
         if (producto == null) {
-            return "redirect:/products/list"; 
+            return "redirect:/";
         }
-
         ProductResponseDTO productoDTO = new ProductResponseDTO(producto);
-
         model.addAttribute("producto", productoDTO);
         model.addAttribute("rolActual", session.getAttribute("rol"));
-
         return "detalle"; 
     }
 

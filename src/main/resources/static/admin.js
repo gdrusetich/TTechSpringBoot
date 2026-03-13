@@ -26,6 +26,10 @@ async function inicializarApp() {
 function ejecutarFiltroFinal() {
     const texto = document.getElementById('busquedaAdmin').value.toLowerCase();
     const idFiltro = document.getElementById('categoriaIdInput').value;
+    
+    // NUEVO: Capturar la fecha de auditoría
+    const inputFecha = document.getElementById('filtroFecha'); 
+    const fechaCorte = inputFecha ? inputFecha.value : ""; // Formato YYYY-MM-DD
 
     // Si hay un filtro de categoría, obtenemos el ID seleccionado y todos sus hijos/nietos
     let idsPermitidos = [];
@@ -34,16 +38,30 @@ function ejecutarFiltroFinal() {
     }
 
     const filtrados = productosCargados.filter(p => {
+        // 1. Filtro de Texto (Nombre o ID)
         const nombreProducto = (p.title || p.name || "").toLowerCase();
         const coincideTexto = nombreProducto.includes(texto) || p.id.toString().includes(texto);
-        
-        if (!coincideTexto) return false;        
+        if (!coincideTexto) return false;
+
+        // 2. Filtro de Fecha (Auditoría de Precios)
+        if (fechaCorte !== "") {
+            // Si el producto no tiene fecha, lo consideramos "viejo" y lo mostramos
+            if (!p.fechaUltimoPrecio) return true; 
+            
+            // Si la fecha del producto es mayor a la de corte, queda fuera del filtro
+            if (p.fechaUltimoPrecio > fechaCorte) return false;
+        }
+
+        // 3. Filtro de Categorías
         if (idsPermitidos.length === 0) return true;
+        
+        // Revisar si alguna de las categorías del producto está en la lista de permitidas
         if (Array.isArray(p.categories)) {
             return p.categories.some(cat => idsPermitidos.includes(Number(cat.id)));
-        }         
+        }        
+        
         if (p.category) {
-            const idCatProducto = p.category.id || p.category; // Maneja si es objeto o solo ID
+            const idCatProducto = p.category.id || p.category;
             return idsPermitidos.includes(Number(idCatProducto));
         }
         
@@ -55,14 +73,22 @@ function ejecutarFiltroFinal() {
 
 
 function cargarProductos() {
-    fetch(`${API_PRODUCTS}/list`)
-        .then(res => res.json())
+    fetch(`${API_PRODUCTS}/all`) // Ahora sí va a encontrar el recurso
+        .then(res => {
+            if (!res.ok) throw new Error("Error en el servidor");
+            return res.json();
+        })
         .then(productos => {
-            console.log("Productos recibidos del servidor:", productos);
-            productosCargados = productos; 
+            console.log("Productos para Admin cargados:", productos);
+            // Validamos que sea un array antes de asignarlo
+            productosCargados = Array.isArray(productos) ? productos : []; 
             ejecutarFiltroFinal();
         })
-        .catch(err => console.error("Error al cargar productos:", err));
+        .catch(err => {
+            console.error("Error al cargar productos:", err);
+            productosCargados = []; // Evitamos que el filtro explote
+            renderizarTabla([]);    // Mostramos tabla vacía
+        });
 }
 
 
@@ -70,7 +96,6 @@ function renderizarTabla(lista) {
     const tabla = document.getElementById('tabla-productos');
     let htmlFinal = "";
 
-    // 1. ORDENAR SIEMPRE POR ID (Para que no salten al final al editar)
     lista.sort((a, b) => (a.id || a.id_producto) - (b.id || b.id_producto));
 
     if (!lista || lista.length === 0) {
@@ -82,53 +107,50 @@ function renderizarTabla(lista) {
 
     lista.forEach(p => {
         const id = p.id || p.id_producto;
+        const btnColor = p.oculto ? '#e67e22' : '#6f42c1'; 
+        const btnTexto = p.oculto ? '👁️ Mostrar' : '🙈 Ocultar';
         
-        // Lógica de imagen mejorada
         const nombreArchivo = (p.mainImage && (p.mainImage.url || p.mainImage.ruta)) 
             ? (p.mainImage.url || p.mainImage.ruta) 
             : (p.images && p.images.length > 0 ? (typeof p.images[0] === 'string' ? p.images[0] : p.images[0].url) : 'default.png');
         
         const rtaImagen = `${BASE_URL}${nombreArchivo}`;
 
+        // CORRECCIÓN AQUÍ: Todo dentro de la misma etiqueta <tr>
         htmlFinal += `
-            <tr id="fila-${id}">
+            <tr id="fila-${id}" 
+                onclick="manejadorClickFila(event, ${id})" 
+                style="cursor: pointer;" 
+                class="fila-producto">
+                
                 <td>${id}</td>
                 <td>
-                    <img src="${rtaImagen}" 
-                         alt="${p.title}"
-                         onclick="irADetalle(${id})" 
-                         style="width: 120px; height: 80px; object-fit: contain; cursor: pointer; background: white; border: 1px solid #ddd; border-radius: 4px;"
-                         onerror="this.src='${BASE_URL}default.png'">
+                    <img src="${rtaImagen}" alt="${p.title}" style="width: 120px; height: 80px; object-fit: contain;">
                 </td>
-                
                 <td>
                     <span class="view-mode"><strong>${p.title}</strong></span>
-                    <input type="text" class="edit-mode d-none in-title" value="${p.title}" style="width: 100%;">
                 </td>
-
                 <td>
                     <span class="view-mode">$${p.price ? p.price.toLocaleString('es-AR') : '0'}</span>
-                    <input type="number" class="edit-mode d-none in-price" value="${p.price}" style="width: 100px;">
                 </td>
-
                 <td>
                     <span class="view-mode">${p.stock}</span>
-                    <input type="number" class="edit-mode d-none in-stock" value="${p.stock}" style="width: 70px;">
                 </td>
 
                 <td style="min-width: 230px;">
-                    <button class="view-mode btn-tabla" style="background:#007bff; color:white;" onclick="activarEdicion(${id})">Editar</button>
-                    <button class="view-mode btn-tabla" style="background:#dc3545; color:white;" onclick="eliminarProducto(${id})">Borrar</button>
+                    <button class="view-mode btn-tabla" style="background:#007bff; color:white;" onclick="event.stopPropagation(); activarEdicion(${id})">Editar</button>
+                    
+                    <button class="view-mode btn-tabla" 
+                            style="background: ${btnColor}; color:white;" 
+                            onclick="event.stopPropagation(); toggleVisibilidad(${id})">
+                        ${btnTexto}
+                    </button>
 
-                    <button class="edit-mode d-none btn-tabla" style="background:#28a745; color:white;" onclick="guardarEdicionRapida(${id})">Guardar</button>
-                    <button class="edit-mode d-none btn-tabla" style="background:#6c757d; color:white;" onclick="abrirModalDesc(this)">Desc.</button>
-                    <span class="edit-mode d-none" onclick="cancelarEdicion(${id})" style="cursor:pointer; margin-left:10px; font-weight:bold; color:red;">❌</span>
+                    <button class="view-mode btn-tabla" style="background:#dc3545; color:white;" onclick="event.stopPropagation(); eliminarProducto(${id})">Borrar</button>
 
-                    <div class="panel-desc" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background: white; border: 2px solid #333; z-index: 10001; padding: 20px; width: 450px; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5);">
-                        <h4 style="margin-top:0; color: black;">Editar Descripción</h4>
-                        <textarea class="in-desc" style="width: 100%; height: 180px; font-family: Arial; padding: 10px;">${p.description || ''}</textarea>
-                        <button type="button" onclick="this.parentElement.style.display='none'" style="width:100%; background:#007bff; color:white; margin-top:10px; padding: 10px; border:none; border-radius:5px; cursor:pointer;">LISTO</button>
-                    </div>
+                    <button class="edit-mode d-none btn-tabla" style="background:#28a745; color:white;" onclick="event.stopPropagation(); guardarEdicionRapida(${id})">Guardar</button>
+                    <button class="edit-mode d-none btn-tabla" style="background:#6c757d; color:white;" onclick="event.stopPropagation(); abrirModalDesc(this)">Desc.</button>
+                    <span class="edit-mode d-none" onclick="event.stopPropagation(); cancelarEdicion(${id})" style="cursor:pointer; margin-left:10px; font-weight:bold; color:red;">❌</span>
                 </td>
             </tr>`;
     });
@@ -412,7 +434,6 @@ function prepararEdicionDesdeSelect() {
     }
 }
 
-// Asegurate de llamar a actualizarBotones() dentro de cancelarEdicionCat
 function cancelarEdicionCat() {
     editandoCatId = null;
     document.getElementById('new-category-name').value = "";
@@ -531,32 +552,28 @@ async function guardarTodo() {
     for (let [index, fila] of filas.entries()) {
         const formData = new FormData();
         
-        // Mapeo exacto según tu @RequestParam en Java
         formData.append("title", fila.querySelector(".in-nombre").value);
         formData.append("price", fila.querySelector(".in-precio").value);
         formData.append("stock", fila.querySelector(".in-stock").value);
         formData.append("description", fila.querySelector(".in-descripcion").value);
 
-        // CATEGORÍAS: Java espera @RequestParam("category")
         const checks = fila.querySelectorAll(".cat-check:checked");
         if (checks.length === 0) {
             console.error(`Fila ${index + 1} no tiene categorías seleccionadas.`);
-            continue; // O avisar al usuario
+            continue;
         }
         checks.forEach(cb => {
-            formData.append("category", cb.value); // <--- CAMBIADO: Coincide con Java
+            formData.append("category", cb.value);
         });
 
-        // IMÁGENES: Java espera @RequestParam("images")
         const inputFotos = fila.querySelector(".in-fotos");
         if (inputFotos && inputFotos.files.length > 0) {
             for (let i = 0; i < inputFotos.files.length; i++) {
-                formData.append("images", inputFotos.files[i]); // <--- CAMBIADO: Coincide con Java
+                formData.append("images", inputFotos.files[i]);
             }
         }
 
         try {
-            // Asegurate de que la URL sea la correcta (/products o /admin/productos)
             const resp = await fetch("/products/nuevo-producto", { 
                 method: "POST",
                 body: formData
@@ -577,10 +594,8 @@ async function guardarTodo() {
 }
 
 function toggleCats(btn) {
-    // Buscamos el div que está DESPUÉS del botón
     const lista = btn.nextElementSibling;
     if (lista) {
-        // Forzamos el cambio de estilo
         if (lista.style.display === "none" || lista.style.display === "") {
             lista.style.display = "block";
         } else {
@@ -673,5 +688,31 @@ async function guardarEdicionRapida(id) {
     } catch (err) {
         console.error("Error en la petición:", err);
         alert("No se pudo conectar con el servidor");
+    }
+}
+
+function toggleVisibilidad(id) {
+    fetch(`/products/${id}/toggle-visible`, { 
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => {
+        if (res.ok) {
+            console.log(`Estado del producto ${id} cambiado.`);
+            cargarProductos();
+        } else {
+            alert("Error al cambiar la visibilidad");
+        }
+    })
+    .catch(err => console.error("Error:", err));
+}
+
+function manejadorClickFila(event, id) {
+    // Si el Admin está en "Modo Edición" (viendo los inputs), no redirigimos
+    const fila = document.getElementById(`fila-${id}`);
+    if (fila.querySelector('.edit-mode').classList.contains('d-none')) {
+        irADetalle(id);
     }
 }

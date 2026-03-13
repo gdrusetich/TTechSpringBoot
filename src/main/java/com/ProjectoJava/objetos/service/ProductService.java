@@ -51,8 +51,11 @@ public class ProductService {
         Product productoNuevo = new Product();
         productoNuevo.setTitle(nuevoDTO.getTitle());
         productoNuevo.setPrice(nuevoDTO.getPrice());
+        productoNuevo.setFechaUltimoPrecio(nuevoDTO.getFechaUltimoPrecio());
+        productoNuevo.setOculto(nuevoDTO.isOculto());
         productoNuevo.setStock(nuevoDTO.getStock());
         productoNuevo.setDescription(nuevoDTO.getDescription()); // ¡No te olvides de la descripción!
+        
 
         // 3. Cargar Categorías
         List<Category> categoriasEncontradas = categoryRepository.findAllById(nuevoDTO.getCategories());
@@ -75,15 +78,25 @@ public class ProductService {
         return new ProductResponseDTO(productoGuardado);
     }
 
-    public List<ProductResponseDTO> listarProductos(){
-        List<Product> listaDeProductos = productRepositoryJPA.findAll();
-        List<ProductResponseDTO> listaDTO = new ArrayList<>();
-        for(Product p: listaDeProductos){
-            ProductResponseDTO nuevoDTO = new ProductResponseDTO(p);
-            listaDTO.add(nuevoDTO);
-        }
-        return listaDTO;
+    public List<ProductResponseDTO> listarProductosVisibles() {
+        return productRepositoryJPA.findByOcultoFalse().stream()
+                .map(ProductResponseDTO::new)
+                .collect(Collectors.toList());
     }
+
+    public List<ProductResponseDTO> listarTodoCompleto() {
+        try {
+            List<Product> productos = productRepositoryJPA.findAll();
+            return productos.stream()
+                    .map(p -> new ProductResponseDTO(p)) // Transformación manual a DTO
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            e.printStackTrace(); // Esto te va a mostrar el error REAL en la consola de Java
+            throw e;
+        }
+    }
+
+
 
     public List<ProductResponseDTO> filtrarPorPrecio(double precioMaximo){
         List<Product> listaDeProductos = productRepositoryJPA.findAll();
@@ -144,9 +157,10 @@ public class ProductService {
 
         if (PRDTO.getTitle() != null && !PRDTO.getTitle().isEmpty()) productoExistente.setTitle(PRDTO.getTitle());
         if (PRDTO.getPrice() > 0) productoExistente.setPrice(PRDTO.getPrice());
+        productoExistente.setOculto(PRDTO.isOculto());
         if (PRDTO.getStock() >= 0) productoExistente.setStock(PRDTO.getStock());
         if (PRDTO.getDescription() != null && !PRDTO.getDescription().isEmpty()) productoExistente.setDescription(PRDTO.getDescription());
-
+        
         List<Category> categoriasEncontradas = categoryRepository.findAllById(PRDTO.getCategories());
         productoExistente.setCategories(new HashSet<>(categoriasEncontradas));
 
@@ -172,7 +186,7 @@ public class ProductService {
         this.productRepositoryJPA.deleteById(id);
     }
 
-    public boolean hayStock(Long idProducto, int cantidad) throws ProductNotExistsException {
+    public Boolean hayStock(Long idProducto, int cantidad) throws ProductNotExistsException {
         Product productoBuscado = productRepositoryJPA.findById(idProducto)
                 .orElseThrow(() -> new ProductNotExistsException("Producto no encontrado con ID: " + idProducto));
         return productoBuscado.getStock() >= cantidad;

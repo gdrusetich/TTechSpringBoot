@@ -6,13 +6,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>{
     Product findById(int id);
 
-    boolean existsByTitleIgnoreCase(String title);
+    Boolean existsByTitleIgnoreCase(String title);
     List<Product> findByCategories_Id(Long categoryId);
     List<Product >findByCategoriesContaining(Category category);
     @Query("SELECT p FROM Product p JOIN p.categories c WHERE c.id = :catId OR c.parent.id = :catId")
@@ -23,5 +24,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
             "JOIN p.categories c " +
             "WHERE c.id IN :categoryIds")
         List<Product> findByCategories_IdIn(@Param("categoryIds") List<Long> categoryIds);
-    
+        List<Product> findByOcultoFalse();
+        List<Product> findByTitleContainingIgnoreCase(String title);
+        List<Product> findByTitleContainingIgnoreCaseAndOcultoFalse(String title);
+        List<Product> findByFechaUltimoPrecioBefore(LocalDate fechaLimite);
+        List<Product> findByFechaUltimoPrecioIsNull();
 }

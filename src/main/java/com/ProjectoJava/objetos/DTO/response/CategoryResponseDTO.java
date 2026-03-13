@@ -15,6 +15,10 @@ public class CategoryResponseDTO {
             this.parentName = category.getParent().getName();
         }
     }
+    public CategoryResponseDTO(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
     public Long getId() {return id;}
     public String getName() {return name;}

@@ -12,15 +12,15 @@ INSERT INTO categories (name, parent_id) VALUES ('Alfombra', NULL) ON CONFLICT D
 
 
 -- 2. PRODUCTOS (Agregamos todos los Panacom que faltaban)
-INSERT INTO product (title, price, stock, description) VALUES 
-('Panacom CA5023', 44799, 10, 'Stereo Panacom High Power'),
-('Panacom CA5025', 47399, 5, 'Stereo Panacom Bluetooth'),
-('Panacom CA5032', 54299, 8, 'Stereo Panacom LED Display'),
-('Panacom CA5089', 67299, 3, 'Stereo Panacom Premium'),
-('Panacom CA5200', 82499, 4, 'Stereo Panacom Pro Series'),
-('Panacom CA5104', 122999, 2, 'Stereo Panacom Ultra V2'),
-('Panacom CA5102', 142199, 6, 'Stereo Panacom Elite'),
-('Teclado Gamer', 25000, 15, 'Teclado Mecanico RGB');
+INSERT INTO product (title, price, stock, description, fecha_ultimo_precio, oculto) VALUES 
+('Panacom CA5023', 44799, 10, 'Stereo Panacom High Power', CURRENT_DATE, false),
+('Panacom CA5025', 47399, 5, 'Stereo Panacom Bluetooth',CURRENT_DATE, false),
+('Panacom CA5032', 54299, 8, 'Stereo Panacom LED Display',CURRENT_DATE, false),
+('Panacom CA5089', 67299, 3, 'Stereo Panacom Premium',CURRENT_DATE, false),
+('Panacom CA5200', 82499, 4, 'Stereo Panacom Pro Series',CURRENT_DATE, false),
+('Panacom CA5104', 122999, 2, 'Stereo Panacom Ultra V2',CURRENT_DATE, false),
+('Panacom CA5102', 142199, 6, 'Stereo Panacom Elite',CURRENT_DATE, false),
+('Teclado Gamer', 25000, 15, 'Teclado Mecanico RGB',CURRENT_DATE, false);
 
 INSERT INTO product (title, price, stock, description) VALUES 
 ('ALFOMBRA DE BAÑO MEMORY - BLANCO PARIS -', 5999, 1,'- Medidas: 40 x 60 cm.

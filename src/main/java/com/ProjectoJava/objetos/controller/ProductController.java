@@ -6,13 +6,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import java.nio.file.Files;
 import java.io.IOException;
 import org.springframework.web.multipart.MultipartFile; // Para recibir la imagen
-
+import org.springframework.ui.Model;
 import org.springframework.http.ResponseEntity;
 import java.util.Map;
 
@@ -33,6 +35,7 @@ import exceptions.ProductNotExistsException;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,15 +57,20 @@ public class ProductController {
     @Autowired
     private ImageRepository imageRepository;
 
-
     @Autowired
     public ProductController(ProductService service) {
         this.service = service;
     }
 
     @GetMapping("/list")
-    public List<ProductResponseDTO> listarProductos(){
-        return service.listarProductos();
+    public List<ProductResponseDTO> listarParaHome() {
+        return service.listarProductosVisibles();
+    }
+
+    @GetMapping("/all")
+    @ResponseBody 
+    public List<ProductResponseDTO> listarParaAdmin() {
+        return service.listarTodoCompleto(); 
     }
 
     @GetMapping("/categoria/{categoryId}")
@@ -99,16 +107,28 @@ public class ProductController {
                 }
             }
         }
-        ProductRequestDTO dto = new ProductRequestDTO(title, price, stock, description, categoriesId, mainImageId, nombresArchivos);
+        ProductRequestDTO dto = new ProductRequestDTO(title, price,java.time.LocalDate.now(), false, stock, description, categoriesId, mainImageId, nombresArchivos);
         
         return ResponseEntity.ok(service.agregarProducto(dto));
         
-    } catch (ProductExistsException e) {
-        return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-    } catch (Exception e) {
-        return ResponseEntity.internalServerError().body("Error inesperado: " + e.getMessage());
+        } catch (ProductExistsException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error inesperado: " + e.getMessage());
+        }
     }
-}
+
+    @PostMapping("/{id}/toggle-visible")
+    @ResponseBody
+    public ResponseEntity<?> toggleVisible(@PathVariable Long id) {
+        Product p = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        
+        p.setOculto(!p.isOculto()); // Invertimos el Booleano
+        repository.save(p);
+        
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping("/find-id/{id}")
     public ResponseEntity<?> buscarProductoPorId(@PathVariable Long id) throws ProductNotExistsException {      //La variable lo busca en la ruta
@@ -250,15 +270,32 @@ public class ProductController {
         if (producto == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
         }
-
         producto.setTitle(dto.getTitle());
         producto.setPrice(dto.getPrice());
         producto.setStock(dto.getStock());
-        producto.setDescription(dto.getDescription());
-        
+        producto.setDescription(dto.getDescription());        
         repository.save(producto);
-        
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/admin/revision-precios")
+    public String filtrarPreciosViejos(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFiltro, 
+            Model model) {
+        
+        List<Product> productosViejos;
+        
+        if (fechaFiltro != null) {
+            // Buscamos los que no se tocan desde ANTES de esa fecha
+            productosViejos = repository.findByFechaUltimoPrecioBefore(fechaFiltro);
+        } else {
+            // Si entra por primera vez sin elegir fecha, le mostramos todos o ninguno
+            productosViejos = new ArrayList<>();
+        }
+        
+        model.addAttribute("productos", productosViejos);
+        model.addAttribute("fechaSeleccionada", fechaFiltro);
+        
+        return "admin/control-precios"; 
+    }
 }

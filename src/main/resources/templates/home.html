@@ -38,6 +38,16 @@
             <div id="subcategorias-nav"></div>
             <div id="nietos-nav"></div>
         </div>
+        <div th:if="${session.userRole == 'ADMIN'}" class="admin-filter-box" 
+            style="background: #2c2c2c; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #00ff88;">
+            <h4 style="color: #00ff88; margin-top: 0;">🛠️ Panel de Control: Precios Desactualizados</h4>
+            <form action="/home" method="get" style="display: flex; gap: 10px; align-items: center;">
+                <label>Ver precios no tocados desde antes de:</label>
+                <input type="date" name="fechaPrecio" th:value="${fechaSeleccionada}" class="search-input">
+                <button type="submit" class="filter-btn">Filtrar Precios</button>
+                <a href="/home" class="btn-clear" style="text-decoration: none; color: #aaa; font-size: 0.8rem;">Ver todos</a>
+            </form>
+        </div>
 
         <div id="seccion-cliente-vista">
             <div id="lista-productos">Cargando menú...</div>
