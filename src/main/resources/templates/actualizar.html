@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajuste de Precios - El Turco</title>
+    <link rel="stylesheet" th:href="@{/admin.css}"> <style>
+        .audit-container { padding: 20px; max-width: 900px; margin: auto; }
+        .filter-group { background: #f4f4f4; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; }
+        .input-precio-rapido { width: 120px; padding: 5px; font-size: 1.1rem; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-guardar-cambio { background: #28a745; color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 4px; }
+        .btn-guardar-cambio:hover { background: #218838; }
+        .status-ok { color: #28a745; font-weight: bold; margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <div class="audit-container">
+        <div class="header-inline">
+            <h1>⚖️ Ajuste de Precios y Auditoría</h1>
+            <a href="/home" class="btn-volver-link">⬅️ Volver al Home</a>
+        </div>
+
+        <div class="filter-row">
+            <label for="fechaCorteAudit">Mostrar precios actualizados antes del:</label>
+            <input type="date" id="fechaCorteAudit" onchange="cargarProductosParaAjuste()">
+            <span id="contador-pendientes" class="badge-pendientes">Cargando...</span>
+        </div>
+
+        <div class="tabla-wrapper">
+            <table class="tabla-compacta">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">ID</th>
+                        <th>Producto</th>
+                        <th style="width: 150px;">Precio Actual</th>
+                        <th style="width: 100px;">Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpoTablaAjuste">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script th:src="@{/actualizar.js}"></script>
+    <head>
+    <meta charset="UTF-8">
+    <title>Ajuste de Precios - El Turco</title>
+    <link rel="stylesheet" th:href="@{/actualizar.css}">
+</head>
+</body>
+</html>

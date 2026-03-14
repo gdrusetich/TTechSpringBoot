@@ -77,4 +77,14 @@ public class ViewController {
     public String detalleAdmin() {
         return "detalleadmin"; 
     }
+
+    @GetMapping("/actualizar")
+    public String verPaginaActualizar(HttpSession session) {
+        Object roleAttr = session.getAttribute("userRole"); 
+        if (roleAttr == null || !roleAttr.toString().equals(Role.ADMIN.name())) {
+            return "redirect:/login"; 
+        }
+        
+        return "actualizar";
+    }
 }

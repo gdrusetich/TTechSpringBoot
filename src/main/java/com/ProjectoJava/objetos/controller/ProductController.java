@@ -166,21 +166,37 @@ public class ProductController {
         Product producto = repository.findById(id).orElse(null);
         if (producto == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
         producto.setTitle(title);
-        repository.save(producto); // Un método simple que haga repository.save
-        
+        repository.save(producto);        
         return ResponseEntity.ok().build();
     }
-
+    
     @PutMapping("/update-price/{id}")
-    public ResponseEntity<?> updateProductPrice(@PathVariable Long id, @RequestParam Double price) throws ProductNotExistsException {
-        Product producto = repository.findById(id).orElse(null);
-        if (producto == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
-        producto.setPrice(price);
-        repository.save(producto); // Un método simple que haga repository.save
-        
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> updateProductPrice(@PathVariable Long id, 
+                                                @RequestBody Map<String, Object> payload, 
+                                                HttpSession session) {
 
+        Object roleAttr = session.getAttribute("userRole");
+        if (roleAttr == null || !roleAttr.toString().equals(Role.ADMIN.name())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acceso denegado: Se requiere rol de Administrador");
+        }
+
+        return repository.findById(id).map(p -> {
+            if (payload.containsKey("price")) {
+                try {
+                    Double nuevoPrecio = Double.parseDouble(payload.get("price").toString());
+                    p.setPrice(nuevoPrecio);
+                    p.setFechaUltimoPrecio(LocalDate.now()); 
+                    
+                    repository.save(p);
+                    return ResponseEntity.ok().build();
+                } catch (NumberFormatException e) {
+                    return ResponseEntity.badRequest().body("Formato de precio inválido");
+                }
+            }
+            return ResponseEntity.badRequest().body("Falta el campo 'price'");
+        }).orElse(ResponseEntity.notFound().build());
     }
+
 
     @PutMapping("/update-stock/{id}")
     public ResponseEntity<?> updateProductStock(@PathVariable Long id, @RequestParam Integer stock) throws ProductNotExistsException {
@@ -298,4 +314,5 @@ public class ProductController {
         
         return "admin/control-precios"; 
     }
+
 }

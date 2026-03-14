@@ -26,7 +26,7 @@ INSERT INTO product (title, price, stock, description) VALUES
 ('ALFOMBRA DE BAÑO MEMORY - BLANCO PARIS -', 5999, 1,'- Medidas: 40 x 60 cm.
 - Suave y absorbente.
 - Antideslizante.
-- Hipoalergénica.' ),
+- Hipoalergénica.'),
 ('Pistola de Agua Eléctrica - WEAL MAKER', 58999, 1, '- Medidas: 26 x 32 cm.
 - Pistola recargable.
 - Alcance: 5-6 metros 
@@ -34,7 +34,7 @@ INSERT INTO product (title, price, stock, description) VALUES
 ('MASAJEADOR RECARGABLE CON MANGO EXTENSIBLE',35999, 1,'- Potencia: 17W.
 - 9 velocidades para ajustar la intensidad.
 - 9 programas automáticos según tus necesidades.
-- 4 cabezales intercambiables.' ),
+- 4 cabezales intercambiables.'),
 ('SOPORTE MOVIL DE 26" A 60" WAVETV. - W-3350M',26899, 1,'- Capacidad: 30kg.
 - Vesa: 40 x 40 cm.
 - Incluye kit de instalación de soporte y manual.
@@ -72,6 +72,22 @@ SELECT p.id_producto, c.id FROM product p, categories c WHERE p.title LIKE 'Pana
 
 INSERT INTO product_categories (product_id, category_id) 
 SELECT p.id_producto, c.id FROM product p, categories c WHERE p.title = 'Teclado Gamer' AND c.name = 'Teclado';
+-- 1. Vinculamos los productos que faltaban a sus categorías
+INSERT INTO product_categories (product_id, category_id) 
+SELECT id_producto, (SELECT id FROM categories WHERE name = 'Alfombra') FROM product WHERE title LIKE '%ALFOMBRA%';
+
+INSERT INTO product_categories (product_id, category_id) 
+SELECT id_producto, (SELECT id FROM categories WHERE name = 'Cocina') FROM product WHERE title IN ('LICUADORA C/ JARRA DE PLÁSTICO 1LT - WHITENBLACK', 'PICADORA DE CARNE 800W - DAEWOO');
+
+-- 2. Si la Pistola no aparece, es porque falta la categoría 'Juguetes' o similar. 
+-- Vamos a crearla y asignarla:
+INSERT INTO categories (name, parent_id) VALUES ('Juguetes', NULL) ON CONFLICT DO NOTHING;
+INSERT INTO product_categories (product_id, category_id) 
+SELECT id_producto, (SELECT id FROM categories WHERE name = 'Juguetes') FROM product WHERE title LIKE '%Pistola%';
+
+-- 3. IMPORTANTE: Arreglamos los valores nulos que rompen el Home
+UPDATE product SET oculto = false WHERE oculto IS NULL;
+UPDATE product SET fecha_ultimo_precio = CURRENT_DATE WHERE fecha_ultimo_precio IS NULL;
 
 -- 5. USUARIOS
 INSERT INTO usuarios (username, password, role) VALUES ('german', '1234', 'CLIENTE') ON CONFLICT DO NOTHING;
