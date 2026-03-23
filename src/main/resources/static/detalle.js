@@ -24,7 +24,10 @@ async function cargarSimilares(categoriaId, idActual) {
         const res = await fetch(`http://localhost:8081/products/categoria/${categoriaId}`);
         const data = await res.json();
         const similares = Array.isArray(data) ? data : (data.content || []);
-        const filtrados = similares.filter(p => p.id !== idActual);
+        const filtrados = similares.filter(p => {
+            console.log(`Producto: ${p.title} | Oculto: ${p.oculto} | Tipo: ${typeof p.oculto}`);
+            return Number(p.id) !== Number(idActual) && p.oculto !== true && p.oculto !== "true";
+        });
 
         const container = document.getElementById('related-container');
         container.innerHTML = "";
@@ -170,28 +173,21 @@ function configurarBotonInicio() {
 
 async function cargarDatosDelProducto(productId) {
     try {
-        const response = await fetch(`http://localhost:8081/products/find-id/${productId}`);
+        const response = await fetch(`${API_URL}/products/find-id/${productId}`);
         const producto = await response.json();
         if (!response.ok) throw new Error("Producto no encontrado");
-        
         productoActual = producto;
 
         renderizarInformacionBasica(productoActual);
         renderizarCategorias(productoActual.categories);
         renderizarGaleria(productoActual.images);
         configurarBotonWhatsApp(productoActual.title);
-
-        if (productoActual.categories && productoActual.categories.length > 0) {
-            cargarSimilares(productoActual.categories[0].id, productId);
-        }
-
         if (producto.categories && producto.categories.length > 0) {
-            const categoriaHija = producto.categories[producto.categories.length - 1];
-            
-            await cargarSimilares(categoriaHija.id, producto.id);
-            
-            if (producto.categories.length > 1) { 
-                iniciarAnimacionSlider(); 
+            const categoriaIdParaSimilares = producto.categories[producto.categories.length - 1].id;
+            await cargarSimilares(categoriaIdParaSimilares, producto.id);
+             const container = document.getElementById('related-container');
+            if (container.children.length > 4) {
+                iniciarAnimacionSlider();
             }
         }
     } catch (error) {
@@ -440,7 +436,6 @@ async function subirNuevaImagen(input) {
         const productId = new URLSearchParams(window.location.search).get('id');
         const file = input.files[0];
 
-        // 1. Creamos el "paquete" con el archivo
         const formData = new FormData();
         formData.append("file", file);
         formData.append("productId", productId);
@@ -448,7 +443,6 @@ async function subirNuevaImagen(input) {
         try {
             console.log(`Subiendo imagen para el producto ${productId}...`);
             
-            // 2. Enviamos el POST
             const response = await fetch(`${API_URL}/products/images/uploads`, {
                 method: 'POST',
                 body: formData // No ponemos Headers de Content-Type, el navegador lo hace solo

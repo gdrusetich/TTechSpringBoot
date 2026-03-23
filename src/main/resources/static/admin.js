@@ -27,35 +27,25 @@ function ejecutarFiltroFinal() {
     const texto = document.getElementById('busquedaAdmin').value.toLowerCase();
     const idFiltro = document.getElementById('categoriaIdInput').value;
     
-    // NUEVO: Capturar la fecha de auditoría
     const inputFecha = document.getElementById('filtroFecha'); 
     const fechaCorte = inputFecha ? inputFecha.value : ""; // Formato YYYY-MM-DD
 
-    // Si hay un filtro de categoría, obtenemos el ID seleccionado y todos sus hijos/nietos
     let idsPermitidos = [];
     if (idFiltro && idFiltro !== "") {
         idsPermitidos = obtenerIdsDescendientes(idFiltro);
     }
 
     const filtrados = productosCargados.filter(p => {
-        // 1. Filtro de Texto (Nombre o ID)
         const nombreProducto = (p.title || p.name || "").toLowerCase();
         const coincideTexto = nombreProducto.includes(texto) || p.id.toString().includes(texto);
         if (!coincideTexto) return false;
 
-        // 2. Filtro de Fecha (Auditoría de Precios)
         if (fechaCorte !== "") {
-            // Si el producto no tiene fecha, lo consideramos "viejo" y lo mostramos
             if (!p.fechaUltimoPrecio) return true; 
-            
-            // Si la fecha del producto es mayor a la de corte, queda fuera del filtro
             if (p.fechaUltimoPrecio > fechaCorte) return false;
         }
 
-        // 3. Filtro de Categorías
         if (idsPermitidos.length === 0) return true;
-        
-        // Revisar si alguna de las categorías del producto está en la lista de permitidas
         if (Array.isArray(p.categories)) {
             return p.categories.some(cat => idsPermitidos.includes(Number(cat.id)));
         }        
@@ -116,43 +106,41 @@ function renderizarTabla(lista) {
         
         const rtaImagen = `${BASE_URL}${nombreArchivo}`;
 
-        // CORRECCIÓN AQUÍ: Todo dentro de la misma etiqueta <tr>
         htmlFinal += `
-            <tr id="fila-${id}" 
-                onclick="manejadorClickFila(event, ${id})" 
-                style="cursor: pointer;" 
-                class="fila-producto">
-                
-                <td>${id}</td>
-                <td>
-                    <img src="${rtaImagen}" alt="${p.title}" style="width: 120px; height: 80px; object-fit: contain;">
-                </td>
-                <td>
-                    <span class="view-mode"><strong>${p.title}</strong></span>
-                </td>
-                <td>
-                    <span class="view-mode">$${p.price ? p.price.toLocaleString('es-AR') : '0'}</span>
-                </td>
-                <td>
-                    <span class="view-mode">${p.stock}</span>
-                </td>
+        <tr id="fila-${id}" onclick="manejadorClickFila(event, ${id})" style="cursor: pointer;" class="fila-producto">
+            <td>${id}</td>
+            <td>
+                <img src="${rtaImagen}" alt="${p.title}" style="width: 120px; height: 80px; object-fit: contain;">
+            </td>
+            
+            <td>
+                <span class="view-mode"><strong>${p.title}</strong></span>
+                <input type="text" class="edit-mode d-none form-control in-title" value="${p.title}" onclick="event.stopPropagation()">
+            </td>
+            
+            <td>
+                <span class="view-mode">$${p.price ? p.price.toLocaleString('es-AR') : '0'}</span>
+                <span class="edit-mode d-none" onclick="event.stopPropagation()">
+                    $ <input type="number" class="in-price" value="${p.price}" style="width: 80px;">
+                </span>
+            </td>
+            
+            <td>
+                <span class="view-mode">${p.stock}</span>
+                <input type="number" class="edit-mode d-none in-stock" value="${p.stock}" style="width: 60px;" onclick="event.stopPropagation()">
+            </td>
 
-                <td style="min-width: 230px;">
-                    <button class="view-mode btn-tabla" style="background:#007bff; color:white;" onclick="event.stopPropagation(); activarEdicion(${id})">Editar</button>
-                    
-                    <button class="view-mode btn-tabla" 
-                            style="background: ${btnColor}; color:white;" 
-                            onclick="event.stopPropagation(); toggleVisibilidad(${id})">
-                        ${btnTexto}
-                    </button>
+            <td style="min-width: 230px;">
+                <button class="view-mode btn-tabla" style="background:#007bff; color:white;" onclick="event.stopPropagation(); activarEdicion(${id})">Editar</button>
+                <button class="view-mode btn-tabla" style="background: ${btnColor}; color:white;" onclick="event.stopPropagation(); toggleVisibilidad(${id})">
+                    ${btnTexto}
+                </button>
+                <button class="view-mode btn-tabla" style="background:#dc3545; color:white;" onclick="event.stopPropagation(); eliminarProducto(${id})">Borrar</button>
 
-                    <button class="view-mode btn-tabla" style="background:#dc3545; color:white;" onclick="event.stopPropagation(); eliminarProducto(${id})">Borrar</button>
-
-                    <button class="edit-mode d-none btn-tabla" style="background:#28a745; color:white;" onclick="event.stopPropagation(); guardarEdicionRapida(${id})">Guardar</button>
-                    <button class="edit-mode d-none btn-tabla" style="background:#6c757d; color:white;" onclick="event.stopPropagation(); abrirModalDesc(this)">Desc.</button>
-                    <span class="edit-mode d-none" onclick="event.stopPropagation(); cancelarEdicion(${id})" style="cursor:pointer; margin-left:10px; font-weight:bold; color:red;">❌</span>
-                </td>
-            </tr>`;
+                <button class="edit-mode d-none btn-tabla" style="background:#28a745; color:white;" onclick="event.stopPropagation(); guardarEdicionRapida(${id})">Guardar</button>
+                <span class="edit-mode d-none" onclick="event.stopPropagation(); cancelarEdicion(${id})" style="cursor:pointer; margin-left:10px; font-weight:bold; color:red;">❌</span>
+            </td>
+        </tr>`;
     });
     tabla.innerHTML = htmlFinal;
 }
@@ -387,9 +375,7 @@ async function cargarSelectCategorias() {
 
 function obtenerIdsDescendientes(idPadre) {
     let ids = [Number(idPadre)];
-    // Buscamos todas las categorías que tengan este id como parent
     const hijas = categoriasData.filter(c => c.parent && Number(c.parent.id) === Number(idPadre));
-    
     hijas.forEach(hija => {
         ids = ids.concat(obtenerIdsDescendientes(hija.id));
     });
@@ -668,7 +654,6 @@ async function guardarEdicionRapida(id) {
         title: fila.querySelector('.in-title').value,
         price: parseFloat(fila.querySelector('.in-price').value),
         stock: parseInt(fila.querySelector('.in-stock').value),
-        description: fila.querySelector('.in-desc').value
     };
 
     try {
@@ -679,15 +664,13 @@ async function guardarEdicionRapida(id) {
         });
 
         if (res.ok) {
-            await cargarProductos(); 
-            console.log("Producto actualizado con éxito");
+            await cargarProductos(); // Refrescamos la tabla
+            console.log("Título, Precio y Stock actualizados");
         } else {
-            const errorText = await res.text();
-            alert("Error: " + errorText);
+            alert("Error al actualizar el producto");
         }
     } catch (err) {
-        console.error("Error en la petición:", err);
-        alert("No se pudo conectar con el servidor");
+        console.error("Error:", err);
     }
 }
 
@@ -710,7 +693,6 @@ function toggleVisibilidad(id) {
 }
 
 function manejadorClickFila(event, id) {
-    // Si el Admin está en "Modo Edición" (viendo los inputs), no redirigimos
     const fila = document.getElementById(`fila-${id}`);
     if (fila.querySelector('.edit-mode').classList.contains('d-none')) {
         irADetalle(id);

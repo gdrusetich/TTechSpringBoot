@@ -289,7 +289,7 @@ public class ProductController {
         producto.setTitle(dto.getTitle());
         producto.setPrice(dto.getPrice());
         producto.setStock(dto.getStock());
-        producto.setDescription(dto.getDescription());        
+        producto.setFechaUltimoPrecio(java.time.LocalDate.now());
         repository.save(producto);
         return ResponseEntity.ok().build();
     }

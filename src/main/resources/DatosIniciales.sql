@@ -9,6 +9,7 @@ INSERT INTO categories (name, parent_id) VALUES ('Portatil', 9) ON CONFLICT DO N
 INSERT INTO categories (name, parent_id) VALUES ('Mueble', NULL) ON CONFLICT DO NOTHING;--8
 INSERT INTO categories (name, parent_id) VALUES ('Baño', NULL) ON CONFLICT DO NOTHING;--9
 INSERT INTO categories (name, parent_id) VALUES ('Alfombra', NULL) ON CONFLICT DO NOTHING;--10
+INSERT INTO categories (name, parent_id) VALUES ('Cafetera', 2) ON CONFLICT DO NOTHING;--11
 
 
 -- 2. PRODUCTOS (Agregamos todos los Panacom que faltaban)
@@ -21,6 +22,13 @@ INSERT INTO product (title, price, stock, description, fecha_ultimo_precio, ocul
 ('Panacom CA5104', 122999, 2, 'Stereo Panacom Ultra V2',CURRENT_DATE, false),
 ('Panacom CA5102', 142199, 6, 'Stereo Panacom Elite',CURRENT_DATE, false),
 ('Teclado Gamer', 25000, 15, 'Teclado Mecanico RGB',CURRENT_DATE, false);
+
+INSERT INTO product (title, price, stock, description, fecha_ultimo_precio, oculto) VALUES 
+('Winco W-1926', 137499, 10, 'CAFETERA EXPRESS W1926 NEGRA* Cafetera compatible con capsulas Nespresso * Seleccion expresso o lungo * Tanque de 0,9 lts de capacidad * Diseño moderno y practico * Indicador luminoso * Colector de capsulas usadas*  Plataforma plegable para taza pequeña * Bomba de 20 BAR', CURRENT_DATE, false),
+('Winco W-1925', 47399, 5, '15 BAR de presión. Tanque de agua translúcido extraíble. Capacidad 1 Ltr. Caldera de fundición de aluminio. Espumador de leche regulable. Bandeja calienta tazas. Filtro para una o dos tazas. Botón de vapor.Bandeja de goteo removible.Protección por sobrecalentamiento.',CURRENT_DATE, false),
+('Winco W-1927', 188999, 5, 'CAFETERA EXPRESS DIGITAL/TOUCH W1927 - Cafetera expresso - Bomba de 20 BAR - Tanque de agua removible - Panel touch - Visor de temperatura digital - Diseño moderno y practico - Vaporizador de leche - Filtro para 1 o 2 pocillos - Color: Blanca - Negra',CURRENT_DATE, false),
+('Winco W-1921 Blanca', 237999, 5, 'Bandeja superior calienta tazas. Visor de temperatura. Indicador de encendido. Bandeja antigoteo extraíble. Adaptador 3 en 1 para café molido y cápsulas sistema Nespresso y Dolce Gusto. 19 BAR de presión. Regulador de vapor.Tanque de agua de 1 litro. Espumador de leche. Potencia: 1050 W.',CURRENT_DATE, false),
+('Winco W-1923', 260999, 5, 'CAFETERA EXPRESS W1923 * Cafetera express de 19 BAR de presion * Bomba Italiana * Espumador de leche * Filtro para una o dos tazas * Apta para capsulas * Boton de vapor * Bandeja antigoteo * Pantalla LCD * Bandeja superior calienta tazas * Potencia 1350W',CURRENT_DATE, false);
 
 INSERT INTO product (title, price, stock, description) VALUES 
 ('ALFOMBRA DE BAÑO MEMORY - BLANCO PARIS -', 5999, 1,'- Medidas: 40 x 60 cm.
@@ -65,6 +73,13 @@ INSERT INTO image (product_id, url) SELECT id_producto, 'TecladoGamer1.jpg' FROM
 INSERT INTO image (product_id, url) SELECT id_producto, 'TecladoGamer2.jpg' FROM product WHERE title = 'Teclado Gamer';
 INSERT INTO image (product_id, url) SELECT id_producto, 'TecladoGamer3.jpg' FROM product WHERE title = 'Teclado Gamer';
 INSERT INTO image (product_id, url) SELECT id_producto, 'TecladoGamer4.jpg' FROM product WHERE title = 'Teclado Gamer';
+INSERT INTO image (product_id, url) SELECT id_producto, 'Winco W-1926 Negra.jpg' FROM product WHERE title = 'Winco W-1926';
+INSERT INTO image (product_id, url) SELECT id_producto, 'Winco W-1926 Blanca.jpg' FROM product WHERE title = 'Winco W-1926';
+INSERT INTO image (product_id, url) SELECT id_producto, 'Winco W-1925.jpg' FROM product WHERE title = 'Winco W-1925';
+INSERT INTO image (product_id, url) SELECT id_producto, 'Winco W-1927 Blanca.jpg' FROM product WHERE title = 'Winco W-1927';
+INSERT INTO image (product_id, url) SELECT id_producto, 'Winco W-1927 Negra.jpg' FROM product WHERE title = 'Winco W-1927';
+INSERT INTO image (product_id, url) SELECT id_producto, 'Winco W-1921 Blanca.jpg' FROM product WHERE title = 'Winco W-1921 Blanca';
+INSERT INTO image (product_id, url) SELECT id_producto, 'Winco W-1923.jpg' FROM product WHERE title = 'Winco W-1923';
 
 -- 4. CATEGORÍAS DE PRODUCTO (Relación Muchos a Muchos)
 INSERT INTO product_categories (product_id, category_id) 
@@ -79,8 +94,10 @@ SELECT id_producto, (SELECT id FROM categories WHERE name = 'Alfombra') FROM pro
 INSERT INTO product_categories (product_id, category_id) 
 SELECT id_producto, (SELECT id FROM categories WHERE name = 'Cocina') FROM product WHERE title IN ('LICUADORA C/ JARRA DE PLÁSTICO 1LT - WHITENBLACK', 'PICADORA DE CARNE 800W - DAEWOO');
 
+INSERT INTO product_categories (product_id, category_id) 
+SELECT p.id_producto, c.id FROM product p, categories c WHERE p.title LIKE 'Winco%' AND c.name = 'Cafetera';
+
 -- 2. Si la Pistola no aparece, es porque falta la categoría 'Juguetes' o similar. 
--- Vamos a crearla y asignarla:
 INSERT INTO categories (name, parent_id) VALUES ('Juguetes', NULL) ON CONFLICT DO NOTHING;
 INSERT INTO product_categories (product_id, category_id) 
 SELECT id_producto, (SELECT id FROM categories WHERE name = 'Juguetes') FROM product WHERE title LIKE '%Pistola%';
