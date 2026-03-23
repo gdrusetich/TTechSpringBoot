@@ -8,42 +8,61 @@
 </head>
 <body>
     <div class="perfil-container">
-        <h2>⚙️ Mi Perfil</h2>
-        
-        <form onsubmit="event.preventDefault(); actualizarPerfil();">
-            
-            <div class="form-group">
-                <label>Nombre de Usuario:</label>
-                <input type="text" name="nuevoUser" th:value="${session.userName}" required class="search-input">
+        <div class="user-card">
+            <div class="user-header-flex">
+                <div class="user-avatar-mini">👤</div>
+                <h2>Tarjeta de Usuario</h2>
             </div>
 
-            <div class="form-group">
-                <button type="button" onclick="mostrarPassActual()" class="filter-btn">👁️ Ver Contraseña Actual</button>
-                <p id="pass-actual" style="display:none; margin: 10px 0; color: #00ff88;">
-                    Tu clave es: <span th:text="${session.userLogger != null ? session.userLogger.password : 'No disponible'}"></span>
-                </p>
+            <div class="info-body">
+                <div class="info-row">
+                    <span class="label-title">Usuario:</span>
+                    <span class="label-value" th:text="${session.userName}">german</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="label-title">Contraseña:</span>
+                    <span id="pass-text" class="label-value">********</span>
+                    <button type="button" class="icon-btn-ojo" onclick="toggleOjoPass()">👁️</button>
+                </div>
             </div>
 
-            <hr style="opacity: 0.2; margin: 20px 0;">
+            <hr class="divider">
 
-            <div class="form-group">
-                <label>Nueva Contraseña (opcional):</label>
-                <input type="password" id="pass1" name="nuevoPass" class="search-input" placeholder="Escribí aquí la nueva">
+            <div id="contenedor-edicion" class="hidden">
+                <div class="form-group">
+                    <label>Nombre Usuario:</label>
+                    <input type="text" id="nuevo-nombre" th:value="${session.userName}" class="search-input">
+                </div>
+                <div class="form-group">
+                    <label>Nueva Contraseña:</label>
+                    <input type="text" id="nueva-pass" th:value="${session.userLogger.password}" class="search-input">
+                </div>
+                <div class="perfil-actions">
+                    <button type="button" onclick="actualizarPerfil()" class="btn-mini btn-naranja">Guardar</button>
+                    <button type="button" onclick="cerrarEdicion()" class="btn-mini btn-gray">Cancelar</button>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>Repetir Nueva Contraseña:</label>
-                <input type="password" id="pass2" class="search-input" placeholder="Repetila para validar">
-                <p id="error-pass" style="color: #ff5252; display: none; font-size: 0.8rem;">⚠️ Las contraseñas no coinciden</p>
+            <div id="botones-principales">
+                <button onclick="abrirEdicion()" class="btn-editar-perfil">✏️ Editar Perfil</button>
+                <a href="/home" class="btn-volver-link">Volver</a>
             </div>
-
-            <div class="perfil-actions" style="margin-top: 25px; display: flex; gap: 10px; align-items: center;">
-                <button type="submit" class="filter-btn" style="background: #2e7d32; flex: 1;">Guardar Cambios</button>
-                <a href="/home" class="filter-btn" style="background: #444; text-decoration: none; text-align: center; flex: 1;">Volver</a>
-            </div>
-        </form>
+        </div>
     </div>
 
-    <script src="/perfil.js"></script>
+<script src="/perfil.js"></script>
+
+    <script th:inline="javascript">
+        // Le pasamos la pass de la sesión a una variable global que perfil.js pueda leer
+        window.passRealDelTurco = /*[[${session.userLogger != null ? session.userLogger.password : ''}]]*/ '';
+        
+        // Ejecutamos la inicialización de los asteriscos apenas carga
+        document.addEventListener("DOMContentLoaded", () => {
+            if (typeof inicializarPass === "function") {
+                inicializarPass();
+            }
+        });
+    </script>
 </body>
 </html>

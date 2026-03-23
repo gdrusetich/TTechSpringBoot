@@ -1,26 +1,87 @@
 .perfil-container {
-    max-width: 450px;
-    margin: 50px auto;
-    padding: 30px;
-    background: #1a1a1a;
-    color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-}
-
-.form-group {
-    margin-bottom: 20px;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh; /* Centrado vertical en pantalla */
 }
 
-.pass-hidden {
-    display: none;
+.user-card {
+    background: #1e1e1e;
+    padding: 30px;
+    border-radius: 15px;
+    border-top: 4px solid #ff9800;
+    width: 100%;
+    max-width: 400px; /* Evita que se expanda de más */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-.error-msg {
-    color: #ff5252;
-    font-size: 0.85rem;
-    display: none;
-    margin-top: 5px;
+/* Alineación Avatar y Título */
+.user-header-flex {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
 }
+
+.user-avatar-mini {
+    font-size: 30px;
+    background: #333;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.user-header-flex h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #ff9800;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.label-title { color: #888; }
+.label-value {
+    letter-spacing: 2px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.icon-btn-ojo {
+    background: #333;
+    border: 1px solid #444;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 2px 8px;
+    margin-left: 10px;
+}
+
+.btn-naranja { background: #ff9800 !important; color: black !important; font-weight: bold; }
+
+.btn-editar-perfil {
+    width: 100%;
+    padding: 12px;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-volver-link {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: #888;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.hidden { display: none !important; }
