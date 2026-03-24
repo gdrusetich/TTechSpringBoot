@@ -227,7 +227,7 @@ function renderizarCategorias(categories) {
     });
 }
 
-function renderizarGaleria(images) {
+/*function renderizarGaleria(images) {
     const thumbContainer = document.getElementById("thumbnails-container");
     const mainImg = document.getElementById("main-product-image");
     
@@ -255,6 +255,55 @@ function renderizarGaleria(images) {
             mainImg.src = urlFinal; 
             mainImg.setAttribute('data-image-id', img.id);
         };        
+        thumbContainer.appendChild(imgElement);
+    });
+}
+*/
+
+function renderizarGaleria(images) {
+    const thumbContainer = document.getElementById("thumbnails-container");
+    const mainImg = document.getElementById("main-product-image");
+    
+    if (!thumbContainer || !mainImg || !images || !Array.isArray(images)) return;
+    
+    thumbContainer.innerHTML = ""; 
+    const idsVistos = new Set();
+
+    images.forEach((img) => {
+        if (!img || idsVistos.has(img.id)) return;
+        idsVistos.add(img.id);
+
+        const imgElement = document.createElement("img");
+        
+        // 1. Limpiamos la URL que viene de la base de datos
+        let cleanUrl = img.url.startsWith('/') ? img.url.substring(1) : img.url;
+
+        // 2. LÓGICA DE RUTA INTELIGENTE
+        let urlFinal;
+        if (cleanUrl === "default.jpg" || cleanUrl === "WhatsApp.png") {
+            // Si es de sistema, va a /images/
+            urlFinal = `${FOLDER_SYSTEM}/${cleanUrl}`;
+        } else if (cleanUrl.startsWith('uploads')) {
+            // Si ya trae la palabra uploads, solo le ponemos la barra
+            urlFinal = `/${cleanUrl}`;
+        } else {
+            // Si es una foto de producto normal, va a /uploads/
+            urlFinal = `${FOLDER_UPLOADS}/${cleanUrl}`;
+        }
+
+        imgElement.src = urlFinal;
+        imgElement.className = "thumb-box";
+        imgElement.setAttribute('data-image-id', img.id);
+
+        if (idsVistos.size === 1) { 
+            mainImg.src = urlFinal;
+            mainImg.setAttribute('data-image-id', img.id);
+        }
+
+        imgElement.onclick = () => { 
+            mainImg.src = urlFinal; 
+            mainImg.setAttribute('data-image-id', img.id);
+        };         
         thumbContainer.appendChild(imgElement);
     });
 }
