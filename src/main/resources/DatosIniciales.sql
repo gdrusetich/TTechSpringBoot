@@ -10,7 +10,18 @@ INSERT INTO categories (name, parent_id) VALUES ('Mueble', NULL) ON CONFLICT DO 
 INSERT INTO categories (name, parent_id) VALUES ('Baño', NULL) ON CONFLICT DO NOTHING;--9
 INSERT INTO categories (name, parent_id) VALUES ('Alfombra', NULL) ON CONFLICT DO NOTHING;--10
 INSERT INTO categories (name, parent_id) VALUES ('Cafetera', 2) ON CONFLICT DO NOTHING;--11
-
+INSERT INTO categories (name, parent_id) VALUES ('Dormitorio', NULL) ON CONFLICT DO NOTHING;--12
+INSERT INTO categories (name, parent_id) VALUES ('Patio', NULL) ON CONFLICT DO NOTHING;--13--
+INSERT INTO categories (name, parent_id) VALUES ('Jardin', NULL) ON CONFLICT DO NOTHING;--14
+INSERT INTO categories (name, parent_id) VALUES ('Pileta', NULL) ON CONFLICT DO NOTHING;--15
+INSERT INTO categories (name, parent_id) VALUES ('Deporte', NULL) ON CONFLICT DO NOTHING;--16
+INSERT INTO categories (name, parent_id) VALUES ('Teatro', NULL) ON CONFLICT DO NOTHING;--17
+INSERT INTO categories (name, parent_id) VALUES ('Amplificador', 1) ON CONFLICT DO NOTHING;--18
+INSERT INTO categories (name, parent_id) VALUES ('Vasos', 1) ON CONFLICT DO NOTHING;--19
+INSERT INTO categories (name, parent_id) VALUES ('Guitarras', 1) ON CONFLICT DO NOTHING;--20
+INSERT INTO categories (name, parent_id) VALUES ('Baterías', 1) ON CONFLICT DO NOTHING;--21
+INSERT INTO categories (name, parent_id) VALUES ('Teclados', 1) ON CONFLICT DO NOTHING;--22
+INSERT INTO categories (name, parent_id) VALUES ('Portátil', 1) ON CONFLICT DO NOTHING;--23
 
 -- 2. PRODUCTOS (Agregamos todos los Panacom que faltaban)
 INSERT INTO product (title, price, stock, description, fecha_ultimo_precio, oculto) VALUES 

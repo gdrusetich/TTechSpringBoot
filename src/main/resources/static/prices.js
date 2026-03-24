@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8081';
+const API_URL = `${window.location.protocol}//${window.location.hostname}:8081`;
 let cambiosPendientes = {};
 
 document.addEventListener("DOMContentLoaded", () => {

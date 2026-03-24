@@ -420,3 +420,19 @@
     transform: scale(1.05);
     filter: brightness(1.1);
 }
+
+@media (max-width: 768px) {
+    /* Estilos de página y contenedores */
+    .product-page { margin: 0; width: 100%; border-radius: 0; padding: 10px; }
+    .product-container { flex-direction: column; padding: 0; gap: 15px; }
+    .product-info { width: 100%; order: 3; }
+
+    /* Galería */
+    .thumbnails-column { flex-direction: row; width: 100%; order: 2; overflow-x: auto; padding: 10px 0; }
+    .main-image-container { width: 100%; order: 1; }
+    #main-product-image { max-height: 300px; }
+
+    /* Similares */
+    .related-card { min-width: calc(50% - 10px); max-width: calc(50% - 10px); }
+    .related-products h3 { font-size: 1.2rem; margin-bottom: 15px; }
+}

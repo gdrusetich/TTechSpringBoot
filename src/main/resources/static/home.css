@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 body { 
     font-family: 'Segoe UI', sans-serif; 
     background: #121212; 
@@ -204,9 +208,113 @@ h1.logo-title { text-align: center; color: #ffffff; margin-bottom: 40px; }
     transform: scale(1.1);
 }
 
-/* Ajuste del botón de ingresar para que sea más estilizado en la card */
 .filter-btn.small {
     padding: 5px 15px;
     font-size: 0.8rem;
     margin: 0;
+}
+
+.dropdown-content {
+    position: absolute;
+    background-color: #1a1a1a;
+    min-width: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.5);
+    z-index: 1000;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.extra-item {
+    color: white;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.extra-item:hover {
+    background-color: #ff9800;
+    color: black;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.mas-btn {
+    background: #333 !important;
+    color: #888 !important;
+    border: 1px dashed #ff9800 !important;
+}
+
+.mas-btn:hover {
+    background: #333 !important;
+    color: white !important;
+}
+
+#busqueda-cat {
+    width: 100%;
+    background: #333;
+    border: 1px solid #555;
+    color: white;
+    padding: 5px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+
+/* --- AJUSTES PARA CELULARES --- */
+@media (max-width: 768px) {
+    /* Forzamos a que el cuerpo y los contenedores principales ocupen el 100% */
+    body, .main-content, .filter-container {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    #lista-productos {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Dos columnas que se reparten el 100% */
+        gap: 8px; /* Espacio mínimo entre productos */
+        padding: 8px; /* Margen mínimo contra el borde del celular */
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .card {
+        width: 100% !important; /* La card se estira hasta ocupar su mitad de pantalla */
+        margin: 0;
+    }
+
+    .card-img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        display: block;
+    }
+
+    /* Estos estilos mantienen el texto ordenado dentro de la card chica */
+    .info h3 {
+        font-size: 0.85rem;
+        margin: 5px 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; /* Si el nombre es largo, pone "..." */
+    }
+
+    .price {
+        font-size: 0.95rem;
+        margin: 0 8px 10px 8px;
+        display: block;
+        color: #ff9800;
+    }
+}
+
+@media (max-width: 480px) {
+    #lista-productos {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }

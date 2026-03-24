@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:8081';
+// Detecta automáticamente si estás en localhost o en la IP de la red
+const API_URL = `${window.location.protocol}//${window.location.hostname}:8081`;
 let categoriasData = [];
 let productosHome = [];
 
@@ -85,9 +86,7 @@ function pedirProductos(url) {
         })
         .then(data => {
             if (Array.isArray(data)) {
-                // LA CLAVE: Guardamos lo que llegó del servidor en nuestra variable global
                 productosHome = data; 
-                // Y aplicamos el filtro/orden sobre esos nuevos datos
                 aplicarFiltrosYOrden(); 
             } else {
                 console.error("No es una lista:", data);
@@ -100,46 +99,142 @@ function pedirProductos(url) {
 }
 
 
-    function mostrarDescripcion(event, texto) {
-        tooltip.innerText = texto;
-        tooltip.style.display = 'block';
-        // Posicionamos la ventana cerca del mouse
-        tooltip.style.left = (event.pageX + 10) + 'px';
-        tooltip.style.top = (event.pageY + 10) + 'px';
-    }
+function mostrarDescripcion(event, texto) {
+    tooltip.innerText = texto;
+    tooltip.style.display = 'block';
+    tooltip.style.left = (event.pageX + 10) + 'px';
+    tooltip.style.top = (event.pageY + 10) + 'px';
+}
 
-    function ocultarDescripcion() {
-        tooltip.style.display = 'none';
-    }
+function ocultarDescripcion() {
+    tooltip.style.display = 'none';
+}
 
-    function enviarWhatsApp(producto) {
-        const numero = "5491137869814"; // TU NUMERO
-        const mensaje = encodeURIComponent(`Hola! Quisiera pedir el producto: ${producto}`);
-        window.open(`https://wa.me/${numero}?text=${mensaje}`, '_blank');
-    }
+function enviarWhatsApp(producto) {
+    const numero = "5491137869814"; // TU NUMERO
+    const mensaje = encodeURIComponent(`Hola! Quisiera pedir el producto: ${producto}`);
+    window.open(`https://wa.me/${numero}?text=${mensaje}`, '_blank');
+}
 
-    function abrirModalLogin() {
-        window.location.href = "/login";
-    }
+function abrirModalLogin() {
+    window.location.href = "/login";
+}
 
-        function abrirModalPerfil() {
-        window.location.href = "/perfil";
-    }
+    function abrirModalPerfil() {
+    window.location.href = "/perfil";
+}
+
+let categoriasPrincipalesFavoritas = []; 
+let subcategoriasFavoritas = {}; // Guardamos por ID de padre
 
 function cargarCategorias() {
     fetch(`${API_URL}/categories/list`)
         .then(res => res.json())
         .then(data => {
             categoriasData = data;
-            const navPrincipal = document.getElementById('categorias-nav');
-            // CAMBIO AQUÍ: Usamos seleccionarCategoria
-            navPrincipal.innerHTML = '<button class="filter-btn active" onclick="seleccionarCategoria(null, this)">Todos</button>';
-            
-            data.filter(c => c.parent === null).forEach(cat => {
-                // CAMBIO AQUÍ: Usamos seleccionarCategoria
-                navPrincipal.innerHTML += `<button class="filter-btn" onclick="seleccionarCategoria(${cat.id}, this)">${cat.name}</button>`;
-            });
+            const padres = data.filter(c => c.parent === null);
+            renderizarBarraNavegacion('categorias-nav', padres, null);
         });
+}
+
+function renderizarBarraNavegacion(containerId, listaCompleta, idPadreActual) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '';
+
+    // 1. Botón "Todos" o "Ver Todo"
+    const labelTodo = (containerId === 'categorias-nav') ? 'Todos' : 'Ver Todo';
+    const btnTodo = document.createElement('button');
+    btnTodo.className = "filter-btn active";
+    btnTodo.innerText = labelTodo;
+    btnTodo.onclick = () => {
+        const url = (containerId === 'categorias-nav') ? `${API_URL}/products/list` : `${API_URL}/products/categoria/${idPadreActual}`;
+        pedirProductos(url);
+        marcarActivo(btnTodo);
+    };
+    container.appendChild(btnTodo);
+
+    // 2. Lógica de los 7 botones restantes (Total 8 con 'Todos')
+    const limite = 7; 
+    
+    // Si hay una favorita elegida del "Más", la ponemos primero
+    let listaParaMostrar = [...listaCompleta];
+    
+    const visibles = listaParaMostrar.slice(0, limite);
+    const extras = listaParaMostrar.slice(limite);
+
+    visibles.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = "filter-btn";
+        btn.innerText = cat.name;
+        btn.onclick = () => seleccionarCategoria(cat.id, btn);
+        container.appendChild(btn);
+    });
+
+    // 3. Botón "Más categorías" si sobran
+    if (extras.length > 0) {
+        const btnMas = document.createElement('button');
+        btnMas.className = "filter-btn mas-btn";
+        btnMas.innerHTML = `Más (${extras.length}) ▾`;
+        btnMas.onclick = (e) => mostrarDropdownExtra(e, extras, containerId, listaCompleta);
+        container.appendChild(btnMas);
+    }
+}
+
+function mostrarDropdownExtra(event, extras, containerId, listaOriginal) {
+    event.stopPropagation(); // Evita que el click se propague y cierre el menú al instante
+    
+    const dropdown = document.getElementById('dropdown-categorias');
+    const listaDiv = document.getElementById('lista-extra-items');
+    
+    if (!dropdown || !listaDiv) {
+        console.error("No se encontró el contenedor del dropdown en el HTML");
+        return;
+    }
+
+    // Si ya está abierto y hacemos click de nuevo, lo cerramos
+    if (!dropdown.classList.contains('hidden')) {
+        dropdown.classList.add('hidden');
+        return;
+    }
+
+    dropdown.classList.remove('hidden');
+    
+    const rect = event.target.getBoundingClientRect();
+    dropdown.style.top = `${rect.bottom + window.scrollY + 5}px`;
+    dropdown.style.left = `${rect.left}px`;
+
+    listaDiv.innerHTML = extras.map(cat => `
+        <div class="extra-item" onclick="elegirExtra(${cat.id}, '${containerId}')">
+            ${cat.name}
+        </div>
+    `).join('');
+
+    document.addEventListener('click', function cerrarMenu(e) {
+        if (!dropdown.contains(e.target) && e.target !== event.target) {
+            dropdown.classList.add('hidden');
+            document.removeEventListener('click', cerrarMenu);
+        }
+    });
+}
+
+function elegirExtra(id, containerId) {
+    const elegida = categoriasData.find(c => c.id === id);
+    
+    const index = categoriasData.indexOf(elegida);
+    categoriasData.splice(index, 1);
+    categoriasData.unshift(elegida);
+
+    if (containerId === 'categorias-nav') {
+        const padres = categoriasData.filter(c => c.parent === null);
+        renderizarBarraNavegacion('categorias-nav', padres, null);
+    } else {
+        const padreId = elegida.parent ? elegida.parent.id : (elegida.parentId || null);
+        const hermanos = categoriasData.filter(c => (c.parentId || (c.parent && c.parent.id)) === padreId);
+        renderizarBarraNavegacion(containerId, hermanos, padreId);
+    }
+    const nuevoBtn = document.querySelector(`#${containerId} button:nth-child(2)`);
+    seleccionarCategoria(id, nuevoBtn);
 }
 
 function filtrarPorTexto() {
@@ -192,15 +287,14 @@ function seleccionarCategoria(id, btn) {
     if (esPrincipal) {
         document.getElementById('subcategorias-nav').innerHTML = '';
         if (document.getElementById('nietos-nav')) document.getElementById('nietos-nav').innerHTML = '';
-    } else if (contenedorActual.id === 'subcategorias-nav') {
-        if (document.getElementById('nietos-nav')) document.getElementById('nietos-nav').innerHTML = '';
     }
 
     if (id !== null) {
         const hijos = obtenerHijos(id);
         if (hijos.length > 0) {
             const proximoDestino = esPrincipal ? 'subcategorias-nav' : 'nietos-nav';
-            renderizarNivel(proximoDestino, hijos, id);
+            // USAMOS LA NUEVA FUNCIÓN AQUÍ
+            renderizarBarraNavegacion(proximoDestino, hijos, id);
         }
     }
 }

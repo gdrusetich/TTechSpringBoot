@@ -1,8 +1,9 @@
 let editandoId = null;
 let productosCargados = [];
-const API_PRODUCTS = "http://localhost:8081/products";
-const API_CATEGORIES = "http://localhost:8081/categories";
-const API_URL = "http://localhost:8081";
+const API_PRODUCTS = `${API_URL}/products`;
+const API_CATEGORIES = `${API_URL}/categorie`;
+const API_URL = `${window.location.protocol}//${window.location.hostname}:8081`;
+
 
 let editandoCatId = null;
 let categoriasData = [];
@@ -478,7 +479,7 @@ function eliminarCategoriaSeleccionada() {
 
     if (confirm(`¿Estás seguro de eliminar "${nombre}"?\n\n- Las subcategorías subirán de nivel.\n- Los productos se reasignarán al padre.`)) {
         
-        fetch(`http://localhost:8081/categories/delete/${id}`, {
+        fetch(`${API_URL}/categories/delete/${id}`, {
             method: 'DELETE'
         })
         .then(response => {

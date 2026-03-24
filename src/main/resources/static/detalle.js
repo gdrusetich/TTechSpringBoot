@@ -4,8 +4,8 @@ let productoActual = null;
 let categoriasSeleccionadas = [];
 let imagenSeleccionadaIndex = 0;
 let currentIndex = 0;
-const API_URL = "http://localhost:8081"; // Ajustá el puerto si es necesario
-
+// Detecta automáticamente si estás en localhost o en la IP de la red
+const API_URL = `${window.location.protocol}//${window.location.hostname}:8081`;
 document.addEventListener("DOMContentLoaded", async () => {
     const params = new URLSearchParams(window.location.search);
     const productId = params.get("id");
@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function cargarSimilares(categoriaId, idActual) {
     try {
-        const res = await fetch(`http://localhost:8081/products/categoria/${categoriaId}`);
+        const res = await fetch(`${API_URL}/products/categoria/${categoriaId}`);
         const data = await res.json();
         const similares = Array.isArray(data) ? data : (data.content || []);
         const filtrados = similares.filter(p => {
@@ -39,11 +39,15 @@ async function cargarSimilares(categoriaId, idActual) {
                 imgUrl = mainImg.url;
             }
 
-            if (imgUrl && !imgUrl.startsWith('http')) {
-                imgUrl = `http://localhost:8081/uploads/${imgUrl}`; 
-            } else if (!imgUrl) {
-                imgUrl = 'http://localhost:8081/uploads/default.jpg';
+            if (imgUrl) {
+                if (!imgUrl.startsWith('http')) {
+                    let cleanPath = imgUrl.startsWith('/') ? imgUrl.substring(1) : imgUrl;
+                    imgUrl = `${API_URL}/uploads/${cleanPath}`; 
+                }
+            } else {
+                imgUrl = `${API_URL}/uploads/default.jpg`;
             }
+    
             const card = document.createElement('div');
             card.className = 'related-card';
             card.onclick = () => window.location.href = `/detalle?id=${p.id}`;
@@ -104,7 +108,7 @@ async function abrirEditorCategorias() {
     
     if (!productoActual) return alert("Error: Producto no cargado");
     try {
-        const resAll = await fetch('http://localhost:8081/categories/all');
+        const resAll = await fetch(`${API_URL}/categories/all`);
         const todas = await resAll.json();        
         const actualesIds = productoActual.categories ? productoActual.categories.map(c => c.id) : [];
         container.innerHTML = "";
@@ -129,7 +133,7 @@ async function guardarCategorias() {
     const checkboxes = document.querySelectorAll('#lista-todas-categorias input[type="checkbox"]:checked');
     const nuevosIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
 
-    const response = await fetch(`http://localhost:8081/products/${productoActual.id_producto || productoActual.id}/categories`, {
+    const response = await fetch(`${API_URL}/products/${productoActual.id_producto || productoActual.id}/categories`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(nuevosIds)
@@ -159,7 +163,6 @@ function configurarInterfazUsuario() {
     if (btnLogin) btnLogin.style.display = esLogueado ? "none" : "inline-block";
 }
 
-// En tu home.js
 function configurarBotonInicio() {
     const btnInicio = document.querySelector(".logo-title"); // Cambiado de .brand a .logo-title
     if (btnInicio) {
@@ -227,42 +230,30 @@ function renderizarGaleria(images) {
     const thumbContainer = document.getElementById("thumbnails-container");
     const mainImg = document.getElementById("main-product-image");
     
-    if (!thumbContainer || !mainImg || !images) return;
-
-    thumbContainer.innerHTML = ""; // Esto limpia el HTML previo
-
-    // 1. Creamos el Set AFUERA para llevar la cuenta
+    if (!thumbContainer || !mainImg || !images || !Array.isArray(images)) return;
+    
+    thumbContainer.innerHTML = ""; 
     const idsVistos = new Set();
 
-    images.forEach((img, index) => {
-        // 2. Si el ID ya está en el Set, saltamos esta imagen (es repetida)
-        if (idsVistos.has(img.id)) {
-            return; 
-        }
-        
-        // 3. Si es nueva, guardamos el ID en el Set para que no se repita
+    images.forEach((img) => {
+        if (!img || idsVistos.has(img.id)) return;
         idsVistos.add(img.id);
 
         const imgElement = document.createElement("img");
-        const fotoId = img.id;
-        const urlFinal = `/uploads/${img.url}`;
-
+        
+        let cleanUrl = img.url.startsWith('/') ? img.url.substring(1) : img.url;
+        const urlFinal = `${API_URL}/uploads/${cleanUrl}`;
         imgElement.src = urlFinal;
         imgElement.className = "thumb-box";
-        imgElement.setAttribute('data-image-id', fotoId);
-
-        // Lógica de imagen principal
-        if (idsVistos.size === 1) { // El primero que logre entrar al Set
+        imgElement.setAttribute('data-image-id', img.id);
+        if (idsVistos.size === 1) { 
             mainImg.src = urlFinal;
-            mainImg.setAttribute('data-image-id', fotoId);
+            mainImg.setAttribute('data-image-id', img.id);
         }
-
         imgElement.onclick = () => { 
             mainImg.src = urlFinal; 
-            mainImg.setAttribute('data-image-id', fotoId);
-            console.log("Foto seleccionada para principal ID:", fotoId);
-        };
-        
+            mainImg.setAttribute('data-image-id', img.id);
+        };        
         thumbContainer.appendChild(imgElement);
     });
 }

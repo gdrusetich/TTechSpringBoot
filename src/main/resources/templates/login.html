@@ -2,33 +2,19 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Acceso Admin - El Turco</title>
+    <title>Login - El Turco</title>
     <style>
         body { background-color: #121212; color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .login-box { background: #1e1e1e; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-top: 5px solid #ff9800; width: 350px; text-align: center; }
         h2 { color: #ff9800; margin-bottom: 25px; }
         input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #333; background: #2a2a2a; color: white; box-sizing: border-box; }
         
-        /* Contenedor para los dos botones */
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
+        .button-group { display: flex; gap: 10px; margin-top: 15px; }
 
         button, .btn-cancelar { 
-            flex: 1; /* Hace que ambos botones midan lo mismo */
-            padding: 12px; 
-            border: none; 
-            font-weight: bold; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            transition: 0.3s; 
-            text-decoration: none;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            flex: 1; padding: 12px; border: none; font-weight: bold; border-radius: 5px; 
+            cursor: pointer; transition: 0.3s; text-decoration: none; font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center;
         }
 
         button { background: #ff9800; color: black; }
@@ -39,9 +25,11 @@
 
         .error { color: #ff5252; font-size: 0.9rem; margin-top: 10px; }
 
+        /* Estilo para el pie de la tarjeta */
+        .login-footer { margin-top: 25px; border-top: 1px solid #333; padding-top: 15px; }
+
         @media (max-width: 600px) {
-            body { padding: 20px; }
-            h2 { font-size: 1.5rem; }
+            .login-box { width: 90%; padding: 25px; }
         }
     </style>
 </head>
@@ -59,6 +47,17 @@
                 <a href="/home" class="btn-cancelar">Inicio</a>
             </div>
         </form>
+
+        <div class="login-footer">
+            <p style="font-size: 0.85rem; color: #888; margin: 0;">
+                ¿No tiene usuario? 
+                <a href="https://wa.me/5491137869814?text=Hola!%20Quisiera%20solicitar%20un%20usuario%20para%20la%20Turco%20App!!" 
+                   target="_blank" 
+                   style="color: #ff9800; text-decoration: none; font-weight: bold;">
+                   Solicitar usuario.
+                </a>
+            </p>
+        </div>
 
         <script>
             const returnUrl = localStorage.getItem("returnUrl");
