@@ -1,11 +1,13 @@
+const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+    ? "http://localhost:8081" 
+    : "https://dinastia-6gsq.onrender.com";
 let campoActual = ''; 
 let urlActual = '';
 let productoActual = null;
 let categoriasSeleccionadas = [];
 let imagenSeleccionadaIndex = 0;
 let currentIndex = 0;
-// Detecta automáticamente si estás en localhost o en la IP de la red
-const API_URL = `${window.location.protocol}//${window.location.hostname}:8081`;
+
 document.addEventListener("DOMContentLoaded", async () => {
     const params = new URLSearchParams(window.location.search);
     const productId = params.get("id");

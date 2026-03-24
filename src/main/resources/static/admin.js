@@ -1,11 +1,10 @@
-let editandoId = null;
-let productosCargados = [];
-const API_PRODUCTS = `${API_URL}/products`;
-const API_CATEGORIES = `${API_URL}/categorie`;
-//const API_URL = `${window.location.protocol}//${window.location.hostname}:8081`;
 const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
     ? "http://localhost:8081" 
-    : "https://tu-app-backend.onrender.com"; // <--- Aquí pondrás la URL que te dé Render
+    : "https://dinastia-6gsq.onrender.com"; // <--- Aquí pondrás la URL que te dé Render
+const API_PRODUCTS = `${API_URL}/products`;
+const API_CATEGORIES = `${API_URL}/categorie`;
+    let editandoId = null;
+let productosCargados = [];
 
 let editandoCatId = null;
 let categoriasData = [];
