@@ -38,16 +38,34 @@ function renderizarCards(data) {
     }
 
     div.innerHTML = data.map(p => {
-        const catId = (p.categories && p.categories.length > 0) ? p.categories[0].id : '';
-        const esUsuarioReal = (window.nombreUsuario && window.nombreUsuario !== 'Invitado');
+    const catId = (p.categories && p.categories.length > 0) ? p.categories[0].id : '';
+    const esUsuarioReal = (window.nombreUsuario && window.nombreUsuario !== 'Invitado');
 
-        let fotoUrl = rutaDefault;
-        if (p.mainImage && p.mainImage.url) {
-            fotoUrl = `${API_URL}/uploads/${p.mainImage.url}`;
-        } else if (p.images && p.images.length > 0) {
-            const primeraFoto = p.images[0].url ? p.images[0].url : p.images[0];
-            fotoUrl = `${API_URL}/uploads/${primeraFoto}`;
+    // --- NUEVA LÓGICA DE IMAGEN ---
+    let fotoUrl = rutaDefault; // Viene de config.js (/images/default.jpg)
+    
+    // Sacamos el nombre del archivo, priorizando la principal
+    let nombreImagen = null;
+    if (p.mainImage && p.mainImage.url) {
+        nombreImagen = p.mainImage.url;
+    } else if (p.images && p.images.length > 0) {
+        nombreImagen = p.images[0].url ? p.images[0].url : p.images[0];
+    }
+
+    if (nombreImagen) {
+        let cleanUrl = nombreImagen.startsWith('/') ? nombreImagen.substring(1) : nombreImagen;
+        
+        if (cleanUrl === "default.jpg") {
+            fotoUrl = rutaDefault;
+        } else if (cleanUrl.startsWith('images/')) {
+            fotoUrl = `/${cleanUrl}`;
+        } else if (cleanUrl.startsWith('uploads/')) {
+            fotoUrl = `/${cleanUrl}`;
+        } else {
+            // Si es solo el nombre (con o sin UUID), buscamos en uploads
+            fotoUrl = `${FOLDER_UPLOADS}/${cleanUrl}`;
         }
+    }
 
         return `
             <div class="card" data-category-id="${catId}">

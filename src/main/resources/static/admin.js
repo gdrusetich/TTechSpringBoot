@@ -73,8 +73,8 @@ function cargarProductos() {
         })
         .catch(err => {
             console.error("Error al cargar productos:", err);
-            productosCargados = []; // Evitamos que el filtro explote
-            renderizarTabla([]);    // Mostramos tabla vacía
+            productosCargados = []; 
+            renderizarTabla([]);
         });
 }
 
@@ -90,24 +90,33 @@ function renderizarTabla(lista) {
         return;
     }
 
-    const BASE_URL = `http://${window.location.hostname}:8081/uploads/`;
-
     lista.forEach(p => {
         const id = p.id || p.id_producto;
         const btnColor = p.oculto ? '#e67e22' : '#6f42c1'; 
         const btnTexto = p.oculto ? '👁️ Mostrar' : '🙈 Ocultar';
         
-        const nombreArchivo = (p.mainImage && (p.mainImage.url || p.mainImage.ruta)) 
+        let nombreArchivo = (p.mainImage && (p.mainImage.url || p.mainImage.ruta)) 
             ? (p.mainImage.url || p.mainImage.ruta) 
-            : (p.images && p.images.length > 0 ? (typeof p.images[0] === 'string' ? p.images[0] : p.images[0].url) : 'default.png');
+            : (p.images && p.images.length > 0 ? (typeof p.images[0] === 'string' ? p.images[0] : p.images[0].url) : 'default.jpg');
         
-        const rtaImagen = `${BASE_URL}${nombreArchivo}`;
+        let rtaImagen;
+        let cleanUrl = nombreArchivo.startsWith('/') ? nombreArchivo.substring(1) : nombreArchivo;
+
+        if (cleanUrl === "default.jpg" || cleanUrl === "default.png") {
+            rtaImagen = rutaDefault;
+        } else if (cleanUrl.startsWith('images/') || cleanUrl.startsWith('uploads/')) {
+            rtaImagen = `/${cleanUrl}`;
+        } else {
+            rtaImagen = `${FOLDER_UPLOADS}/${cleanUrl}`;
+        }
 
         htmlFinal += `
         <tr id="fila-${id}" onclick="manejadorClickFila(event, ${id})" style="cursor: pointer;" class="fila-producto">
             <td>${id}</td>
             <td>
-                <img src="${rtaImagen}" alt="${p.title}" style="width: 120px; height: 80px; object-fit: contain;">
+                <img src="${rtaImagen}" alt="${p.title}" 
+                     style="width: 120px; height: 80px; object-fit: contain;"
+                     onerror="this.src='${rutaDefault}';">
             </td>
             
             <td>

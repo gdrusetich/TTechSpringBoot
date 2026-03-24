@@ -32,30 +32,32 @@ async function cargarSimilares(categoriaId, idActual) {
         container.innerHTML = "";
 
         filtrados.forEach(p => {
-            let imgUrl = "";
+            let imgUrl = rutaDefault;
+            let nombreImagen = null;
             if (p.images && p.images.length > 0) {
-                const mainImg = p.images.find(i => i.isMain) || p.images[0];
-                imgUrl = mainImg.url;
+                const mainImgObj = p.images.find(i => i.isMain) || p.images[0];
+                nombreImagen = mainImgObj.url || mainImgObj;
+            }
+            if (nombreImagen) {
+                let cleanPath = nombreImagen.startsWith('/') ? nombreImagen.substring(1) : nombreImagen;
+
+                if (cleanPath === "default.jpg") {
+                    imgUrl = rutaDefault;
+                } else if (cleanPath.startsWith('images/') || cleanPath.startsWith('uploads/')) {
+                    imgUrl = `/${cleanPath}`;
+                } else {
+                    imgUrl = `${FOLDER_UPLOADS}/${cleanPath}`;
+                }
             }
 
-            if (imgUrl) {
-                if (!imgUrl.startsWith('http')) {
-                    let cleanPath = imgUrl.startsWith('/') ? imgUrl.substring(1) : imgUrl;
-                    imgUrl = `${API_URL}/src/main/static/images/${cleanPath}`; 
-                }
-            } else {
-                imgUrl = `${API_URL}/src/main/static/images/default.jpg`;
-            }
-    
             const card = document.createElement('div');
             card.className = 'related-card';
             card.onclick = () => window.location.href = `/detalle?id=${p.id}`;
-            
             card.innerHTML = `
-                    <img src="${imgUrl}" alt="${p.title}">
+                    <img src="${imgUrl}" alt="${p.title}" onerror="this.src='${rutaDefault}';">
                     <div class="related-info">
                         <h4>${p.title}</h4>
-                        <p class="price">$${p.price}</p>
+                        <p class="price">$${p.price.toLocaleString('es-AR')}</p>
                     </div>
                 `;
             container.appendChild(card);
@@ -223,38 +225,6 @@ function renderizarCategorias(categories) {
     });
 }
 
-/*function renderizarGaleria(images) {
-    const thumbContainer = document.getElementById("thumbnails-container");
-    const mainImg = document.getElementById("main-product-image");
-    
-    if (!thumbContainer || !mainImg || !images || !Array.isArray(images)) return;
-    
-    thumbContainer.innerHTML = ""; 
-    const idsVistos = new Set();
-
-    images.forEach((img) => {
-        if (!img || idsVistos.has(img.id)) return;
-        idsVistos.add(img.id);
-
-        const imgElement = document.createElement("img");
-        
-        let cleanUrl = img.url.startsWith('/') ? img.url.substring(1) : img.url;
-        const urlFinal = cleanUrl.startsWith('uploads') ? `/${cleanUrl}` : `${FOLDER_UPLOADS}/${cleanUrl}`;
-        imgElement.src = urlFinal;
-        imgElement.className = "thumb-box";
-        imgElement.setAttribute('data-image-id', img.id);
-        if (idsVistos.size === 1) { 
-            mainImg.src = urlFinal;
-            mainImg.setAttribute('data-image-id', img.id);
-        }
-        imgElement.onclick = () => { 
-            mainImg.src = urlFinal; 
-            mainImg.setAttribute('data-image-id', img.id);
-        };        
-        thumbContainer.appendChild(imgElement);
-    });
-}
-*/
 
 function renderizarGaleria(images) {
     const thumbContainer = document.getElementById("thumbnails-container");
@@ -271,19 +241,14 @@ function renderizarGaleria(images) {
 
         const imgElement = document.createElement("img");
         
-        // 1. Limpiamos la URL que viene de la base de datos
         let cleanUrl = img.url.startsWith('/') ? img.url.substring(1) : img.url;
 
-        // 2. LÓGICA DE RUTA INTELIGENTE
         let urlFinal;
         if (cleanUrl === "default.jpg" || cleanUrl === "WhatsApp.png") {
-            // Si es de sistema, va a /images/
             urlFinal = `${FOLDER_SYSTEM}/${cleanUrl}`;
         } else if (cleanUrl.startsWith('uploads')) {
-            // Si ya trae la palabra uploads, solo le ponemos la barra
             urlFinal = `/${cleanUrl}`;
         } else {
-            // Si es una foto de producto normal, va a /uploads/
             urlFinal = `${FOLDER_UPLOADS}/${cleanUrl}`;
         }
 
@@ -470,26 +435,32 @@ async function borrarImagenActual() {
 
 async function subirNuevaImagen(input) {
     if (input.files && input.files[0]) {
-        const productId = new URLSearchParams(window.location.search).get('id');
-        const file = input.files[0];
+        // Obtenemos el ID de la URL actual
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get('id');
+        
+        if (!productId) {
+            alert("No se encontró el ID del producto.");
+            return;
+        }
 
+        const file = input.files[0];
         const formData = new FormData();
         formData.append("file", file);
         formData.append("productId", productId);
 
         try {
-            console.log(`Subiendo imagen para el producto ${productId}...`);
-            
             const response = await fetch(`${API_URL}/products/images/uploads`, {
                 method: 'POST',
-                body: formData // No ponemos Headers de Content-Type, el navegador lo hace solo
+                body: formData
             });
 
             if (response.ok) {
                 alert("¡Imagen subida con éxito!");
-                location.reload(); // Recargamos para ver la nueva foto
+                location.reload(); 
             } else {
-                alert("Error al subir la imagen");
+                const errorData = await response.text();
+                alert("Error al subir: " + errorData);
             }
         } catch (error) {
             console.error("Error:", error);
