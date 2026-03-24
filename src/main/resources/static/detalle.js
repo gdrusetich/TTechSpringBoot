@@ -46,7 +46,7 @@ async function cargarSimilares(categoriaId, idActual) {
                 } else if (cleanPath.startsWith('images/') || cleanPath.startsWith('uploads/')) {
                     imgUrl = `/${cleanPath}`;
                 } else {
-                    imgUrl = `${FOLDER_UPLOADS}/${cleanPath}`;
+                    imgUrl = `${FOLDER_SYSTEM}/${cleanPath}`;
                 }
             }
 
@@ -249,7 +249,7 @@ function renderizarGaleria(images) {
         } else if (cleanUrl.startsWith('uploads')) {
             urlFinal = `/${cleanUrl}`;
         } else {
-            urlFinal = `${FOLDER_UPLOADS}/${cleanUrl}`;
+            urlFinal = `${FOLDER_SYSTEM}/${cleanUrl}`;
         }
 
         imgElement.src = urlFinal;

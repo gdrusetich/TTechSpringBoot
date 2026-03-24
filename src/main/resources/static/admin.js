@@ -107,7 +107,7 @@ function renderizarTabla(lista) {
         } else if (cleanUrl.startsWith('images/') || cleanUrl.startsWith('uploads/')) {
             rtaImagen = `/${cleanUrl}`;
         } else {
-            rtaImagen = `${FOLDER_UPLOADS}/${cleanUrl}`;
+            rtaImagen = `${FOLDER_SYSTEM}/${cleanUrl}`;
         }
 
         htmlFinal += `

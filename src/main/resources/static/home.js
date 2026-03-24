@@ -63,7 +63,7 @@ function renderizarCards(data) {
             fotoUrl = `/${cleanUrl}`;
         } else {
             // Si es solo el nombre (con o sin UUID), buscamos en uploads
-            fotoUrl = `${FOLDER_UPLOADS}/${cleanUrl}`;
+            fotoUrl = `${FOLDER_SYSTEM}/${cleanUrl}`;
         }
     }
 
