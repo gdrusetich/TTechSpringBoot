@@ -2,7 +2,7 @@ const API_URL = window.location.hostname === "localhost" || window.location.host
     ? "http://localhost:8081" 
     : "https://dinastia-6gsq.onrender.com"; // <--- Aquí pondrás la URL que te dé Render
 const API_PRODUCTS = `${API_URL}/products`;
-const API_CATEGORIES = `${API_URL}/categorie`;
+const API_CATEGORIES = `${API_URL}/categories`;
     let editandoId = null;
 let productosCargados = [];
 
