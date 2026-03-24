@@ -1,11 +1,11 @@
-# Paso 1: Construir la aplicación
-FROM maven:3.8.5-openjdk-17 AS build
+# Paso 1: Construir la aplicación (Cambiamos 17 por 21)
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 COPY . .
 RUN mvn clean package -DskipTests
 
-# Paso 2: Ejecutar la aplicación
-FROM openjdk:17.0.1-jdk-slim
+# Paso 2: Ejecutar la aplicación (Cambiamos 17 por 21)
+FROM eclipse-temurin:21-jre-jammy
 COPY --from=build /target/*.jar app.jar
 
-# Render asigna el puerto dinámicamente, esto le dice a Java que lo use
+# Render asigna el puerto dinámicamente
 ENTRYPOINT ["java","-Dserver.port=${PORT}","-jar","app.jar"]
