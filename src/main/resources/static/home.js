@@ -5,6 +5,9 @@ const API_URL = window.location.hostname === "localhost" || window.location.host
 let categoriasData = [];
 let productosHome = [];
 
+const rutaDefault = `${FOLDER_SYSTEM}/default.jpg`;
+const rutaWA = `${FOLDER_SYSTEM}/WhatsApp.png`;
+
 if (typeof userLogger === 'undefined') {
     var userLogger = null;
 }
@@ -40,14 +43,10 @@ function renderizarCards(data) {
         return;
     }
 
-    const rutaDefault = `${API_URL}/uploads/default.jpg`;
-    const rutaWA = `${API_URL}/uploads/WhatsApp.png`;
-
     div.innerHTML = data.map(p => {
         const catId = (p.categories && p.categories.length > 0) ? p.categories[0].id : '';
         const esUsuarioReal = (window.nombreUsuario && window.nombreUsuario !== 'Invitado');
 
-        // Lógica de imagen: Principal -> Primera de lista -> Default
         let fotoUrl = rutaDefault;
         if (p.mainImage && p.mainImage.url) {
             fotoUrl = `${API_URL}/uploads/${p.mainImage.url}`;

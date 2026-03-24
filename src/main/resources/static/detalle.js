@@ -1,6 +1,7 @@
 const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
     ? "http://localhost:8081" 
     : "https://dinastia-6gsq.onrender.com";
+const URL_IMAGES = "/images";
 let campoActual = ''; 
 let urlActual = '';
 let productoActual = null;
@@ -44,10 +45,10 @@ async function cargarSimilares(categoriaId, idActual) {
             if (imgUrl) {
                 if (!imgUrl.startsWith('http')) {
                     let cleanPath = imgUrl.startsWith('/') ? imgUrl.substring(1) : imgUrl;
-                    imgUrl = `${API_URL}/uploads/${cleanPath}`; 
+                    imgUrl = `${API_URL}/src/main/static/images/${cleanPath}`; 
                 }
             } else {
-                imgUrl = `${API_URL}/uploads/default.jpg`;
+                imgUrl = `${API_URL}/src/main/static/images/default.jpg`;
             }
     
             const card = document.createElement('div');
@@ -201,7 +202,6 @@ async function cargarDatosDelProducto(productId) {
 }
 
 function renderizarInformacionBasica(producto) {
-    // Buscamos el H1 que está dentro de product-info (el del producto, no el logo)
     const titleEl = document.querySelector(".product-info h1");
     const descEl = document.getElementById("product-description");
     const priceEl = document.getElementById("product-price");
@@ -209,7 +209,6 @@ function renderizarInformacionBasica(producto) {
     if (titleEl) titleEl.innerText = producto.title;
     if (descEl) descEl.innerText = producto.description;
     
-    // Si el elemento existe en el HTML (porque Thymeleaf lo permitió), le ponemos el valor
     if (priceEl) {
         priceEl.innerText = `$ ${producto.price}`;
     }
@@ -244,7 +243,7 @@ function renderizarGaleria(images) {
         const imgElement = document.createElement("img");
         
         let cleanUrl = img.url.startsWith('/') ? img.url.substring(1) : img.url;
-        const urlFinal = `${API_URL}/uploads/${cleanUrl}`;
+        const urlFinal = cleanUrl.startsWith('uploads') ? `/${cleanUrl}` : `${FOLDER_UPLOADS}/${cleanUrl}`;
         imgElement.src = urlFinal;
         imgElement.className = "thumb-box";
         imgElement.setAttribute('data-image-id', img.id);
@@ -265,7 +264,7 @@ function configurarBotonWhatsApp(titulo) {
     if (waBtn) {
         waBtn.onclick = () => {
             const mensaje = `Hola! Me interesa el producto: ${titulo}`;
-            window.open(`https://wa.me/TUNUMERO?text=${encodeURIComponent(mensaje)}`, "_blank");
+            window.open(`https://wa.me/5491137869814?text=${encodeURIComponent(mensaje)}`, "_blank");
         };
     }
 }

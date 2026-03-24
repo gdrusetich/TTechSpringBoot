@@ -9,26 +9,14 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry; // Opcion
 public class WebConfig implements WebMvcConfigurer {
 
 @Override
-public void addResourceHandlers(@SuppressWarnings("null") ResourceHandlerRegistry registry) {
-    // 1. Obtenemos la ruta absoluta y la limpiamos para Windows
-    java.io.File uploadDir = new java.io.File("uploads");
-    String rootPath = uploadDir.getAbsolutePath();
-    
-    // 2. Forzamos el formato de URI correcto para Windows
-    String resourcePath = "file:///" + rootPath.replace("\\", "/") + "/";
-
+public void addResourceHandlers(ResourceHandlerRegistry registry) {
     registry.addResourceHandler("/uploads/**")
-            .addResourceLocations(resourcePath)
+            .addResourceLocations("file:uploads/")
             .setCachePeriod(0);
-
-    // 3. ESTO ES VITAL: Mira lo que sale en tu consola de VS Code al arrancar
-    System.out.println("=============================================");
-    System.out.println("RUTA FÍSICA: " + rootPath);
-    System.out.println("RUTA PARA SPRING: " + resourcePath);
-    System.out.println("¿LA CARPETA EXISTE?: " + uploadDir.exists());
-    System.out.println("=============================================");
+    registry.addResourceHandler("/images/**")
+            .addResourceLocations("classpath:/static/images/");
 }
-    // Ya que estamos aquí, esto ayuda si el Frontend y Backend tienen problemas de permisos
+
     @Override
     public void addCorsMappings(@SuppressWarnings("null") CorsRegistry registry) {
         registry.addMapping("/**")

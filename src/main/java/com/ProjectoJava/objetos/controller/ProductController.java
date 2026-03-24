@@ -78,7 +78,7 @@ public class ProductController {
         System.out.println("Solicitando productos para categoría ID: " + categoryId);
         return service.filtrarPorCategoria(categoryId);
     }
-
+/*
     @PostMapping("/nuevo-producto")
     public ResponseEntity<?> agregarProducto(
     @RequestParam("title") String title,
@@ -115,6 +115,49 @@ public class ProductController {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error inesperado: " + e.getMessage());
+        }
+    }
+*/
+    @PostMapping("/nuevo-producto")
+    public ResponseEntity<?> agregarProducto(
+        @RequestParam("title") String title,
+        @RequestParam("price") Double price,
+        @RequestParam("stock") Integer stock,
+        @RequestParam("description") String description,
+        @RequestParam("category") Set<Long> categoriesId,
+        @RequestParam(value = "mainImageId", required = false) Long mainImageId, 
+        @RequestParam(value = "images", required = false) List<MultipartFile> images) {
+
+        try {
+            List<String> nombresArchivos = new ArrayList<>();
+            
+            // 1. Definimos la carpeta de destino de forma relativa (funciona en PC y Render)
+            Path directorioUploads = Paths.get("uploads");
+            if (!Files.exists(directorioUploads)) {
+                Files.createDirectories(directorioUploads);
+            }
+
+            if (images != null) {
+                for (MultipartFile image : images) {
+                    if (!image.isEmpty()) {
+                        String nombreFinal = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
+                        Path rutaCompleta = directorioUploads.resolve(nombreFinal);
+                        
+                        Files.copy(image.getInputStream(), rutaCompleta, StandardCopyOption.REPLACE_EXISTING);
+                        nombresArchivos.add(nombreFinal);
+                    }
+                }
+            }
+
+            ProductRequestDTO dto = new ProductRequestDTO(
+                title, price, java.time.LocalDate.now(), false, 
+                stock, description, categoriesId, mainImageId, nombresArchivos
+            );
+            
+            return ResponseEntity.ok(service.agregarProducto(dto));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al guardar el producto o las imágenes: " + e.getMessage());
         }
     }
 
