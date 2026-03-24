@@ -1,12 +1,3 @@
-const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-    ? "http://localhost:8081" 
-    : "https://dinastia-6gsq.onrender.com";
-const API_PRODUCTS = `${API_URL}/products`;
-const API_CATEGORIES = `${API_URL}/categories`;
-const FOLDER_UPLOADS = "/uploads";
-const FOLDER_SYSTEM = "/images";
-const rutaDefault = `${FOLDER_SYSTEM}/default.jpg`;
-const rutaWA = `${FOLDER_SYSTEM}/WhatsApp.png`;
 let campoActual = ''; 
 let urlActual = '';
 let productoActual = null;
