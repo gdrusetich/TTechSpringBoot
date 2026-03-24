@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalle de Producto - El Turco</title>
+    <title>Dinastía - Electrohogar</title>
     <link rel="stylesheet" th:href="@{/detalle.css}">
 </head>
 <body>
@@ -11,7 +11,7 @@
         <div class="header-container">
             <div class="header-left">
                 <h1 class="brand" onclick="window.location.href='/home'">
-                    EL TURCO <span class="electronics">ELECTRONIC'S</span>
+                    DINASTÍA <span class="electronics">ELECTRONIC'S</span>
                 </h1>
             </div>
 
@@ -84,7 +84,7 @@
                 </div>
 
                 <div th:if="${session.userRole != null}">
-                    <button id="whatsapp-btn" class="btn-wa">Consultar al Turco</button>
+                    <button id="whatsapp-btn" class="btn-wa">Consultar a Dinastía</button>
                 </div>
             
                 <p id="product-description" th:text="${producto.description}">Descripción...</p>

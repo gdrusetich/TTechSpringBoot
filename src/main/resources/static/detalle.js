@@ -435,7 +435,6 @@ async function borrarImagenActual() {
 
 async function subirNuevaImagen(input) {
     if (input.files && input.files[0]) {
-        // Obtenemos el ID de la URL actual
         const params = new URLSearchParams(window.location.search);
         const productId = params.get('id');
         
