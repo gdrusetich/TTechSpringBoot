@@ -10,11 +10,14 @@ public class WebConfig implements WebMvcConfigurer {
 
 @Override
 public void addResourceHandlers(ResourceHandlerRegistry registry) {
-    registry.addResourceHandler("/uploads/**")
-            .addResourceLocations("file:uploads/")
+    // Para las fotos dinámicas (las que sube el Turco)
+    registry.addResourceHandler("/products/images/**") // La URL que usás en el HTML
+            .addResourceLocations("file:images/")      // La carpeta real en el servidor
             .setCachePeriod(0);
-    registry.addResourceHandler("/images/**")
-            .addResourceLocations("classpath:/static/images/");
+
+    // Para las fotos fijas (logos, estilos, etc)
+    registry.addResourceHandler("/static/**")
+            .addResourceLocations("classpath:/static/");
 }
 
     @Override
