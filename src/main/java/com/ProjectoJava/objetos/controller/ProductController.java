@@ -302,23 +302,36 @@ public class ProductController {
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file, 
                                         @RequestParam("productId") Long productId) {
         try {
+            // 1. Definir el directorio de destino
+            Path directorioPath = Paths.get("uploads");
+            
+            // 2. CREAR EL DIRECTORIO SI NO EXISTE (Esto salva el deploy)
+            if (!Files.exists(directorioPath)) {
+                Files.createDirectories(directorioPath);
+            }
+
             String fileName = file.getOriginalFilename();
-            Path path = Paths.get("uploads/" + fileName);
-            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+            // 3. Resolve es más seguro que concatenar con "/"
+            Path targetPath = directorioPath.resolve(fileName);
+            
+            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
             Product producto = repository.findById(productId)
-            .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
             Image nuevaImagen = new Image();
-            nuevaImagen.setUrl(fileName);
+            // Guardamos solo el nombre del archivo (o la ruta que uses para mostrarla)
+            nuevaImagen.setUrl(fileName); 
             nuevaImagen.setProduct(producto);
             imageRepository.save(nuevaImagen);
 
             return ResponseEntity.ok().build();
         } catch (IOException e) {
-            return ResponseEntity.status(500).body("Error al guardar archivo");
-        }catch (Exception e){
-            return ResponseEntity.status(404).body("Error" + e.getMessage());
+            // Imprimí el error en la consola de Render para ver qué pasa si vuelve a fallar
+            e.printStackTrace(); 
+            return ResponseEntity.status(500).body("Error al guardar archivo: " + e.getMessage());
+        } catch (Exception e){
+            return ResponseEntity.status(404).body("Error: " + e.getMessage());
         }
     }
 
