@@ -3,7 +3,7 @@ let productosCargados = [];
 
 let editandoCatId = null;
 let categoriasData = [];
-let categoriaActualId = 'TODOS';
+let categoriaActualId = null;
 let idsHijasActuales = [];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -275,11 +275,130 @@ function mostrarSeccion(seccion) {
     }
 }
 
-
 function toggleSidebar() {
     const sidebar = document.querySelector('.sidebar');
     sidebar.classList.toggle('oculto');
+    
+    const btn = document.querySelector('.btn-colapsar');
+    if(sidebar.classList.contains('oculto')) {
+        btn.innerHTML = "☰";
+    } else {
+        btn.innerHTML = "✕";
+    }
 }
+
+function manejarSeleccion(id, nombre, nivelActual, btn) {
+    categoriaActualId = id;
+
+    // 1. Actualizar textos e inputs
+    document.getElementById('categoriaIdInput').value = id;
+    document.getElementById('nombre-seleccionada').innerText = nombre;
+
+    // 2. Lógica de reordenamiento: Buscamos a los "hermanos" de la que tocamos
+    const catSeleccionada = categoriasData.find(c => c.id == id);
+    const padreId = (catSeleccionada && catSeleccionada.parent) ? catSeleccionada.parent.id : null;
+
+    const hermanos = categoriasData.filter(c => {
+        if (!padreId) return !c.parent; 
+        return c.parent && c.parent.id == padreId;
+    });
+
+    // 3. Volvemos a dibujar ESTE nivel (para que la elegida salte al principio)
+    renderizarNivel(nivelActual, hermanos);
+
+    // 4. Buscamos si tiene hijos para dibujar el nivel de abajo
+    const subcats = categoriasData.filter(c => c.parent && Number(c.parent.id) === Number(id));
+    if (subcats.length > 0) {
+        renderizarNivel(nivelActual + 1, subcats);
+    } else {
+        // Si no tiene hijos, borramos cualquier nivel que haya quedado abajo
+        const contenedorPadre = document.getElementById('niveles-categorias');
+        Array.from(contenedorPadre.children).forEach(child => {
+            const nivelDelChild = parseInt(child.id.split('-')[1]);
+            if (nivelDelChild > nivelActual) child.remove();
+        });
+    }
+
+    if (typeof ejecutarFiltroFinal === 'function') ejecutarFiltroFinal();
+}
+
+function renderizarNivel(nivel, lista) {
+    const contenedorPadre = document.getElementById('niveles-categorias');
+    if (!contenedorPadre) return;
+
+    // Limpiar este nivel si ya existía para redibujarlo
+    const existente = document.getElementById(`nivel-${nivel}`);
+    if (existente) existente.remove();
+
+    const divNivel = document.createElement('div');
+    divNivel.id = `nivel-${nivel}`;
+    divNivel.className = "nav-nivel";
+
+    const LIMITE = window.innerWidth < 768 ? 4 : 7;
+
+    // --- PRIORIDAD: Poner la seleccionada primero ---
+    let listaAMostrar = [...lista];
+    if (categoriaActualId) {
+        const index = listaAMostrar.findIndex(c => c.id == categoriaActualId);
+        if (index > -1) {
+            const [seleccionada] = listaAMostrar.splice(index, 1);
+            listaAMostrar.unshift(seleccionada);
+        }
+    }
+
+    const tieneMas = listaAMostrar.length > LIMITE;
+    const principales = tieneMas ? listaAMostrar.slice(0, LIMITE) : listaAMostrar;
+    const restantes = tieneMas ? listaAMostrar.slice(LIMITE) : [];
+
+    // Dibujar botones principales
+    principales.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.type = "button";
+        btn.className = "filter-btn";
+        if (cat.id == categoriaActualId) btn.classList.add('active');
+        btn.innerText = cat.name;
+        btn.onclick = () => manejarSeleccion(cat.id, cat.name, nivel, btn);
+        divNivel.appendChild(btn);
+    });
+
+    // Botón Más
+    if (tieneMas) {
+        const btnMas = document.createElement('button');
+        btnMas.type = "button";
+        btnMas.className = "filter-btn btn-mas";
+        btnMas.innerText = `Más + (${restantes.length})`;
+        
+        btnMas.onclick = (e) => {
+            e.stopPropagation();
+            const existenteMenu = divNivel.querySelector('.menu-categorias-extra');
+            if (existenteMenu) { existenteMenu.remove(); return; }
+
+            const menuExtra = document.createElement('div');
+            menuExtra.className = "menu-categorias-extra";
+
+            restantes.forEach(cat => {
+                const btnSub = document.createElement('button');
+                btnSub.className = "filter-btn";
+                btnSub.innerText = cat.name;
+                btnSub.onclick = (ev) => {
+                    ev.stopPropagation();
+                    manejarSeleccion(cat.id, cat.name, nivel, btnSub);
+                };
+                menuExtra.appendChild(btnSub);
+            });
+            divNivel.appendChild(menuExtra);
+        };
+        divNivel.appendChild(btnMas);
+    }
+
+    contenedorPadre.appendChild(divNivel);
+}
+
+// Cerrador de menú al hacer clic afuera
+document.addEventListener('click', () => {
+    const menu = document.querySelector('.menu-categorias-extra');
+    if (menu) menu.remove();
+});
 
 function cargarCategoriasSelector() {
     fetch(API_CATEGORIES + "/list")
@@ -291,49 +410,46 @@ function cargarCategoriasSelector() {
         });
 }
 
-function renderizarNivel(nivel, lista) {
-    const contenedorPadre = document.getElementById('niveles-categorias');
-    const divNivel = document.createElement('div');
-    divNivel.id = `nivel-${nivel}`;
-    divNivel.className = "nav-nivel";
-    divNivel.style.display = "flex";
-    divNivel.style.gap = "5px";
-    divNivel.style.marginTop = "10px";
 
-    lista.forEach(cat => {
-        const btn = document.createElement('button');
-        btn.type = "button";
-        btn.className = "filter-btn";
-        btn.innerText = cat.name;
-        btn.onclick = () => manejarSeleccion(cat.id, cat.name, nivel, btn);
-        divNivel.appendChild(btn);
-    });
-
-    contenedorPadre.appendChild(divNivel);
-}
 
 function manejarSeleccion(id, nombre, nivelActual, btn) {
+    categoriaActualId = id;
+
+    // 1. Visual: Marcar activo
     const filaActual = btn.parentElement;
-        filaActual.querySelectorAll('.filter-btn, .btn-categoria').forEach(b => {
-            b.classList.remove('active');
-        });
+    filaActual.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
+    // 2. Inputs para el filtro
     document.getElementById('categoriaIdInput').value = id;
     document.getElementById('nombre-seleccionada').innerText = nombre;
 
+    // 3. Limpiar niveles profundos
     const contenedorPadre = document.getElementById('niveles-categorias');
-    const hijosContenedor = Array.from(contenedorPadre.children);
-    hijosContenedor.forEach(child => {
+    Array.from(contenedorPadre.children).forEach(child => {
         const nivelDelChild = parseInt(child.id.split('-')[1]);
         if (nivelDelChild > nivelActual) child.remove();
     });
 
-    const subcats = categoriasData.filter(c => c.parent && Number(c.parent.id) === Number(id));
-    
-    if (subcats.length > 0) renderizarNivel(nivelActual + 1, subcats);
+    // 4. LÓGICA DE REORDENAMIENTO DINÁMICO
+    // Buscamos la categoría completa para saber quién es su padre
+    const catSeleccionada = categoriasData.find(c => c.id == id);
+    const padreId = (catSeleccionada && catSeleccionada.parent) ? catSeleccionada.parent.id : null;
 
-    categoriaActualId = id;
+    // Filtramos a todos los "hermanos" (los que están en la misma fila)
+    const hermanos = categoriasData.filter(c => {
+        if (!padreId) return !c.parent; // Si es nivel 0 (sin padre)
+        return c.parent && c.parent.id == padreId; // Si tienen el mismo padre
+    });
+
+    // RE-RENDERIZAMOS EL NIVEL ACTUAL: Esto hace que la elegida salte al primer lugar
+    renderizarNivel(nivelActual, hermanos);
+
+    // 5. BUSCAR HIJOS (Siguiente nivel)
+    const subcats = categoriasData.filter(c => c.parent && Number(c.parent.id) === Number(id));
+    if (subcats.length > 0) {
+        renderizarNivel(nivelActual + 1, subcats);
+    }
 
     if (typeof ejecutarFiltroFinal === 'function') ejecutarFiltroFinal();
 }
@@ -704,3 +820,15 @@ function manejadorClickFila(event, id) {
         irADetalle(id);
     }
 }
+
+let resizeTimer;
+window.onresize = () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        if (categoriasData && categoriasData.length > 0) {
+            // Solo redibujamos las principales
+            const principales = categoriasData.filter(c => !c.parent);
+            renderizarNivel(0, principales);
+        }
+    }, 250); // Espera un cuarto de segundo después de que dejes de mover la ventana
+};

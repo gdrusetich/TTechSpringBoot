@@ -175,10 +175,136 @@ tr:hover { background-color: #2d2d2d; }
     display: inline-block;
 }
 
-@media (max-width: 768px) {
-    body { flex-direction: column; height: auto; overflow: visible; }
-    .sidebar { width: 100%; min-width: 100%; height: auto; border-right: none; border-bottom: 1px solid #333; }
-    .main-content { padding: 15px; }
-    table { display: block; overflow-x: auto; }
-    img { width: 60px !important; }
+.nav-nivel {
+    display: flex;
+    flex-wrap: wrap; /* Permite que si hay muchas, bajen a la siguiente línea al apretar Más */
+    gap: 8px;
+    margin-top: 10px;
+    position:relative;
 }
+
+.menu-categorias-extra {
+    position: absolute;
+    top: 100%; /* Aparece justo abajo del botón */
+    left: 0;
+    z-index: 3000;
+    background: #333;
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    max-width: 300px; /* Para que no se vaya de ancho en el celu */
+    margin-top: 5px;
+}
+
+.btn-mas {
+    border: 1px dashed #666 !important;
+    font-style: italic;
+}
+
+.menu-categorias-extra::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    border-width: 0 10px 10px 10px;
+    border-style: solid;
+    border-color: transparent transparent #333 transparent;
+}
+
+table, tr, td {
+    -webkit-tap-highlight-color: transparent;
+}
+
+
+@media (max-width: 768px) {
+    tr:hover {
+        background-color: transparent !important;
+    }
+
+    .btn-tabla {
+        padding: 12px 10px !important; /* Más alto para el pulgar */
+        font-size: 14px;
+        margin: 5px 2px;
+    }
+    
+    .btn-tabla:active {
+        background-color: #218838 !important; /* Un verde más oscuro */
+        transform: scale(0.95); /* Efecto de hundido para feedback táctil */
+    }
+
+    /* 4. Si tenías un estilo de "renglón iluminado" manual, asegúrate de que 
+    solo se aplique si NO es un dispositivo táctil o quitale la clase */
+    tr.seleccionado {
+        background-color: transparent;
+    }
+    body { 
+        flex-direction: row; /* Volvemos a ponerlos uno al lado del otro */
+        height: 100vh; 
+        overflow: hidden; 
+    }
+
+    .sidebar { 
+        position: fixed; /* Flota sobre el contenido */
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px; /* Un poco más angosto para móvil */
+        z-index: 2000;
+        transition: transform 0.3s ease;
+        box-shadow: 10px 0 20px rgba(0,0,0,0.5);
+    }
+
+    /* Cuando tiene la clase oculto, lo mandamos fuera de la pantalla a la izquierda */
+    .sidebar.oculto {
+        transform: translateX(-100%);
+        width: 280px; /* Mantenemos el ancho para que la animación sea fluida */
+        min-width: 280px;
+        border: none;
+    }
+
+    .main-content { 
+        width: 100%;
+        padding: 15px; 
+        margin-left: 0; /* Siempre ocupa el 100% */
+    }
+
+    /* Ajuste para que las tablas no rompan el diseño */
+    table { 
+        display: block; 
+        overflow-x: auto; 
+        white-space: nowrap; 
+    }
+
+    /* El botón de colapsar siempre visible sobre todo */
+    .btn-colapsar {
+        position: fixed !important; /* Forzamos la posición */
+        bottom: 20px !important;
+        right: 20px !important; /* Movelo a la derecha para que no se pegue al borde del sidebar */
+        width: 50px !important; /* Un poco más grande para el dedo */
+        height: 50px !important;
+        background-color: #28a745 !important; /* Verde llamativo para encontrarlo */
+        color: white !important;
+        border-radius: 50% !important;
+        z-index: 9999 !important; /* El rey de la montaña, arriba de todo */
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
+        cursor: pointer;
+    }
+
+    .filter-btn {
+        white-space: nowrap; /* Que el nombre de la categoría no se corte en dos líneas */
+    }
+
+    #nombre-seleccionada {
+        font-weight: bold;
+        color: #28a745;
+        margin-left: 10px;
+    }
+}
+
