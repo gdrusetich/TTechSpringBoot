@@ -14,9 +14,9 @@ h1.logo-title { text-align: center; color: #ffffff; margin-bottom: 40px; }
 
 /* El contenedor que envuelve todo el bloque de usuario */
 .user-info {
-    display: flex;          /* Magia: pone todo en fila */
-    align-items: center;    /* Centra verticalmente */
-    justify-content: flex-end; /* Lo manda todo a la derecha */
+    display: flex;          
+    align-items: center;    
+    justify-content: flex-end;
     gap: 15px;              /* Espacio entre los elementos */
     padding: 10px 20px;     /* Un poco de aire alrededor */
 }
@@ -27,7 +27,6 @@ h1.logo-title { text-align: center; color: #ffffff; margin-bottom: 40px; }
 }
 
 
-/* Estilo base (para todos) */
 /* Estilo base - Esto mata el violeta del celu */
 .btn-panel-control {
     background: #222 !important;
@@ -54,6 +53,99 @@ h1.logo-title { text-align: center; color: #ffffff; margin-bottom: 40px; }
 .btn-panel-control:hover {
     background: #333;
     box-shadow: 0 0 8px rgba(255, 152, 0, 0.4);
+}
+
+/* --- Ajustes en Featured Section --- */
+.featured-section {
+    background-color: #121212; 
+    padding: 30px 0;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 250px)); /* Un poco más ancha para que entre WA */
+    gap: 20px;
+    justify-content: center;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.featured-card {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.featured-card:hover {
+    transform: scale(1.02);
+    border-color: #ff9800; /* Borde naranja al pasar mouse */
+}
+
+.featured-title-top {
+    color: #ff9800;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 5px 0 3px 0; /* Espacio mínimo abajo */
+    text-align: center;
+}
+
+.featured-img-container {
+    width: 100%;
+    margin-bottom: 5px; /* Reducido drásticamente el espacio abajo */
+}
+
+.product-img {
+    width: 100%;
+    height: 120px; /* Compacta */
+    object-fit: contain;
+}
+
+/* --- NUEVO CONTENEDOR COMPACTO PARA ACCIONES --- */
+.featured-actions-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between; /* Precio a la izq, WA a la der */
+    align-items: center; /* Alineación vertical */
+    padding: 0 5px; /* Un poco de aire lateral */
+    margin-top: 5px; /* Mínimo espacio arriba */
+}
+
+.product-price {
+    color: #03dac6;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.btn-wa-featured {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.btn-wa-featured:hover {
+    transform: scale(1.15);
+}
+
+.wa-icon-featured {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.section-divider {
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, transparent, #ccc, transparent);
+    margin: 50px 0;
 }
 
 /* GRID */

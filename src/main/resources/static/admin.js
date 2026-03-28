@@ -94,6 +94,10 @@ function renderizarTabla(lista) {
         const id = p.id || p.id_producto;
         const btnColor = p.oculto ? '#e67e22' : '#6f42c1'; 
         const btnTexto = p.oculto ? '👁️ Mostrar' : '🙈 Ocultar';
+        const esDestacado = p.featured; // O la propiedad que indique si es destacado
+        const estrellaIcono = esDestacado ? "⭐" : "☆";
+        const estrellaClase = esDestacado ? "is-featured" : "";
+
         
         let nombreArchivo = (p.mainImage && (p.mainImage.url || p.mainImage.ruta)) 
             ? (p.mainImage.url || p.mainImage.ruta) 
@@ -137,14 +141,14 @@ function renderizarTabla(lista) {
             </td>
 
             <td style="min-width: 230px;">
-                <button class="view-mode btn-tabla" style="background:#007bff; color:white;" onclick="event.stopPropagation(); activarEdicion(${id})">Editar</button>
-                <button class="view-mode btn-tabla" style="background: ${btnColor}; color:white;" onclick="event.stopPropagation(); toggleVisibilidad(${id})">
-                    ${btnTexto}
-                </button>
-                <button class="view-mode btn-tabla" style="background:#dc3545; color:white;" onclick="event.stopPropagation(); eliminarProducto(${id})">Borrar</button>
-
-                <button class="edit-mode d-none btn-tabla" style="background:#28a745; color:white;" onclick="event.stopPropagation(); guardarEdicionRapida(${id})">Guardar</button>
-                <span class="edit-mode d-none" onclick="event.stopPropagation(); cancelarEdicion(${id})" style="cursor:pointer; margin-left:10px; font-weight:bold; color:red;">❌</span>
+            <button class="view-mode btn-tabla" style="background:#007bff; color:white;" onclick="event.stopPropagation(); activarEdicion(${id})">Editar</button>
+            <button class="view-mode btn-tabla" style="background: ${btnColor}; color:white;" onclick="event.stopPropagation(); toggleVisibilidad(${id})"> ${btnTexto} </button>
+            
+            <button class="view-mode btn-destacado ${estrellaClase}" 
+                    onclick="event.stopPropagation(); alternarDestacado(${id})" 
+                    title="Destacar en Home"> ${estrellaIcono} </button>
+            
+            <button class="view-mode btn-tabla" style="background:#dc3545; color:white;" onclick="event.stopPropagation(); eliminarProducto(${id})">Borrar</button>
             </td>
         </tr>`;
     });
@@ -410,42 +414,30 @@ function cargarCategoriasSelector() {
         });
 }
 
-
-
 function manejarSeleccion(id, nombre, nivelActual, btn) {
     categoriaActualId = id;
 
-    // 1. Visual: Marcar activo
     const filaActual = btn.parentElement;
     filaActual.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
-    // 2. Inputs para el filtro
     document.getElementById('categoriaIdInput').value = id;
     document.getElementById('nombre-seleccionada').innerText = nombre;
 
-    // 3. Limpiar niveles profundos
     const contenedorPadre = document.getElementById('niveles-categorias');
     Array.from(contenedorPadre.children).forEach(child => {
         const nivelDelChild = parseInt(child.id.split('-')[1]);
         if (nivelDelChild > nivelActual) child.remove();
     });
 
-    // 4. LÓGICA DE REORDENAMIENTO DINÁMICO
-    // Buscamos la categoría completa para saber quién es su padre
     const catSeleccionada = categoriasData.find(c => c.id == id);
     const padreId = (catSeleccionada && catSeleccionada.parent) ? catSeleccionada.parent.id : null;
 
-    // Filtramos a todos los "hermanos" (los que están en la misma fila)
     const hermanos = categoriasData.filter(c => {
         if (!padreId) return !c.parent; // Si es nivel 0 (sin padre)
         return c.parent && c.parent.id == padreId; // Si tienen el mismo padre
     });
-
-    // RE-RENDERIZAMOS EL NIVEL ACTUAL: Esto hace que la elegida salte al primer lugar
     renderizarNivel(nivelActual, hermanos);
-
-    // 5. BUSCAR HIJOS (Siguiente nivel)
     const subcats = categoriasData.filter(c => c.parent && Number(c.parent.id) === Number(id));
     if (subcats.length > 0) {
         renderizarNivel(nivelActual + 1, subcats);
@@ -832,3 +824,52 @@ window.onresize = () => {
         }
     }, 250); // Espera un cuarto de segundo después de que dejes de mover la ventana
 };
+
+async function alternarDestacado(productId) {
+    const boton = event.target.closest('button');
+    const yaEsDestacado = boton.classList.contains("is-featured");
+    const iconoOriginal = boton.innerHTML;
+
+    boton.innerHTML = "⏳";
+
+    try {
+        if (!yaEsDestacado) {
+            // Caso 1: NO es destacado -> Intentamos AGREGAR
+            const response = await fetch(`/api/featured/add`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId: productId })
+            });
+
+            if (response.ok) {
+                boton.innerHTML = "⭐";
+                boton.classList.add("is-featured");
+                // Sacamos el alert para que sea más fluido, o lo dejamos si preferís
+            } else {
+                // Si el servidor dice que ya existe (aunque no tuviera la clase)
+                boton.innerHTML = "⭐";
+                boton.classList.add("is-featured");
+            }
+        } else {
+            // Caso 2: SÍ es destacado -> Intentamos QUITAR (DELETE)
+            if (confirm("¿Querés quitar este producto de destacados?")) {
+                const removeRes = await fetch(`/api/featured/remove/${productId}`, {
+                    method: 'DELETE'
+                });
+
+                if (removeRes.ok) {
+                    boton.innerHTML = "☆";
+                    boton.classList.remove("is-featured");
+                } else {
+                    boton.innerHTML = "⭐";
+                }
+            } else {
+                boton.innerHTML = "⭐";
+            }
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        boton.innerHTML = iconoOriginal;
+        alert("Error de conexión");
+    }
+}

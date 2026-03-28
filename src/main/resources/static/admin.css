@@ -236,8 +236,24 @@ table, tr, td {
         transform: scale(0.95); /* Efecto de hundido para feedback táctil */
     }
 
-    /* 4. Si tenías un estilo de "renglón iluminado" manual, asegúrate de que 
-    solo se aplique si NO es un dispositivo táctil o quitale la clase */
+    .btn-destacado {
+        background-color: #f1c40f; /* Amarillo oro */
+        color: #222;
+        border: none;
+        padding: 5px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1.1rem;
+        transition: transform 0.2s;
+    }
+
+    .btn-destacado.is-featured {
+        color: #ff9800; /* Naranja/Amarillo Panacom cuando es destacado */
+    }
+
+    .btn-destacado:hover {
+        transform: scale(1.2);
+    }
     tr.seleccionado {
         background-color: transparent;
     }

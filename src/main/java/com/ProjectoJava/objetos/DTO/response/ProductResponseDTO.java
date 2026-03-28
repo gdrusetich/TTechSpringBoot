@@ -11,6 +11,7 @@ public class ProductResponseDTO {
     private double price;
     private LocalDate fechaUltimoPrecio;
     private Boolean oculto = false;
+    private Boolean featured;
     private Integer stock;
     private String description;
     private List<CategoryResponseDTO> categories;
@@ -24,6 +25,7 @@ public class ProductResponseDTO {
         this.fechaUltimoPrecio = p.getFechaUltimoPrecio();
         this.oculto = p.isOculto();
         this.stock = p.getStock();
+        this.featured = (p.isFeatured() != null) ? p.isFeatured() : false;
         this.description = p.getDescription();
 
         this.images = (p.getImages() != null) 
@@ -53,6 +55,7 @@ public class ProductResponseDTO {
     public LocalDate getFechaUltimoPrecio(){return this.fechaUltimoPrecio;}
     public Boolean isOculto(){return oculto;}
     public int getStock() {return this.stock;}
+    public boolean isFeatured() {return this.featured;}
     public String getDescription() {return this.description;}
     public List<CategoryResponseDTO> getCategories(){return this.categories;}
     public ImageResponseDTO getMainImage(){return this.mainImage;}

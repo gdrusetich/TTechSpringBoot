@@ -41,10 +41,8 @@ function renderizarCards(data) {
     const catId = (p.categories && p.categories.length > 0) ? p.categories[0].id : '';
     const esUsuarioReal = (window.nombreUsuario && window.nombreUsuario !== 'Invitado');
 
-    // --- NUEVA LÓGICA DE IMAGEN ---
     let fotoUrl = rutaDefault; // Viene de config.js (/images/default.jpg)
     
-    // Sacamos el nombre del archivo, priorizando la principal
     let nombreImagen = null;
     if (p.mainImage && p.mainImage.url) {
         nombreImagen = p.mainImage.url;
@@ -306,21 +304,19 @@ function seleccionarCategoria(id, btn) {
         const hijos = obtenerHijos(id);
         if (hijos.length > 0) {
             const proximoDestino = esPrincipal ? 'subcategorias-nav' : 'nietos-nav';
-            // USAMOS LA NUEVA FUNCIÓN AQUÍ
             renderizarBarraNavegacion(proximoDestino, hijos, id);
         }
     }
 }
 
 function obtenerURLImagenPrincipal(producto) {
+    let nombreArchivo = "default.jpg";
     if (producto.mainImage && producto.mainImage.url) {
-        return `/uploads/${producto.mainImage.url}`;
+        nombreArchivo = producto.mainImage.url;
+    } else if (producto.images && producto.images.length > 0) {
+        nombreArchivo = producto.images[0].url ? producto.images[0].url : producto.images[0];
     }
-    if (producto.images && producto.images.length > 0) {
-        return `/uploads/${producto.images[0].url}`;
-    }
-
-    return '/img/no-photo.png';
+    return `${FOLDER_SYSTEM}/${nombreArchivo}`;
 }
 
 function aplicarFiltrosYOrden() {

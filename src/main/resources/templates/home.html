@@ -39,6 +39,37 @@
         <h1 class="logo-title">DINASTÍA</h1>
     </header>
 
+    <section th:if="${destacados != null && !destacados.isEmpty()}" class="featured-section">
+        <div class="container">
+            <h2 class="section-title">¡PRODUCTOS DESTACADOS!</h2>
+            <div class="product-grid">
+                <div th:each="p : ${destacados}" 
+                    class="product-card featured-card" 
+                    th:onclick="|window.location.href='/detalle?id=${p.productId}'|">
+                    
+                    <h3 class="featured-title-top" th:text="${p.title}">Panacom</h3>
+                    
+                    <div class="featured-img-container">
+                        <img th:src="@{'/images/' + ${p.imageUrl}}" th:alt="${p.title}" class="product-img"
+                            onerror="this.src='/images/default.png';">
+                    </div>
+
+                    <div class="featured-actions-container">
+                        <p class="product-price" th:text="'$' + ${#numbers.formatDecimal(p.price, 1, 'POINT', 0, 'COMMA')}">$0</p>
+                        
+                        <a th:href="@{'https://wa.me/5491137869814?text=Hola! Me interesa el ' + ${p.title}}" 
+                        class="btn-wa-featured" 
+                        onclick="event.stopPropagation();" 
+                        target="_blank">
+                            <img th:src="@{/images/WhatsApp.png}" alt="Pedir por WA" class="wa-icon-featured">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="section-divider">
+    </section>
+
     <main class="main-content">
         <div class="search-container">
             <input type="text" id="busqueda" placeholder="Buscar producto..." 

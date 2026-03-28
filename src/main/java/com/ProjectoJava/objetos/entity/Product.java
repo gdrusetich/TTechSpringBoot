@@ -21,6 +21,7 @@ public class Product {
     private LocalDate fechaUltimoPrecio;
     @Column(name = "oculto")
     private Boolean oculto = false;
+    private Boolean featured = false;
     private int stock;
 
     @Column(columnDefinition = "TEXT")
@@ -50,7 +51,9 @@ public class Product {
     public double getPrice( ){return this.price;}
     public LocalDate getFechaUltimoPrecio(){return this.fechaUltimoPrecio;}
     public Boolean isOculto() {if (oculto == null) return false; return oculto;}
+    public Boolean isFeatured() {return this.featured;}
     public int getStock( ){return this.stock;}
+
     public String getDescription(){return this.description;}
     public Image getMainImage(){return this.mainImage;}
     public Set<Category> getCategories(){return this.categories;}
@@ -63,13 +66,20 @@ public class Product {
     }
     public void setFechaUltimoPrecio(LocalDate unaFecha){this.fechaUltimoPrecio = unaFecha;}
     public void setOculto(Boolean oculto){this.oculto = oculto;}
+    public void setFeatured(Boolean featured){this.featured = featured;}
     public void setStock(int nuevoStock){this.stock = nuevoStock;}
     public void setDescription(String nuevaDescripcion){this.description = nuevaDescripcion;}
     public void setCategories(Set<Category> nuevaCategoria){this.categories = nuevaCategoria;}
     public void setMainImage(Image nuevaMainImage){this.mainImage = nuevaMainImage;}
     public void setImageURL(Set<Image> nuevaImagen){this.images  = nuevaImagen;}
     public void addCategory(Category unCategory){this.categories.add(unCategory);}
-    public void addImage(Image unaImagen){this.images.add(unaImagen);}
+    public void addImage(Image image) {
+        this.images.add(image);
+        image.setProduct(this);
+        if (this.mainImage == null) {
+            this.mainImage = image;
+        }
+    }
     double precioConDescuento(double descuento){
         return price - price * descuento;
     }

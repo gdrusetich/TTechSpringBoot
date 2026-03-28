@@ -78,46 +78,7 @@ public class ProductController {
         System.out.println("Solicitando productos para categoría ID: " + categoryId);
         return service.filtrarPorCategoria(categoryId);
     }
-/*
-    @PostMapping("/nuevo-producto")
-    public ResponseEntity<?> agregarProducto(
-    @RequestParam("title") String title,
-    @RequestParam("price") Double price,
-    @RequestParam("stock") Integer stock,
-    @RequestParam("description") String description,
-    @RequestParam("category") Set<Long> categoriesId,
-    @RequestParam(value = "mainImageId", required = false) Long mainImageId, 
-    @RequestParam(value = "images", required = false) List<MultipartFile> images) throws IOException {
-    
-    try {
-        List<String> nombresArchivos = new ArrayList<>();
 
-        if (images != null && !images.isEmpty()) {
-            for (MultipartFile image : images) {
-                if (!image.isEmpty()) {
-                    String originalName = image.getOriginalFilename();
-                    String nombreFinal = UUID.randomUUID().toString() + "_" + originalName;                    
-                    Path ruta = Paths.get("uploads").resolve(nombreFinal).toAbsolutePath();
-
-                    if (!Files.exists(ruta.getParent())) {
-                        Files.createDirectories(ruta.getParent());
-                    }
-                    Files.copy(image.getInputStream(), ruta, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                    nombresArchivos.add(nombreFinal);
-                }
-            }
-        }
-        ProductRequestDTO dto = new ProductRequestDTO(title, price,java.time.LocalDate.now(), false, stock, description, categoriesId, mainImageId, nombresArchivos);
-        
-        return ResponseEntity.ok(service.agregarProducto(dto));
-        
-        } catch (ProductExistsException e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error inesperado: " + e.getMessage());
-        }
-    }
-*/
     @PostMapping("/nuevo-producto")
     public ResponseEntity<?> agregarProducto(
         @RequestParam("title") String title,
@@ -125,13 +86,14 @@ public class ProductController {
         @RequestParam("stock") Integer stock,
         @RequestParam("description") String description,
         @RequestParam("category") Set<Long> categoriesId,
+        // --- AGREGAMOS ESTA LÍNEA ---
+        @RequestParam(value = "featured", defaultValue = "false") Boolean featured, 
         @RequestParam(value = "mainImageId", required = false) Long mainImageId, 
         @RequestParam(value = "images", required = false) List<MultipartFile> images) {
 
         try {
             List<String> nombresArchivos = new ArrayList<>();
             
-            // 1. Definimos la carpeta de destino de forma relativa (funciona en PC y Render)
             Path directorioUploads = Paths.get("uploads");
             if (!Files.exists(directorioUploads)) {
                 Files.createDirectories(directorioUploads);
@@ -149,9 +111,19 @@ public class ProductController {
                 }
             }
 
+            // --- ACTUALIZAMOS EL CONSTRUCTOR DEL DTO ---
+            // Asegurate que el orden coincida con el que pusimos en ProductRequestDTO
             ProductRequestDTO dto = new ProductRequestDTO(
-                title, price, java.time.LocalDate.now(), false, 
-                stock, description, categoriesId, mainImageId, nombresArchivos
+                title, 
+                price, 
+                java.time.LocalDate.now(), 
+                false,    // oculto
+                featured, // <--- Pasamos el nuevo valor
+                stock, 
+                description, 
+                categoriesId, 
+                mainImageId, 
+                nombresArchivos
             );
             
             return ResponseEntity.ok(service.agregarProducto(dto));
@@ -342,9 +314,15 @@ public class ProductController {
         if (producto == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
         }
+
         producto.setTitle(dto.getTitle());
         producto.setPrice(dto.getPrice());
-        producto.setStock(dto.getStock());
+        producto.setStock(dto.getStock());        
+
+        if (dto.isFeatured() != null) {
+            producto.setFeatured(dto.isFeatured());
+        }
+
         producto.setFechaUltimoPrecio(java.time.LocalDate.now());
         repository.save(producto);
         return ResponseEntity.ok().build();

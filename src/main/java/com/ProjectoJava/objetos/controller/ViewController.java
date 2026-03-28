@@ -9,6 +9,8 @@ import com.ProjectoJava.objetos.repository.CategoryRepository;
 import com.ProjectoJava.objetos.repository.ProductRepository;
 import com.ProjectoJava.objetos.repository.UserRepository;
 
+import com.ProjectoJava.objetos.service.FeaturedProductService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +27,8 @@ public class ViewController {
     ProductRepository productRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    FeaturedProductService featuredService;
 
     @GetMapping("/detalle") 
     public String verDetalle(@RequestParam("id") Long id, Model model, HttpSession session) {
@@ -39,8 +43,16 @@ public class ViewController {
     }
 
     @GetMapping("/home")
-    public String mostrarHome(HttpSession session) {
+    public String mostrarHome(HttpSession session, Model model) {
+        var destacados = featuredService.getAllFeaturedDTOs();
+        model.addAttribute("destacados", destacados);
+
         return "home"; 
+    }
+
+    @GetMapping("/")
+    public String index(HttpSession session, Model model) {
+        return mostrarHome(session, model);
     }
 
     @GetMapping("/perfil")

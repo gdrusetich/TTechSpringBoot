@@ -28,7 +28,11 @@ public class ImageService {
             product.getImages().remove(image);
             
             if (product.getMainImage() != null && product.getMainImage().getId().equals(imageId)) {
-                product.setMainImage(null);
+                if (!product.getImages().isEmpty()) {
+                    product.setMainImage(product.getImages().iterator().next());
+                } else {
+                    product.setMainImage(null); // No quedaron más fotos
+                }
             }
         }
 
