@@ -40,7 +40,6 @@ body {
     font-weight: 300;
 }
 
-/* --- Lado Derecho (Login / Usuario) --- */
 .header-right {
     display: flex;
     align-items: center;
@@ -128,21 +127,14 @@ body {
 }
 
 .product-price {
-    font-size: 3rem; /* Bien gigante */
-    font-weight: 850;
-    color: #ffcc00; /* Dorado brillante */
+    font-size: 2.5rem !important; /* Bajamos de 3.5 a 2.5, más equilibrado */
+    font-weight: 800;
+    color: #ffcc00; 
     margin: 10px 0;
     display: block;
-    text-shadow: 2px 2px 10px rgba(255, 204, 0, 0.3); /* Un pequeño resplandor */
+    font-family: 'Segoe UI', Tahoma, sans-serif; /* Fuente más limpia */
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.3);
     letter-spacing: -1px;
-}
-
-.product-price::before {
-    content: "$";
-    font-size: 1.8rem;
-    vertical-align: top;
-    margin-right: 5px;
-    color: #ffb300; /* Un dorado un poco más oscuro para el signo */
 }
 
 /* --- Miniaturas --- */
@@ -327,6 +319,22 @@ body {
     box-sizing: border-box;
 }
 
+/* Para que el editor de Quill no se vea gigante y tenga bordes prolijos */
+#quill-editor {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 16px;
+    background: white;
+    color: black;
+}
+
+/* Ajuste para el contenido que se muestra en la página (fuera del editor) */
+#product-description ul, #product-description ol {
+    padding-left: 25px;
+    margin-bottom: 15px;
+}
+
 .btn-save { 
     background: #25d366; 
     border: none; 
@@ -346,6 +354,84 @@ body {
     cursor: pointer; 
     margin-top: 10px; 
 }
+
+.price-login-container {
+    padding: 10px 0;
+    text-align: left;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+/* ==========================================================================
+   SISTEMA DE LOGIN UNIFICADO (Header y Detalle)
+   ========================================================================== */
+
+/* 1. Contenedor en el cuerpo de la página (Detalle) */
+.price-login-container {
+    padding: 10px 0;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    background: transparent !important;
+    border: none !important;
+}
+
+.login-prompt-text {
+    color: #777;
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* 2. El Botón (Clase única para ambos lugares) */
+.btn-login, .btn-login-inline {
+    background-color: #1b9c4b; /* Verde oscuro */
+    color: #ffffff !important;
+    padding: 8px 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+/* Efecto Iluminación Hover */
+.btn-login:hover, .btn-login-inline:hover {
+    background-color: #25d366; /* Verde brillante */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(37, 211, 102, 0.2);
+}
+
+/* Efecto Fogonazo Click */
+.btn-login:active, .btn-login-inline:active {
+    background-color: #2ef77d; /* Verde claro */
+    transform: scale(0.95);
+    box-shadow: 0 0 12px rgba(46, 247, 125, 0.5);
+}
+
+/* 3. Ajustes del Header */
+.guest-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.welcome-msg {
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
 
 /* ==========================================================================
    6. PRODUCTOS SIMILARES (Slider)
@@ -476,6 +562,8 @@ body {
     transform: scale(1.05);
     filter: brightness(1.1);
 }
+
+
 
 @media (max-width: 768px) {
     /* Estilos de página y contenedores */

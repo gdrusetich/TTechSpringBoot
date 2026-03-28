@@ -4,6 +4,7 @@ let productoActual = null;
 let categoriasSeleccionadas = [];
 let imagenSeleccionadaIndex = 0;
 let currentIndex = 0;
+let quillEditor = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
     const params = new URLSearchParams(window.location.search);
@@ -205,7 +206,7 @@ function renderizarInformacionBasica(producto) {
     const priceEl = document.getElementById("product-price");
 
     if (titleEl) titleEl.innerText = producto.title;
-    if (descEl) descEl.innerText = producto.description;
+    if (descEl) descEl.innerHTML = producto.description;
     
     if (priceEl) {
         priceEl.innerText = `$ ${producto.price}`;
@@ -280,20 +281,27 @@ function configurarBotonWhatsApp(titulo) {
 }
 
 async function guardarCambioUnico() {
-    const input = document.getElementById('input-dinamico');
-    if (!input) return;
+    let nuevoValor = "";
+
+    if (campoActual === 'description' && quillEditor) {
+        // Si es descripción, sacamos el HTML de Quill
+        nuevoValor = quillEditor.root.innerHTML.trim();
+    } else {
+        // Si no, lo sacamos del input normal
+        const input = document.getElementById('input-dinamico');
+        if (!input) return;
+        nuevoValor = input.value.trim();
+    }
     
-    const nuevoValor = input.value.trim();
     if (!nuevoValor) return alert("El campo no puede estar vacío");
 
     try {
-        // En Java el endpoint espera el valor como parámetro de URL
         const response = await fetch(urlActual + encodeURIComponent(nuevoValor), { 
             method: 'PUT' 
         });
 
         if (response.ok) {
-            location.reload(); // Recarga para ver los cambios reflejados
+            location.reload(); 
         } else {
             alert("Error al actualizar. Status: " + response.status);
         }
@@ -313,6 +321,7 @@ function habilitarEdicion(campo) {
     const tituloModal = document.getElementById('modal-titulo');
     const contenedor = document.getElementById('contenedor-input');
     const idProducto = window.productId; 
+    campoActual = campo;
 
     if (!modal) return;
 
@@ -322,7 +331,6 @@ function habilitarEdicion(campo) {
         case 'title':
             tituloModal.innerText = "Editar Título";
             urlActual = `/products/update-title/${idProducto}?title=`;
-            // IMPORTANTE: Buscamos el H1 correcto
             const h1Producto = document.querySelector(".product-info h1");
             valorActual = h1Producto ? h1Producto.innerText : "";
             contenedor.innerHTML = `<input type="text" id="input-dinamico" style="width:100%; padding:8px;" value="${valorActual}">`;
@@ -332,7 +340,6 @@ function habilitarEdicion(campo) {
             tituloModal.innerText = "Editar Precio";
             urlActual = `/products/update-price/${idProducto}?price=`;
             const pPrecio = document.getElementById("product-price");
-            // Limpiamos el "$" y espacios para el input
             valorActual = pPrecio ? pPrecio.innerText.replace('$', '').trim() : "";
             contenedor.innerHTML = `<input type="number" id="input-dinamico" style="width:100%; padding:8px;" value="${valorActual}">`;
             break;
@@ -350,9 +357,23 @@ function habilitarEdicion(campo) {
             urlActual = `/products/update-description/${idProducto}?description=`;
             const pDesc = document.getElementById('product-description');
             valorActual = pDesc ? pDesc.innerText : "";
-            contenedor.innerHTML = `<textarea id="input-dinamico" rows="6" style="width:100%; padding:8px;">${valorActual}</textarea>`;
-            break;
-    }
+            contenedor.innerHTML = `<div id="quill-editor" style="height: 200px; background: white; color: black;"></div>`;
+            setTimeout(() => {
+                quillEditor = new Quill('#quill-editor', {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            ['bold', 'italic', 'underline'],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['clean']
+                        ]
+                    }
+                });
+                // Cargamos el contenido actual
+                quillEditor.root.innerHTML = valorActual;
+            }, 0);
+        break;
+        }
 
     modal.style.display = 'flex';
 }

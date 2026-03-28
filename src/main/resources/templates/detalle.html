@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dinastía - Electrohogar</title>
     <link rel="stylesheet" th:href="@{/detalle.css}">
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
 </head>
 <body>
     <header class="main-header">
@@ -87,14 +88,15 @@
                     <button id="whatsapp-btn" class="btn-wa">Consultar a Dinastía</button>
                 </div>
             
-                <p id="product-description" th:text="${producto.description}">Descripción...</p>
+                <div id="product-description" th:utext="${producto.description}">Descripción...</div>
                 <div class="price-section">
                     <div th:if="${session.userRole == 'CLIENTE' or session.userRole == 'ADMIN'}">
-                        <p id="product-price" class="price-tag">[[${producto.price}]]</p>
+                        <p id="product-price" class="product-price">[[${producto.price}]]</p>
                     </div>
 
-                    <div th:if="${session.userRole == null}">
-                        <p class="login-warning">Iniciá sesión para ver el precio</p>
+                    <div th:if="${session.userRole == null}" class="price-login-container">
+                        <p class="login-prompt-text">Para ver el precio</p>
+                        <button class="btn-login-inline" onclick="irAlLoginConRetorno()">Iniciá sesión</button>
                     </div>
                 </div> 
 
@@ -149,7 +151,8 @@
     <script th:inline="javascript">
         window.productId = /*[[${producto.id}]]*/ 0;
     </script>
-    
-    </div> <script src="/detalle.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+    <script src="/detalle.js"></script> ```
 </body>
 </html>
