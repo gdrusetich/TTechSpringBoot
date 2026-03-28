@@ -55,12 +55,14 @@ async function cargarSimilares(categoriaId, idActual) {
             card.className = 'related-card';
             card.onclick = () => window.location.href = `/detalle?id=${p.id}`;
             card.innerHTML = `
-                    <img src="${imgUrl}" alt="${p.title}" onerror="this.src='${rutaDefault}';">
-                    <div class="related-info">
-                        <h4>${p.title}</h4>
-                        <p class="price">$${p.price.toLocaleString('es-AR')}</p>
+                <img src="${imgUrl}" alt="${p.title}" onerror="this.src='${rutaDefault}';">
+                <div class="related-info">
+                    <h4>${p.title}</h4>
+                    <div class="price-tag">
+                        <span class="currency">$</span><span class="amount">${p.price.toLocaleString('es-AR')}</span>
                     </div>
-                `;
+                </div>
+            `;
             container.appendChild(card);
         });
 
@@ -76,22 +78,37 @@ async function cargarSimilares(categoriaId, idActual) {
 
 function iniciarAnimacionSlider() {
     const slider = document.getElementById("related-container");
-    const cards = document.querySelectorAll(".related-card");
-    if (!slider || cards.length <= 4) return;
+    if (!slider) return;
+
+    const necesitaSlider = () => {
+        return slider.scrollWidth > slider.offsetWidth;
+    };
+
+    if (!necesitaSlider()) {
+        console.log("No hace falta slider, entran todos en pantalla.");
+        return;
+    }
 
     setInterval(() => {
+
+        if (!necesitaSlider()) return;
+
         const firstChild = slider.firstElementChild;
         if (!firstChild) return;
 
-        const desplazamiento = firstChild.offsetWidth + 20;
+        const estilo = window.getComputedStyle(slider);
+        const gap = parseInt(estilo.columnGap) || 20; 
+        const desplazamiento = firstChild.offsetWidth + gap;
+
         slider.style.transition = "transform 0.5s ease";
         slider.style.transform = `translateX(-${desplazamiento}px)`;
+
         setTimeout(() => {
-            slider.style.transition = "none"; // Quitamos transición para el salto invisible
-            slider.style.transform = "translateX(0)"; // Reseteamos posición
-            slider.appendChild(firstChild); // Mandamos la primera tarjeta al final
-        }, 500); //500ms
-    }, 3000); //3 segundos
+            slider.style.transition = "none";
+            slider.style.transform = "translateX(0)";
+            slider.appendChild(firstChild);
+        }, 500);
+    }, 3000);
 }
 
 function irAlLoginConRetorno() {

@@ -1,10 +1,56 @@
-body { background: #121212; color: white; font-family: sans-serif; padding: 20px; }
-.header-precios { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-table { width: 100%; border-collapse: collapse; }
+/* Estilos Generales */
+body { background: #121212; color: white; font-family: sans-serif; padding: 20px; margin: 0; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
 th, td { border: 1px solid #333; padding: 12px; text-align: left; }
 th { background: #1f1f1f; color: #bb86fc; }
-input { background: transparent; color: white; border: 1px solid transparent; width: 90%; font-size: 1rem; }
-input:focus { border-bottom: 1px solid #bb86fc; outline: none; background: #252525; }
+
+/* Inputs dentro de la tabla */
+td input { background: transparent; color: white; border: 1px solid transparent; width: 95%; font-size: 1rem; padding: 4px; }
+td input:focus { border-bottom: 1px solid #bb86fc; outline: none; background: #252525; }
+
+/* Estados de Fila */
 .fila-modificada { background-color: #1b4332 !important; }
-.precio-anterior { color: #ff5252; font-size: 0.8rem; text-decoration: line-through; }
+.precio-anterior { color: #ff5252; font-size: 0.8rem; text-decoration: line-through; margin-left: 5px; }
+.hidden { display: none !important; }
+
+/* Header y Filtros */
+.header-precios {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Título a la izq, Botones a la der */
+    gap: 20px;
+    padding: 15px 25px;
+    background-color: #222;
+    border-bottom: 2px solid #25d366;
+    min-height: 80px;
+}
+
+.titulo-seccion h2 {
+    margin: 0;
+    white-space: nowrap; /* Evita que el título se rompa en dos líneas */
+}
+
+.contenedor-filtros {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+    max-width: 650px; /* IMPORTANTE: Para que no pise a los botones */
+}
+
+.botones-header {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0; /* Prohibido achicarse */
+}
+
+#busqueda-precios, #filtro-categoria, #filtro-subcategoria {
+    padding: 10px;
+    border-radius: 6px;
+    background: #111;
+    color: white;
+    border: 1px solid #444;
+}
+
+/* Botones */
 .btn-guardar-todo { background: #03dac6; color: black; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+.btn-volver { background: #444; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }

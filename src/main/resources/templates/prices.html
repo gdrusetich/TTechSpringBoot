@@ -6,12 +6,27 @@
     <link rel="stylesheet" th:href="@{/prices.css}">
 </head>
 <body>
-
     <div class="header-precios">
-        <h2>📊 Gestión de Precios y Stock</h2>
+        <div class="titulo-seccion">
+            <h2>📊 Gestión de Precios</h2>
+        </div>
+        
+        <div class="contenedor-filtros">
+            <input type="text" id="busqueda-precios" placeholder="🔍 Buscar nombre..." 
+                onkeyup="filtrarTodo()">
+            
+            <select id="filtro-categoria" onchange="manejarCambioCategoria()">
+                <option value="todas">Categorías</option>
+            </select>
+
+            <select id="filtro-subcategoria" style="display:none;" onchange="filtrarTodo()">
+                <option value="todas">Subcategorías</option>
+            </select>
+        </div>
+        
         <div class="botones-header">
             <button class="btn-volver" onclick="window.location.href='/home'">⬅ Volver</button>
-            <button class="btn-guardar-todo" onclick="guardarCambios()">💾 GUARDAR CAMBIOS</button>
+            <button class="btn-guardar-todo" onclick="guardarCambios()">💾 GUARDAR</button>
         </div>
     </div>
 
@@ -29,6 +44,7 @@
         </tbody>
     </table>
 
+    <script th:src="@{/utils.js}"></script>
     <script th:src="@{/prices.js}"></script>
 </body>
 </html>

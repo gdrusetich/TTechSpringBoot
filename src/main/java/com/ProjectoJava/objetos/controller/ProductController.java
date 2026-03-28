@@ -308,24 +308,30 @@ public class ProductController {
     }
 
     @PutMapping("/actualizar-rapido/{id}")
-    public ResponseEntity<?> actualizarProductoRapido(@PathVariable Long id, @RequestBody ProductRequestDTO dto) {
-        Product producto = repository.findById(id).orElse(null);
-        
-        if (producto == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
+    public ResponseEntity<?> actualizarProductoRapido(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
+        try {
+            return repository.findById(id).map(p -> {
+                // Extraemos los valores del mapa con cuidado
+                if (payload.containsKey("title")) {
+                    p.setTitle(payload.get("title").toString());
+                }
+                if (payload.containsKey("price")) {
+                    p.setPrice(Double.parseDouble(payload.get("price").toString()));
+                }
+                if (payload.containsKey("stock")) {
+                    p.setStock(Integer.parseInt(payload.get("stock").toString()));
+                }
+                
+                p.setFechaUltimoPrecio(java.time.LocalDate.now());
+                repository.save(p);
+                return ResponseEntity.ok().build();
+            }).orElse(ResponseEntity.notFound().build());
+            
+        } catch (Exception e) {
+            // Esto imprimirá el error real en tu consola de IntelliJ
+            e.printStackTrace(); 
+            return ResponseEntity.status(500).body("Error interno: " + e.getMessage());
         }
-
-        producto.setTitle(dto.getTitle());
-        producto.setPrice(dto.getPrice());
-        producto.setStock(dto.getStock());        
-
-        if (dto.isFeatured() != null) {
-            producto.setFeatured(dto.isFeatured());
-        }
-
-        producto.setFechaUltimoPrecio(java.time.LocalDate.now());
-        repository.save(producto);
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/admin/revision-precios")

@@ -762,30 +762,27 @@ function abrirModalDesc(btn) {
     panel.style.display = 'block';
 }
 
-async function guardarEdicionRapida(id) {
-    const fila = document.getElementById(`fila-${id}`);    
-    const data = {
-        title: fila.querySelector('.in-title').value,
-        price: parseFloat(fila.querySelector('.in-price').value),
-        stock: parseInt(fila.querySelector('.in-stock').value),
-    };
+function editarFila(id) {
+    const fila = document.getElementById(`fila-${id}`);
+    const p = productosCargados.find(prod => prod.id === id);
 
-    try {
-        const res = await fetch(`${API_PRODUCTS}/actualizar-rapido/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-
-        if (res.ok) {
-            await cargarProductos(); // Refrescamos la tabla
-            console.log("Título, Precio y Stock actualizados");
-        } else {
-            alert("Error al actualizar el producto");
-        }
-    } catch (err) {
-        console.error("Error:", err);
-    }
+    fila.innerHTML = `
+        <td>${p.id}</td>
+        <td><input type="text" class="form-control in-title" value="${p.title}"></td>
+        <td><input type="number" class="form-control in-price" value="${p.price}"></td>
+        <td><input type="number" class="form-control in-stock" value="${p.stock}"></td>
+        <td>
+            <input type="checkbox" class="in-featured" ${p.featured ? 'checked' : ''}>
+        </td>
+        <td>
+            <button class="btn btn-success btn-sm" onclick="guardarEdicionRapida(${id})">
+                <i class="fas fa-save"></i> Guardar
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="cargarProductos()">
+                <i class="fas fa-times"></i>
+            </button>
+        </td>
+    `;
 }
 
 function toggleVisibilidad(id) {

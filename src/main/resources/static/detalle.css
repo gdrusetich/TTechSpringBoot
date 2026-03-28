@@ -413,14 +413,12 @@ body {
     box-shadow: 0 4px 8px rgba(37, 211, 102, 0.2);
 }
 
-/* Efecto Fogonazo Click */
 .btn-login:active, .btn-login-inline:active {
     background-color: #2ef77d; /* Verde claro */
     transform: scale(0.95);
     box-shadow: 0 0 12px rgba(46, 247, 125, 0.5);
 }
 
-/* 3. Ajustes del Header */
 .guest-info {
     display: flex;
     align-items: center;
@@ -475,8 +473,64 @@ body {
     transform: translateY(-5px);
 }
 
+/* Contenedor de la info */
+/* Contenedor de la info - AHORA OSCURO */
+.related-info {
+    padding: 12px;
+    text-align: center;
+    background: #1a1a1a; /* El mismo fondo que la tarjeta */
+    border-top: 1px solid #333; /* Una línea sutil para separar de la imagen */
+}
+
 .related-info h4 {
-    color: #fff;
+    font-size: 0.9rem;
+    color: #eee; /* Texto claro */
+    margin-bottom: 8px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+/* El Precio Vistoso - ESTILO DORADO/NARANJA */
+.price-tag {
+    background-color: transparent; /* Sin fondo raro */
+    display: inline-block;
+    padding: 2px 0;
+}
+
+.price-tag .currency {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #ff9800; /* Naranja de tus categorías */
+    margin-right: 2px;
+}
+
+.price-tag .amount {
+    font-size: 1.3rem; /* Un poquito más grande */
+    font-weight: 800;
+    color: #ff9800; /* Dorado/Naranja */
+    letter-spacing: -0.5px;
+    text-shadow: 0 0 10px rgba(255, 152, 0, 0.2); /* Un brillo muy sutil */
+}
+
+/* Efecto al pasar el mouse */
+.related-card:hover .price-tag .amount,
+.related-card:hover .price-tag .currency {
+    color: #ffb74d; /* Un naranja más clarito al pasar el mouse */
+    text-shadow: 0 0 15px rgba(255, 183, 77, 0.4);
+}
+
+.related-card {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; 
+    min-width: calc(25% - 15px); 
+    max-width: calc(25% - 15px);
 }
 
 .related-card img {
@@ -484,13 +538,16 @@ body {
     height: 150px;
     object-fit: contain;
     background-color: #111;
-    padding: 10px;
+    padding: 12px; 
+    box-sizing: border-box;     
     display: block;
+    transition: transform 0.3s;
 }
 
-.related-info {
-    padding: 10px;
+.related-card:hover img {
+    transform: scale(1.05); /* La imagen se agranda un poquito sin salirse del borde */
 }
+
 /* ==========================================================================
    7. CONTROLES DE ADMIN
    ========================================================================== */

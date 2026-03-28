@@ -1,7 +1,6 @@
 let categoriasData = [];
 let productosHome = [];
 
-
 if (typeof userLogger === 'undefined') {
     var userLogger = null;
 }
@@ -60,11 +59,9 @@ function renderizarCards(data) {
         } else if (cleanUrl.startsWith('uploads/')) {
             fotoUrl = `/${cleanUrl}`;
         } else {
-            // Si es solo el nombre (con o sin UUID), buscamos en uploads
-            fotoUrl = `${FOLDER_SYSTEM}/${cleanUrl}`;
+             fotoUrl = `${FOLDER_SYSTEM}/${cleanUrl}`;
         }
     }
-
         return `
             <div class="card" data-category-id="${catId}">
                 <div class="img-container" onclick="window.location.href='/detalle?id=${p.id}'">
