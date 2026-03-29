@@ -141,14 +141,21 @@ function renderizarTabla(lista) {
             </td>
 
             <td style="min-width: 230px;">
-            <button class="view-mode btn-tabla" style="background:#007bff; color:white;" onclick="event.stopPropagation(); activarEdicion(${id})">Editar</button>
-            <button class="view-mode btn-tabla" style="background: ${btnColor}; color:white;" onclick="event.stopPropagation(); toggleVisibilidad(${id})"> ${btnTexto} </button>
-            
-            <button class="view-mode btn-destacado ${estrellaClase}" 
-                    onclick="event.stopPropagation(); alternarDestacado(${id})" 
-                    title="Destacar en Home"> ${estrellaIcono} </button>
-            
-            <button class="view-mode btn-tabla" style="background:#dc3545; color:white;" onclick="event.stopPropagation(); eliminarProducto(${id})">Borrar</button>
+                <button class="view-mode btn-tabla" style="background:#007bff; color:white;" onclick="event.stopPropagation(); activarEdicion(${id})">Editar</button>
+                <button class="view-mode btn-tabla" style="background: ${btnColor}; color:white;" onclick="event.stopPropagation(); toggleVisibilidad(${id})"> ${btnTexto} </button>
+                
+                <button class="view-mode btn-destacado ${estrellaClase}" 
+                        onclick="event.stopPropagation(); alternarDestacado(${id})" 
+                        title="Destacar en Home"> ${estrellaIcono} </button>
+                
+                <button class="view-mode btn-tabla" style="background:#dc3545; color:white;" onclick="event.stopPropagation(); eliminarProducto(${id})">Borrar</button>
+
+                <button class="edit-mode d-none btn-tabla" style="background:#28a745; color:white;" onclick="event.stopPropagation(); guardarEdicionRapida(${id})">
+                    💾 Guardar
+                </button>
+                <button class="edit-mode d-none btn-tabla" style="background:#6c757d; color:white;" onclick="event.stopPropagation(); cancelarEdicion(${id})">
+                    ✖️
+                </button>
             </td>
         </tr>`;
     });
@@ -822,51 +829,67 @@ window.onresize = () => {
     }, 250); // Espera un cuarto de segundo después de que dejes de mover la ventana
 };
 
-async function alternarDestacado(productId) {
+async function alternarDestacado(id) {
     const boton = event.target.closest('button');
     const yaEsDestacado = boton.classList.contains("is-featured");
-    const iconoOriginal = boton.innerHTML;
+    const nuevoEstado = !yaEsDestacado;
 
     boton.innerHTML = "⏳";
 
     try {
-        if (!yaEsDestacado) {
-            // Caso 1: NO es destacado -> Intentamos AGREGAR
-            const response = await fetch(`/api/featured/add`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ productId: productId })
-            });
+        const res = await fetch(`${API_PRODUCTS}/${id}/destacar`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ featured: nuevoEstado })
+        });
 
-            if (response.ok) {
-                boton.innerHTML = "⭐";
+        if (res.ok) {
+            boton.innerHTML = nuevoEstado ? "⭐" : "☆";
+            if (nuevoEstado) {
                 boton.classList.add("is-featured");
-                // Sacamos el alert para que sea más fluido, o lo dejamos si preferís
+                alert("¡El Producto es Destacado!");
             } else {
-                // Si el servidor dice que ya existe (aunque no tuviera la clase)
-                boton.innerHTML = "⭐";
-                boton.classList.add("is-featured");
+                boton.classList.remove("is-featured");
+                alert("¡El Producto dejó de ser Destacado!");
             }
+
+            const p = productosCargados.find(prod => (prod.id || prod.id_producto) === id);
+            if (p) p.featured = nuevoEstado;
+
         } else {
-            // Caso 2: SÍ es destacado -> Intentamos QUITAR (DELETE)
-            if (confirm("¿Querés quitar este producto de destacados?")) {
-                const removeRes = await fetch(`/api/featured/remove/${productId}`, {
-                    method: 'DELETE'
-                });
-
-                if (removeRes.ok) {
-                    boton.innerHTML = "☆";
-                    boton.classList.remove("is-featured");
-                } else {
-                    boton.innerHTML = "⭐";
-                }
-            } else {
-                boton.innerHTML = "⭐";
-            }
+            throw new Error("Error en el servidor");
         }
-    } catch (error) {
-        console.error("Error:", error);
-        boton.innerHTML = iconoOriginal;
-        alert("Error de conexión");
+    } catch (err) {
+        console.error("Error:", err);
+        boton.innerHTML = yaEsDestacado ? "⭐" : "☆";
+        alert("No se pudo actualizar el estado del producto.");
+    }
+}
+
+async function guardarEdicionRapida(id) {
+    const fila = document.getElementById(`fila-${id}`);
+    
+    // Solo leemos lo que realmente está en los inputs de texto/número
+    const data = {
+        title: fila.querySelector('.in-title').value,
+        price: parseFloat(fila.querySelector('.in-price').value),
+        stock: parseInt(fila.querySelector('.in-stock').value)
+        // QUITAMOS la línea de 'featured' de acá
+    };
+
+    try {
+        const res = await fetch(`${API_PRODUCTS}/actualizar-rapido/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if (res.ok) {
+            await cargarProductos(); 
+        } else {
+            alert("Error al guardar cambios de texto.");
+        }
+    } catch (err) {
+        console.error(err);
     }
 }

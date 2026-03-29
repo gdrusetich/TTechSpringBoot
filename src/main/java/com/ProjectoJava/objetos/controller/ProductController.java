@@ -1,12 +1,12 @@
 package com.ProjectoJava.objetos.controller;
 
+import com.ProjectoJava.objetos.service.FeaturedProductService;
 import com.ProjectoJava.objetos.service.ImageService;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -22,14 +22,12 @@ import com.ProjectoJava.objetos.DTO.request.ProductRequestDTO;
 import com.ProjectoJava.objetos.DTO.response.ProductResponseDTO;
 import com.ProjectoJava.objetos.entity.Product;
 import com.ProjectoJava.objetos.entity.Category;
-import com.ProjectoJava.objetos.entity.User;
 import com.ProjectoJava.objetos.entity.Role;
 import com.ProjectoJava.objetos.entity.Image;
 import com.ProjectoJava.objetos.repository.ProductRepository;
 import com.ProjectoJava.objetos.repository.CategoryRepository;
 import com.ProjectoJava.objetos.repository.ImageRepository;
 
-import exceptions.ProductExistsException;
 import com.ProjectoJava.objetos.service.ProductService;
 import exceptions.ProductNotExistsException;
 import jakarta.servlet.http.HttpSession;
@@ -48,7 +46,12 @@ public class ProductController {
     private ProductService service;
 
     @Autowired
+    private FeaturedProductService featuredService;
+
+    @Autowired
     private ImageService imageService;
+
+
     @Autowired
     private ProductRepository repository;
     @Autowired
@@ -332,6 +335,26 @@ public class ProductController {
             e.printStackTrace(); 
             return ResponseEntity.status(500).body("Error interno: " + e.getMessage());
         }
+    }
+
+    @PatchMapping("/{id}/destacar")
+    public ResponseEntity<?> gestionarFeatured(@PathVariable Long id, @RequestBody Map<String, Boolean> payload) {
+        return repository.findById(id).map(p -> {
+            Boolean nuevoEstado = payload.get("featured");
+            if (nuevoEstado != null) {
+                p.setFeatured(nuevoEstado);
+                repository.save(p);
+
+                if (nuevoEstado) {
+                    featuredService.addFeatured(p.getId());
+                } else {
+                    featuredService.removeFeatured(p.getId());
+                }
+
+                return ResponseEntity.ok().build();
+            }
+            return ResponseEntity.badRequest().body("Falta el campo featured");
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/admin/revision-precios")

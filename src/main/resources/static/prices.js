@@ -61,41 +61,75 @@ function llenarSelectorCategorias() {
 function manejarCambioCategoria() {
     const idPadre = document.getElementById('filtro-categoria').value;
     const selectHijas = document.getElementById('filtro-subcategoria');
-    
-    // 1. Limpiar selector de subcategorías
-    selectHijas.innerHTML = '<option value="todas">Todas las subcategorías</option>';
-    
-    // 2. Buscar hijas usando el nombre correcto de la variable: todasLasCategorias
+
+    selectHijas.innerHTML = '<option value="todas">Todas las subcategorías</option>';    
     const hijas = todasLasCategorias.filter(c => c.parent && c.parent.id == idPadre);
 
     if (hijas.length > 0 && idPadre !== 'todas') {
         hijas.forEach(h => {
             selectHijas.add(new Option(h.name, h.id));
         });
-        selectHijas.style.display = 'block';
+        selectHijas.classList.remove('hidden');
+        selectHijas.style.display = ''; // Por si tenía el inline style de antes
     } else {
-        selectHijas.style.display = 'none';
+        selectHijas.classList.add('hidden');
+        selectHijas.value = 'todas'; 
     }
 
-    // 3. Filtrar la tabla inmediatamente
     filtrarTodo();
 }
 
 function filtrarTodo() {
-    const texto = document.getElementById('busqueda-precios').value;
+    const texto = document.getElementById('busqueda-precios').value.toLowerCase();
     const catMadre = document.getElementById('filtro-categoria').value;
     const catHija = document.getElementById('filtro-subcategoria').value;
 
-    // Si hay hija, manda la hija. Si no, manda la madre.
-    const categoriaId = (catHija !== 'todas') ? catHija : catMadre;
+    // El ID que manda es la hija si existe, sino la madre
+    let idObjetivo = (catHija !== 'todas' && catHija !== "") ? catHija : catMadre;
 
     productosCargados.forEach(p => {
-        // Esta función vive en utils.js
-        const mostrar = cumpleFiltros(p, texto, categoriaId);
-        
+        // 1. Filtro de texto
+        const coincideTexto = p.title.toLowerCase().includes(texto) || p.id.toString() === texto;
+
+        // 2. Filtro de categoría con "Trabajito de Ancestros"
+        let coincideCategoria = false;
+
+        if (idObjetivo === 'todas' || idObjetivo === "") {
+            coincideCategoria = true;
+        } else {
+            coincideCategoria = p.categories && p.categories.some(catProd => {
+                // ¿Es la categoría exacta?
+                if (catProd.id == idObjetivo) return true;
+
+                // Si no es la exacta, buscamos hacia arriba (Ancestros)
+                let actualId = catProd.id;
+                let maximaSeguridad = 0; // Para evitar bucles infinitos por las dudas
+
+                while (actualId && maximaSeguridad < 10) {
+                    // Buscamos la info de esta categoría en nuestra lista global
+                    const infoCat = todasLasCategorias.find(c => c.id == actualId);
+                    
+                    if (!infoCat || !infoCat.parent) break;
+
+                    // ¿El padre de esta categoría es la que buscamos?
+                    if (infoCat.parent.id == idObjetivo) return true;
+
+                    // Seguimos subiendo al siguiente nivel
+                    actualId = infoCat.parent.id;
+                    maximaSeguridad++;
+                }
+                return false;
+            });
+        }
+
+        // 3. Mostrar/Ocultar fila
         const fila = document.getElementById(`fila-${p.id}`);
         if (fila) {
-            fila.style.display = mostrar ? "" : "none";
+            if (coincideTexto && coincideCategoria) {
+                fila.classList.remove('hidden');
+            } else {
+                fila.classList.add('hidden');
+            }
         }
     });
 }
@@ -114,16 +148,18 @@ function registrarCambio(id, campo, input, valorOriginal = null) {
 
 async function guardarCambios() {
     const lista = Object.values(cambiosPendientes);
-    if (lista.length === 0) return alert("No hay cambios.");
+    if (lista.length === 0) return alert("No hay cambios pendientes.");
 
     try {
         for (let p of lista) {
-            // Construimos un objeto simple, sin anidaciones
-            const bodyEnviar = {
-                title: p.title,
-                price: parseFloat(p.price),
-                stock: parseInt(p.stock)
-            };
+            // Creamos un objeto vacío y solo le agregamos lo que el usuario MODIFICÓ
+            const bodyEnviar = {};
+            
+            if (p.title !== undefined) bodyEnviar.title = p.title;
+            if (p.price !== undefined) bodyEnviar.price = parseFloat(p.price);
+            if (p.stock !== undefined) bodyEnviar.stock = parseInt(p.stock);
+
+            console.log(`Enviando actualización para ID ${p.id}:`, bodyEnviar);
 
             const res = await fetch(`${API_URL}/products/actualizar-rapido/${p.id}`, {
                 method: 'PUT',
@@ -131,12 +167,17 @@ async function guardarCambios() {
                 body: JSON.stringify(bodyEnviar)
             });
 
-            if (!res.ok) throw new Error(`Error en ID ${p.id}: ${res.status}`);
+            if (!res.ok) {
+                const errorTexto = await res.text();
+                throw new Error(`Error en ID ${p.id} (Status ${res.status}): ${errorTexto}`);
+            }
         }
-        alert("¡Precios actualizados con éxito!");
+        
+        alert("¡Cambios guardados con éxito!");
+        cambiosPendientes = {}; // Limpiamos los cambios
         location.reload();
     } catch (error) {
         console.error("Error detallado:", error);
-        alert("Hubo un error al guardar. Revisá la consola.");
+        alert("Hubo un error al guardar. Mirá la consola de IntelliJ para el error real.");
     }
 }
