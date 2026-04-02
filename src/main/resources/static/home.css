@@ -272,13 +272,13 @@ h1.logo-title { text-align: center; color: #ffffff; margin-bottom: 40px; }
 }
 
 .desc-format-destacado {
-    font-size: 0.85rem;
-    color: #bbb;
-    height: 80px;            /* Altura fija para que todas las tarjetas midan lo mismo */
-    overflow-y: auto;        /* Si la descripción es muy larga, aparece un scroll chiquito interno */
-    margin: 10px 0;
+overflow: hidden;         /* Mata cualquier scroll */
+    text-overflow: ellipsis;  /* Refuerzo visual por si acaso */
+    display: block;           /* Asegura que respete el contenedor */
+    max-height: 120px;        /* Ajustá esto según el alto de tu tarjeta */
+    margin-bottom: 10px;
+    font-size: 0.9rem;
     line-height: 1.4;
-    text-align: left;        /* Las listas se ven mejor alineadas a la izquierda */
 }
 
 /* Estilo para las viñetas dentro de la tarjeta */

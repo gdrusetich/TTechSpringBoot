@@ -360,14 +360,17 @@ function aplicarFiltrosYOrden() {
 function renderizarDestacados(data) {
     const track = document.getElementById('lista-destacados');
     if (!track || !data || data.length === 0) return;
-    
     const listaParaSlider = [...data, ...data];
 
-    // Limpiamos y generamos el HTML
     track.innerHTML = listaParaSlider.map((p, index) => {
-        let contenidoHtml = p.description || "Sin descripción disponible";
-        let fotoUrl = '/images/default.png';
+        let textoPuro = p.description ? p.description.replace(/<[^>]*>?/gm, '') : "Sin descripción disponible";
+        
+        let descripcionFinal = textoPuro;
+        if (textoPuro.length > 400) {
+            descripcionFinal = textoPuro.substring(0, 400) + "...";
+        }
 
+        let fotoUrl = '/images/default.png';
         if (p.images && p.images.length > 0) {
             const mainImg = p.images.find(img => img.isMain) || p.images[0];
             fotoUrl = mainImg.url.startsWith('/') ? mainImg.url : `/uploads/${mainImg.url}`;
@@ -375,20 +378,25 @@ function renderizarDestacados(data) {
             fotoUrl = `/images/${p.imageUrl}`;
         }
 
-const idFinal = p.productId || p.id; 
+        const idFinal = p.productId || p.id; 
 
         return `
             <div class="card-destacado" data-id="${idFinal}" style="cursor: pointer;">
                 <h3 class="featured-title-top">${p.title}</h3>
+                
                 <div class="featured-img-container">
                     <img src="${fotoUrl}" alt="${p.title}" class="card-img">
                 </div>
-                <div class="desc-format-destacado">
-                    ${contenidoHtml}
+                
+                <div class="desc-format-destacado" style="overflow: hidden; text-overflow: ellipsis;">
+                    ${descripcionFinal}
                 </div>
+                
                 <div class="featured-actions-container">
-                    <p class="product-price">$ ${p.price?.toLocaleString('es-AR')}</p>
-                    <a href="https://wa.me/5491137869814?text=Hola! Me interesa el ${p.title}" 
+                    <p class="product-price">
+                        $ ${p.price ? p.price.toLocaleString('es-AR') : 'Consultar'}
+                    </p>
+                    <a href="https://wa.me/5491137869814?text=Hola! Me interesa el ${encodeURIComponent(p.title)}" 
                        class="btn-wa-featured" 
                        onclick="event.stopPropagation();" 
                        target="_blank">
@@ -398,18 +406,17 @@ const idFinal = p.productId || p.id;
             </div>
         `;
     }).join('');
+
     const cards = track.querySelectorAll('.card-destacado');
     cards.forEach(card => {
         card.addEventListener('click', function(e) {
-            // Si el clic fue en el botón de WhatsApp, no hacemos nada (ya tiene su link)
             if (e.target.closest('.btn-wa-featured')) return;
 
             const id = this.getAttribute('data-id');
             if (id && id !== 'undefined') {
-                console.log("Redirigiendo al producto:", id);
                 window.location.href = `/detalle?id=${id}`;
             } else {
-                console.error("Error: El producto no tiene un ID válido", id);
+                console.error("Error: ID de producto no válido", id);
             }
         });
     });
