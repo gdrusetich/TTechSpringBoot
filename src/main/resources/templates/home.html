@@ -4,39 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dinastia - Electrohogar</title>
-    <link rel="stylesheet" th:href="@{/home.css(v='1.1')}">
+    <link rel="stylesheet" th:href="@{/home.css(v='1.5')}">
 </head>
 <body>
-    <div id="menu-usuario" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: transparent; width: 100%; box-sizing: border-box;">
+    <div id="menu-usuario" class="user-nav-bar">
         
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <div th:if="${session.userName != null}" style="color: white; font-size: 0.95rem;">
-                Hola, <strong th:text="${session.userName}" style="color: #ff9800;"></strong>!
+        <div class="user-info-group">
+            <div th:if="${session.userName != null}" class="user-greeting">
+                Hola, <strong th:text="${session.userName}"></strong>!
             </div>
 
             <div th:if="${session.userRole == 'ADMIN'}">
-                <a href="/admin" class="btn-panel-control">
+                <a href="/admin" class="btn-nav-custom btn-admin">
                     🛠️ Panel Control
                 </a>
             </div>
         </div>
 
-        <div style="display: flex; gap: 10px;">
+        <div class="user-actions-group">
             <div th:if="${session.userName == null}">
-                <a href="/login" class="filter-btn" style="text-decoration: none;">Ingresar</a>
+                <a href="/login" class="btn-nav-custom">Ingresar</a>
             </div>
 
-            <div th:if="${session.userName != null}" style="display: flex; gap: 10px;">
-                <a href="/perfil" class="filter-btn" style="text-decoration: none;">⚙️ Perfil</a>
-                <a href="/logout" class="filter-btn" style="background: #444; color: #ff5252; border-color: #555; text-decoration: none;">
+            <div th:if="${session.userName != null}" class="buttons-flex">
+                <a href="/perfil" class="btn-nav-custom">⚙️ Perfil</a>
+                <a href="/logout" class="btn-nav-custom btn-logout">
                     Cerrar Sesión
                 </a>
             </div>
         </div>
     </div>
 
-    <header class="header-container">
-        <h1 class="logo-title">DINASTÍA</h1>
+    <header class="home-banner-hero" 
+        th:style="'background-image: url(' + @{/images/dinastia.png} + ');'">
     </header>
 
     <section th:if="${destacados != null && !destacados.isEmpty()}" class="featured-section">
@@ -47,7 +47,7 @@
                     class="product-card featured-card" 
                     th:onclick="|window.location.href='/detalle?id=${p.productId}'|">
                     
-                    <h3 class="featured-title-top" th:text="${p.title}">Panacom</h3>
+                    <h3 class="featured-title-top" th:text="${p.title}">Producto</h3>
                     
                     <div class="featured-img-container">
                         <img th:src="@{'/images/' + ${p.imageUrl}}" th:alt="${p.title}" class="product-img"
@@ -101,6 +101,7 @@
             <div id="subcategorias-nav"></div>
             <div id="nietos-nav"></div>
         </div>
+
         <div th:if="${session.userRole == 'ADMIN'}" class="admin-quick-access" style="margin-top: 15px;">
             <a href="/actualizar" class="filter-btn" style="background: #e67e22; border-color: #d35400; text-decoration: none; display: inline-block;">
                 ⚠️ Auditar Precios Desactualizados
@@ -114,23 +115,31 @@
 
     <div id="tooltip-descripcion" class="tooltip"></div>
 
-    <footer class="footer-admin">
-        <a href="/login">Acceso Admin</a>
+    <footer class="footer-principal">
+        <a href="/dinastia" class="footer-link">
+            <div class="footer-content">
+                <span class="brand-name">Dinastía Electrohogar</span> 
+                <span class="separator">|</span>
+                <span class="address">Martiniano Chilavert 1885, Villa Celina</span> 
+                <span class="separator">|</span>
+                <span class="copyright">© 2026 - Todos los derechos reservados</span>
+            </div>
+        </a>
     </footer>
+
     <script th:src="@{/config.js}"></script>
     <script th:src="@{/auth-check.js}"></script> 
     <script th:src="@{/home.js}"></script>
 
     <script th:inline="javascript">
+        window.nombreUsuario = /*[[${session.userName}]]*/ 'Invitado';
+        const userRole = /*[[${session.userRole}]]*/ null;
 
-    window.nombreUsuario = /*[[${session.userName}]]*/ 'Invitado';
-    const userRole = /*[[${session.userRole}]]*/ null;
-
-    if (userRole) {
-        localStorage.setItem("role", userRole);
-    } else {
-        localStorage.removeItem("role");
-    }
+        if (userRole) {
+            localStorage.setItem("role", userRole);
+        } else {
+            localStorage.removeItem("role");
+        }
     </script>
     
     <div id="dropdown-categorias" class="dropdown-content hidden">

@@ -41,6 +41,11 @@ public class ViewController {
         model.addAttribute("rolActual", session.getAttribute("rol"));
         return "detalle"; 
     }
+    
+    @GetMapping("/dinastia")
+    public String verNosotros() {
+        return "dinastia"; // Esto busca el archivo dinastia.html
+    }
 
     @GetMapping("/home")
     public String mostrarHome(HttpSession session, Model model) {
