@@ -8,7 +8,10 @@ const tooltip = document.getElementById('tooltip-descripcion');
 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Página cargada. Limpiando miguita de pan...");
-    localStorage.removeItem("returnUrl");    
+    localStorage.removeItem("returnUrl");
+    if (window.productosDestacadosIniciales) {
+        renderizarDestacados(window.productosDestacadosIniciales);
+    }
     cargarCategorias();
     pedirProductos(`${API_URL}/products/list`);
 });
@@ -150,24 +153,25 @@ function renderizarBarraNavegacion(containerId, listaCompleta, idPadreActual) {
     if (!container) return;
     container.innerHTML = '';
 
-    // 1. Botón "Todos" o "Ver Todo"
+    const esCelular = window.innerWidth < 768;
+    const limite = esCelular ? 3 : 7;
     const labelTodo = (containerId === 'categorias-nav') ? 'Todos' : 'Ver Todo';
     const btnTodo = document.createElement('button');
     btnTodo.className = "filter-btn active";
     btnTodo.innerText = labelTodo;
     btnTodo.onclick = () => {
         const url = (containerId === 'categorias-nav') ? `${API_URL}/products/list` : `${API_URL}/products/categoria/${idPadreActual}`;
+        if (containerId === 'categorias-nav') {
+            limpiarNivelesInferiores(true); 
+        } else if (containerId === 'subcategorias-nav') {
+            const nietoNav = document.getElementById('nietos-nav');
+            if (nietoNav) nietoNav.innerHTML = '';
+        }
         pedirProductos(url);
         marcarActivo(btnTodo);
     };
     container.appendChild(btnTodo);
-
-    // 2. Lógica de los 7 botones restantes (Total 8 con 'Todos')
-    const limite = 7; 
-    
-    // Si hay una favorita elegida del "Más", la ponemos primero
     let listaParaMostrar = [...listaCompleta];
-    
     const visibles = listaParaMostrar.slice(0, limite);
     const extras = listaParaMostrar.slice(limite);
 
@@ -179,7 +183,6 @@ function renderizarBarraNavegacion(containerId, listaCompleta, idPadreActual) {
         container.appendChild(btn);
     });
 
-    // 3. Botón "Más categorías" si sobran
     if (extras.length > 0) {
         const btnMas = document.createElement('button');
         btnMas.className = "filter-btn mas-btn";
@@ -199,8 +202,6 @@ function mostrarDropdownExtra(event, extras, containerId, listaOriginal) {
         console.error("No se encontró el contenedor del dropdown en el HTML");
         return;
     }
-
-    // Si ya está abierto y hacemos click de nuevo, lo cerramos
     if (!dropdown.classList.contains('hidden')) {
         dropdown.classList.add('hidden');
         return;
@@ -246,13 +247,7 @@ function elegirExtra(id, containerId) {
 }
 
 function filtrarPorTexto() {
-    const texto = document.getElementById('busqueda').value.toLowerCase();
-    const cards = document.querySelectorAll('.card');
-
-    cards.forEach(card => {
-        const titulo = card.querySelector('h3').innerText.toLowerCase();
-        card.classList.toggle('hidden', !titulo.includes(texto));
-    });
+    aplicarFiltrosYOrden();
 }
 
 function actualizarInterfazFiltros() {
@@ -333,36 +328,65 @@ function obtenerURLImagenPrincipal(producto) {
 }
 
 function aplicarFiltrosYOrden() {
+    const texto = document.getElementById('busqueda')?.value.toLowerCase() || "";
     const orden = document.getElementById('ordenPrecioHome')?.value || 'default';
     const tipoFiltro = document.getElementById('tipoFiltroPrecio')?.value || 'todos';
-    
-    if (!productosHome || productosHome.length === 0) {
-        renderizarCards([]);
-        return;
-    }
-
-    let copiaProductos = [...productosHome];
-
     const p1 = parseFloat(document.getElementById('precioUno')?.value);
     const p2 = parseFloat(document.getElementById('precioDos')?.value);
 
-    if (tipoFiltro !== 'todos') {
-        copiaProductos = copiaProductos.filter(p => {
-            if (tipoFiltro === 'menor' && !isNaN(p1)) return p.price <= p1;
-            if (tipoFiltro === 'mayor' && !isNaN(p1)) return p.price >= p1;
-            if (tipoFiltro === 'entre' && !isNaN(p1) && !isNaN(p2)) {
-                return p.price >= p1 && p.price <= p2;
-            }
-            return true; // Si no hay números válidos, no filtra
-        });
-    }
+    if (!productosHome) return;
 
+    let resultado = productosHome.filter(p => {
+        const coincideTexto = p.title.toLowerCase().includes(texto);
+        let coincidePrecio = true;
+        if (tipoFiltro === 'menor' && !isNaN(p1)) coincidePrecio = (p.price <= p1);
+        else if (tipoFiltro === 'mayor' && !isNaN(p1)) coincidePrecio = (p.price >= p1);
+        else if (tipoFiltro === 'entre' && !isNaN(p1) && !isNaN(p2)) {
+            coincidePrecio = (p.price >= p1 && p.price <= p2);
+        }
 
-    copiaProductos.sort((a, b) => {
+        return coincideTexto && coincidePrecio;
+    });
+
+    resultado.sort((a, b) => {
         if (orden === "min") return a.price - b.price;
         if (orden === "max") return b.price - a.price;
         return a.id - b.id; 
     });
 
-    renderizarCards(copiaProductos);
+    renderizarCards(resultado);
+}
+
+function renderizarDestacados(data) {
+    const track = document.getElementById('lista-destacados');
+    if (!track || !data || data.length === 0) return;
+    const listaParaSlider = [...data, ...data];
+
+    track.innerHTML = listaParaSlider.map(p => {
+        let desc = p.description || "Sin descripción disponible";
+        if (desc.length > 100) desc = desc.substring(0, 97) + "...";
+        let fotoUrl = p.imageUrl ? `/images/${p.imageUrl}` : '/images/default.png';
+        return `
+            <div class="card-destacado" onclick="window.location.href='/detalle?id=${p.productId}'">
+                <h3 class="featured-title-top">${p.title}</h3>
+                <div class="featured-img-container">
+                    <img src="${fotoUrl}" alt="${p.title}" class="card-img" 
+                         onerror="this.src='/images/default.png';">
+                </div>
+                <p class="desc-corta" style="font-size: 0.85rem; color: #bbb; margin: 10px 0;">
+                    ${desc}
+                </p>
+                <div class="featured-actions-container">
+                    <p class="product-price">$ ${p.price.toLocaleString('es-AR')}</p>
+                    
+                    <a href="https://wa.me/5491137869814?text=Hola! Me interesa el ${p.title}" 
+                       class="btn-wa-featured" 
+                       onclick="event.stopPropagation();" 
+                       target="_blank">
+                        <img src="/images/WhatsApp.png" alt="WhatsApp" class="wa-icon-featured">
+                    </a>
+                </div>
+            </div>
+        `;
+    }).join('');
 }

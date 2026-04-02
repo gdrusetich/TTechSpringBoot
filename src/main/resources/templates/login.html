@@ -3,33 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <title>Dinastía - Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { background-color: #121212; color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-box { background: #1e1e1e; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-top: 5px solid #ff9800; width: 350px; text-align: center; }
+        body { 
+            background-color: #121212; 
+            color: white; 
+            font-family: 'Segoe UI', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+
+        .login-box { 
+            background: #1e1e1e; 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            border-top: 5px solid #ff9800; 
+            width: 100%; /* Cambiado a 100% para controlarlo con max-width */
+            max-width: 380px; /* Tamaño máximo en PC */
+            text-align: center; 
+            box-sizing: border-box; /* Fundamental para que el padding no rompa el ancho */
+        }
+
         h2 { color: #ff9800; margin-bottom: 25px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #333; background: #2a2a2a; color: white; box-sizing: border-box; }
+
+        input { 
+            width: 100%; 
+            padding: 14px; /* Un poquito más alto para el dedo */
+            margin: 12px 0; 
+            border-radius: 8px; 
+            border: 1px solid #333; 
+            background: #2a2a2a; 
+            color: white; 
+            box-sizing: border-box; 
+            font-size: 16px; /* Evita el zoom automático en celulares */
+        }
         
-        .button-group { display: flex; gap: 10px; margin-top: 15px; }
+        .button-group { 
+            display: flex; 
+            gap: 10px; 
+            margin-top: 15px; 
+        }
 
         button, .btn-cancelar { 
-            flex: 1; padding: 12px; border: none; font-weight: bold; border-radius: 5px; 
-            cursor: pointer; transition: 0.3s; text-decoration: none; font-size: 0.9rem;
-            display: flex; align-items: center; justify-content: center;
+            flex: 1; 
+            padding: 14px; 
+            border: none; 
+            font-weight: bold; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            text-decoration: none; 
+            font-size: 1rem; /* Un toque más grande */
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
         }
 
         button { background: #ff9800; color: black; }
-        button:hover { background: #e68a00; transform: scale(1.05); }
+        button:hover { background: #e68a00; transform: scale(1.02); }
 
         .btn-cancelar { background: #333; color: white; }
-        .btn-cancelar:hover { background: #444; transform: scale(1.05); }
+        .btn-cancelar:hover { background: #444; transform: scale(1.02); }
 
-        .error { color: #ff5252; font-size: 0.9rem; margin-top: 10px; }
+        .error { color: #ff5252; font-size: 0.9rem; margin-top: 15px; }
 
-        /* Estilo para el pie de la tarjeta */
-        .login-footer { margin-top: 25px; border-top: 1px solid #333; padding-top: 15px; }
+        .login-footer { 
+            margin-top: 25px; 
+            border-top: 1px solid #333; 
+            padding-top: 20px; 
+        }
 
-        @media (max-width: 600px) {
-            .login-box { width: 90%; padding: 25px; }
+        /* Media Query ajustada */
+        @media (max-width: 480px) {
+            .login-box { 
+                width: 90%; 
+                padding: 20px; 
+            }
+            h2 { font-size: 1.5rem; }
         }
     </style>
 </head>
