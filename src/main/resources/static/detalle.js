@@ -378,7 +378,7 @@ function habilitarEdicion(campo) {
             break;            
         case 'stock':
             tituloModal.innerText = "Editar Stock";
-            urlActual = `${API_URL}/products/update-description/${window.productId}?description=`;
+            urlActual = `${API_URL}/products/update-stock/${window.productId}?stock=`;
             const spanStock = document.getElementById("display-stock");
             valorActual = spanStock ? spanStock.innerText : "0";
             contenedor.innerHTML = `<input type="number" id="input-dinamico" style="width:100%; padding:8px;" value="${valorActual}">`;
@@ -386,20 +386,24 @@ function habilitarEdicion(campo) {
             
         case 'description':
             tituloModal.innerText = "Editar Descripción";
-            urlActual = `${API_URL}/products/update-description/${idProducto}?description=`;
+            // Usamos window.productId para asegurar que el ID esté presente
+            urlActual = `${API_URL}/products/update-description/${window.productId}?description=`;
+            
             const pDesc = document.getElementById('product-description');
             valorActual = pDesc ? pDesc.innerHTML : ""; 
-            contenedor.innerHTML = `<textarea id="editor-admin">${valorActual}</textarea>`;
+            
+            contenedor.innerHTML = `<textarea id="editor-admin"></textarea>`;
 
             setTimeout(() => {
                 if (typeof inicializarEditor === "function") {
                     inicializarEditor('#editor-admin');
                     setTimeout(() => {
                         const ed = tinymce.get('editor-admin');
-                        if (ed && ed.getContent() === "") {
+                        if (ed) {
                             ed.setContent(valorActual);
+                            ed.focus(); // Esto ayuda a que el cursor aparezca de una
                         }
-                    }, 200); 
+                    }, 300); 
                 }
             }, 100);
             break;
@@ -518,3 +522,18 @@ async function subirNuevaImagen(input) {
     }
 }
 
+tinymce.init({
+    selector: '#editor-admin',
+    readonly: false, // Forzamos que sea editable
+    license_key: 'gpl', // Si usás la versión de cdnjs
+    height: 300,
+    menubar: false,
+    plugins: 'lists link image table code help wordcount',
+    toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist | code',
+    setup: function (editor) {
+        editor.on('init', function () {
+            editor.setContent(valorActual);
+            editor.mode.set("design"); // <--- Esto fuerza el modo edición
+        });
+    }
+});
