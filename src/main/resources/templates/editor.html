@@ -1,0 +1,16 @@
+<div th:fragment="editor-script">
+<script src="https://cdn.tiny.cloud/1/2rlh1c2291pwfg52hc2svyt1c8v6k69ywdmmv8sl7bd0ts18/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
+
+    <script>
+      function inicializarEditor(selector) {
+          tinymce.init({
+              selector: selector,
+              plugins: 'lists link',
+              toolbar: 'undo redo | bold italic | bullist numlist',
+              menubar: false,
+              language: 'es'
+          });
+      }
+    </script>
+</div>

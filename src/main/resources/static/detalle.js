@@ -305,24 +305,29 @@ function configurarBotonWhatsApp(titulo) {
 async function guardarCambioUnico() {
     let nuevoValor = "";
 
-    if (campoActual === 'description' && quillEditor) {
-        // Si es descripción, sacamos el HTML de Quill
-        nuevoValor = quillEditor.root.innerHTML.trim();
+    if (campoActual === 'description') {
+        // Obtenemos el contenido de TinyMCE
+        nuevoValor = tinymce.get('editor-admin').getContent();
     } else {
-        // Si no, lo sacamos del input normal
-        const input = document.getElementById('input-dinamico');
-        if (!input) return;
-        nuevoValor = input.value.trim();
+        // Para título, precio o stock usamos el input común
+        const inputComun = document.getElementById('input-dinamico');
+        nuevoValor = inputComun ? inputComun.value : ""; 
     }
-    
-    if (!nuevoValor) return alert("El campo no puede estar vacío");
+
+    if (!nuevoValor || nuevoValor.trim() === "") {
+        return alert("El campo no puede estar vacío");
+    }
 
     try {
+        // IMPORTANTE: Usamos urlActual que ya tiene el ID y el parámetro
         const response = await fetch(urlActual + encodeURIComponent(nuevoValor), { 
             method: 'PUT' 
         });
 
         if (response.ok) {
+            if (campoActual === 'description') {
+                tinymce.remove('#editor-admin');
+            }
             location.reload(); 
         } else {
             alert("Error al actualizar. Status: " + response.status);
@@ -334,9 +339,11 @@ async function guardarCambioUnico() {
 }
 
 function cerrarModalUnico() {
+    if (window.campoEditando === 'description') {
+        tinymce.remove('#editor-admin');
+    }
     document.getElementById('modal-edicion-unica').style.display = 'none';
 }
-
 
 function habilitarEdicion(campo) {
     const modal = document.getElementById('modal-edicion-unica');
@@ -376,27 +383,24 @@ function habilitarEdicion(campo) {
             
         case 'description':
             tituloModal.innerText = "Editar Descripción";
-            urlActual = `/products/update-description/${idProducto}?description=`;
+            urlActual = `${API_URL}/products/update-description/${idProducto}?description=`;
             const pDesc = document.getElementById('product-description');
-            valorActual = pDesc ? pDesc.innerText : "";
-            contenedor.innerHTML = `<div id="quill-editor" style="height: 200px; background: white; color: black;"></div>`;
-            setTimeout(() => {
-                quillEditor = new Quill('#quill-editor', {
-                    theme: 'snow',
-                    modules: {
-                        toolbar: [
-                            ['bold', 'italic', 'underline'],
-                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                            ['clean']
-                        ]
-                    }
-                });
-                // Cargamos el contenido actual
-                quillEditor.root.innerHTML = valorActual;
-            }, 0);
-        break;
-        }
+            valorActual = pDesc ? pDesc.innerHTML : ""; 
+            contenedor.innerHTML = `<textarea id="editor-admin">${valorActual}</textarea>`;
 
+            setTimeout(() => {
+                if (typeof inicializarEditor === "function") {
+                    inicializarEditor('#editor-admin');
+                    setTimeout(() => {
+                        const ed = tinymce.get('editor-admin');
+                        if (ed && ed.getContent() === "") {
+                            ed.setContent(valorActual);
+                        }
+                    }, 200); 
+                }
+            }, 100);
+            break;
+        }
     modal.style.display = 'flex';
 }
 
@@ -510,3 +514,4 @@ async function subirNuevaImagen(input) {
         }
     }
 }
+

@@ -174,6 +174,26 @@ h1.logo-title { text-align: center; color: #ffffff; margin-bottom: 40px; }
 /* ==========================================================
    4. PRODUCT FEATURED
    ========================================================== */
+.section-title, .featured-title {
+    text-align: center;
+    
+    /* 1. VIOLETA OSCURO PARA LA LETRA */
+    color: #6a1b9a; /* Un violeta profundo, tipo uva */
+    
+    font-size: 2.2rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin: 15px 0 10px 0; /* Un poco de aire arriba, menos abajo */
+    letter-spacing: 2px;
+    
+    /* 2. EFECTO DE BORDE VIOLETA MUY OSCURO (CASI NEGRO) */
+    text-shadow: 
+        -2px -2px 0 #310d4c, /* Violeta súper oscuro */
+         2px -2px 0 #310d4c,
+        -2px  2px 0 #310d4c,
+         2px  2px 0 #310d4c,
+         3px  3px 6px rgba(0,0,0,0.7); /* Sombrita profunda para dar relieve */
+}
 .featured-section {
     margin-top: 20px !important; /* Espacio después del banner */
     background-color: #121212; 
@@ -233,27 +253,52 @@ h1.logo-title { text-align: center; color: #ffffff; margin-bottom: 40px; }
     height: auto !important;
 }
 
-.desc-corta {
-    font-size: 0.9rem;
-    color: #bbb;
-    line-height: 1.4;
-    min-height: 3.8em;
-}
-
 .product-img {
     width: 100%;
     height: 120px; /* Compacta */
     object-fit: contain;
 }
 
-/* --- NUEVO CONTENEDOR COMPACTO PARA ACCIONES --- */
+.desc-corta {
+    font-size: 0.85rem;
+    color: #bbb;
+    margin: 5px 0 !important; /* Reducimos el margen vertical a la mitad */
+    line-height: 1.2;
+    height: 2.4em; /* Ajustamos la altura para 2 líneas máximo */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.desc-format-destacado {
+    font-size: 0.85rem;
+    color: #bbb;
+    height: 80px;            /* Altura fija para que todas las tarjetas midan lo mismo */
+    overflow-y: auto;        /* Si la descripción es muy larga, aparece un scroll chiquito interno */
+    margin: 10px 0;
+    line-height: 1.4;
+    text-align: left;        /* Las listas se ven mejor alineadas a la izquierda */
+}
+
+/* Estilo para las viñetas dentro de la tarjeta */
+.desc-format-destacado ul, .desc-format-destacado ol {
+    padding-left: 20px;
+    margin: 5px 0;
+}
+
+.desc-format-destacado strong {
+    color: #fff;             /* Que las negritas resalten en blanco */
+}
+
 .featured-actions-container {
     width: 100%;
     display: flex;
     justify-content: space-between; /* Precio a la izq, WA a la der */
     align-items: center; /* Alineación vertical */
     padding: 0 5px; /* Un poco de aire lateral */
-    margin-top: 5px; /* Mínimo espacio arriba */
+    margin-top: 0;
+    padding-top: 5px;
 }
 
 .product-price {
@@ -669,10 +714,12 @@ h1.logo-title { text-align: center; color: #ffffff; margin-bottom: 40px; }
     color: #ff9800; /* Nombre en naranja */
 }
 
-.separator {
-    margin: 0 10px;
-    color: #444;
+hr, .separator {
+    margin: 10px 0 !important; /* Casi pegada a lo que tiene arriba y abajo */
+    border: 0;
+    border-top: 1px solid rgba(255,255,255,0.2);
 }
+
 /* ==========================================================
    ESTILOS MOBILE (CELULARES Y TABLETS)
    ========================================================== */

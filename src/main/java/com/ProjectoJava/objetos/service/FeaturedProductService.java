@@ -6,13 +6,10 @@ import com.ProjectoJava.objetos.DTO.response.FeaturedProductResponseDTO;
 import com.ProjectoJava.objetos.entity.FeaturedProduct;
 import com.ProjectoJava.objetos.entity.Product;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 @Service
 public class FeaturedProductService {
@@ -59,30 +56,22 @@ public class FeaturedProductService {
 
     private FeaturedProductResponseDTO convertToDTO(FeaturedProduct fp) {
         Product p = fp.getProduct();
-        
-        // 1. Buscamos la URL (Principalmente o cualquiera)
         String urlFinal = "/images/default.jpg"; // Solo como último recurso desesperado
-
-        // CASO A: Tenemos imagen principal (¡Gol!)
         if (p.getMainImage() != null && p.getMainImage().getUrl() != null) {
             urlFinal = p.getMainImage().getUrl();
         } 
-        // CASO B: No hay principal, buscamos la primera de la lista
         else if (p.getImages() != null && !p.getImages().isEmpty()) {
-            // Obtenemos la primera imagen del Set y su URL
-            // (Como Set no tiene .get(0), usamos iterator)
             urlFinal = p.getImages().iterator().next().getUrl();
         }
-
-        // 2. Retornamos el DTO con la URL que encontramos
         return new FeaturedProductResponseDTO(
-            fp.getId(),
-            p.getId(),
-            p.getTitle(), 
-            urlFinal, // <--- La URL que acabamos de resolver
-            p.getPrice(),
-            fp.getPosition()
-        );
+                fp.getId(),
+                p.getId(),
+                p.getTitle(), 
+                p.getDescription(), // <--- PASAR LA DESCRIPCIÓN AQUÍ
+                urlFinal,
+                p.getPrice(),
+                fp.getPosition()
+            );
     }
 
     public List<FeaturedProductResponseDTO> getAllFeaturedDTOs() {

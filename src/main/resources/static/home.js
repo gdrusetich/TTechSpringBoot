@@ -360,22 +360,34 @@ function aplicarFiltrosYOrden() {
 function renderizarDestacados(data) {
     const track = document.getElementById('lista-destacados');
     if (!track || !data || data.length === 0) return;
+    
     const listaParaSlider = [...data, ...data];
 
     track.innerHTML = listaParaSlider.map(p => {
-        let desc = p.description || "Sin descripción disponible";
-        if (desc.length > 100) desc = desc.substring(0, 97) + "...";
-        let fotoUrl = p.imageUrl ? `/images/${p.imageUrl}` : '/images/default.png';
+        // Obtenemos el HTML directo del TinyMCE
+        let contenidoHtml = p.description || "Sin descripción disponible";
+
+        // Lógica de fotos
+        let fotoUrl = '/images/default.png';
+        if (p.images && p.images.length > 0) {
+            const mainImg = p.images.find(img => img.isMain) || p.images[0];
+            fotoUrl = mainImg.url.startsWith('/') ? mainImg.url : `/uploads/${mainImg.url}`;
+        } else if (p.imageUrl) {
+            fotoUrl = `/images/${p.imageUrl}`;
+        }
+
+        const idFinal = p.id || p.productId;
+
         return `
-            <div class="card-destacado" onclick="window.location.href='/detalle?id=${p.productId}'">
+            <div class="card-destacado" onclick="window.location.href='/detalle?id=${idFinal}'">
                 <h3 class="featured-title-top">${p.title}</h3>
                 <div class="featured-img-container">
                     <img src="${fotoUrl}" alt="${p.title}" class="card-img" 
                          onerror="this.src='/images/default.png';">
                 </div>
-                <p class="desc-corta" style="font-size: 0.85rem; color: #bbb; margin: 10px 0;">
-                    ${desc}
-                </p>
+                <div class="desc-format-destacado">
+                    ${contenidoHtml}
+                </div>
                 <div class="featured-actions-container">
                     <p class="product-price">$ ${p.price.toLocaleString('es-AR')}</p>
                     
