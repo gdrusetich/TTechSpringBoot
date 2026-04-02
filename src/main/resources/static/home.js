@@ -8,7 +8,7 @@ const tooltip = document.getElementById('tooltip-descripcion');
 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Página cargada. Limpiando miguita de pan...");
-    localStorage.removeItem("returnUrl");     
+    localStorage.removeItem("returnUrl");    
     cargarCategorias();
     pedirProductos(`${API_URL}/products/list`);
 });
@@ -255,6 +255,22 @@ function filtrarPorTexto() {
     });
 }
 
+function actualizarInterfazFiltros() {
+    const tipo = document.getElementById('tipoFiltroPrecio').value;
+    const container = document.getElementById('inputs-precio');
+    container.innerHTML = '';
+
+    if (tipo === 'menor' || tipo === 'mayor') {
+        container.innerHTML = `<input type="number" id="precioUno" placeholder="Precio" class="price-input">`;
+    } else if (tipo === 'entre') {
+        container.innerHTML = `
+            <input type="number" id="precioUno" placeholder="Min" class="price-input">
+            <span style="color:#888">-</span>
+            <input type="number" id="precioDos" placeholder="Max" class="price-input">
+        `;
+    }
+}
+
 function limpiarNivelesInferiores(esPrincipal) {
     const subNav = document.getElementById('subcategorias-nav');
     const nietoNav = document.getElementById('nietos-nav');
@@ -318,12 +334,29 @@ function obtenerURLImagenPrincipal(producto) {
 
 function aplicarFiltrosYOrden() {
     const orden = document.getElementById('ordenPrecioHome')?.value || 'default';
+    const tipoFiltro = document.getElementById('tipoFiltroPrecio')?.value || 'todos';
+    
     if (!productosHome || productosHome.length === 0) {
         renderizarCards([]);
         return;
     }
 
     let copiaProductos = [...productosHome];
+
+    const p1 = parseFloat(document.getElementById('precioUno')?.value);
+    const p2 = parseFloat(document.getElementById('precioDos')?.value);
+
+    if (tipoFiltro !== 'todos') {
+        copiaProductos = copiaProductos.filter(p => {
+            if (tipoFiltro === 'menor' && !isNaN(p1)) return p.price <= p1;
+            if (tipoFiltro === 'mayor' && !isNaN(p1)) return p.price >= p1;
+            if (tipoFiltro === 'entre' && !isNaN(p1) && !isNaN(p2)) {
+                return p.price >= p1 && p.price <= p2;
+            }
+            return true; // Si no hay números válidos, no filtra
+        });
+    }
+
 
     copiaProductos.sort((a, b) => {
         if (orden === "min") return a.price - b.price;

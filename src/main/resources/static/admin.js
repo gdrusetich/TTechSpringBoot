@@ -60,14 +60,13 @@ function ejecutarFiltroFinal() {
 
 
 function cargarProductos() {
-    fetch(`${API_PRODUCTS}/all`) // Ahora sí va a encontrar el recurso
+    fetch(`${API_PRODUCTS}/all`)
         .then(res => {
             if (!res.ok) throw new Error("Error en el servidor");
             return res.json();
         })
         .then(productos => {
             console.log("Productos para Admin cargados:", productos);
-            // Validamos que sea un array antes de asignarlo
             productosCargados = Array.isArray(productos) ? productos : []; 
             ejecutarFiltroFinal();
         })
@@ -262,11 +261,17 @@ function prepararEdicionUsuario(id, nombreActual) {
 }
 
 function eliminarUsuario(id) {
-if (confirm("¿Estás seguro de que querés eliminar a este usuario?")) {
-    fetch(`/usuarios/eliminar/${id}`)
+    if (confirm("¿Estás seguro de que querés eliminar a este usuario?")) {
+        fetch(`/usuarios/eliminar/${id}`, {
+            method: 'DELETE'
+        })
         .then(res => {
-            alert("Usuario eliminado con éxito");
-            cargarUsuarios();
+            if (res.ok) {
+                alert("Usuario eliminado con éxito");
+                cargarUsuarios();
+            } else {
+                alert("No tenés permisos para hacer esto");
+            }
         })
         .catch(err => {
             console.error("Error:", err);
@@ -301,11 +306,9 @@ function toggleSidebar() {
 function manejarSeleccion(id, nombre, nivelActual, btn) {
     categoriaActualId = id;
 
-    // 1. Actualizar textos e inputs
     document.getElementById('categoriaIdInput').value = id;
     document.getElementById('nombre-seleccionada').innerText = nombre;
 
-    // 2. Lógica de reordenamiento: Buscamos a los "hermanos" de la que tocamos
     const catSeleccionada = categoriasData.find(c => c.id == id);
     const padreId = (catSeleccionada && catSeleccionada.parent) ? catSeleccionada.parent.id : null;
 
@@ -314,15 +317,12 @@ function manejarSeleccion(id, nombre, nivelActual, btn) {
         return c.parent && c.parent.id == padreId;
     });
 
-    // 3. Volvemos a dibujar ESTE nivel (para que la elegida salte al principio)
     renderizarNivel(nivelActual, hermanos);
 
-    // 4. Buscamos si tiene hijos para dibujar el nivel de abajo
     const subcats = categoriasData.filter(c => c.parent && Number(c.parent.id) === Number(id));
     if (subcats.length > 0) {
         renderizarNivel(nivelActual + 1, subcats);
     } else {
-        // Si no tiene hijos, borramos cualquier nivel que haya quedado abajo
         const contenedorPadre = document.getElementById('niveles-categorias');
         Array.from(contenedorPadre.children).forEach(child => {
             const nivelDelChild = parseInt(child.id.split('-')[1]);
@@ -337,7 +337,6 @@ function renderizarNivel(nivel, lista) {
     const contenedorPadre = document.getElementById('niveles-categorias');
     if (!contenedorPadre) return;
 
-    // Limpiar este nivel si ya existía para redibujarlo
     const existente = document.getElementById(`nivel-${nivel}`);
     if (existente) existente.remove();
 
@@ -347,7 +346,6 @@ function renderizarNivel(nivel, lista) {
 
     const LIMITE = window.innerWidth < 768 ? 4 : 7;
 
-    // --- PRIORIDAD: Poner la seleccionada primero ---
     let listaAMostrar = [...lista];
     if (categoriaActualId) {
         const index = listaAMostrar.findIndex(c => c.id == categoriaActualId);
@@ -361,7 +359,6 @@ function renderizarNivel(nivel, lista) {
     const principales = tieneMas ? listaAMostrar.slice(0, LIMITE) : listaAMostrar;
     const restantes = tieneMas ? listaAMostrar.slice(LIMITE) : [];
 
-    // Dibujar botones principales
     principales.forEach(cat => {
         const btn = document.createElement('button');
         btn.type = "button";
@@ -372,7 +369,6 @@ function renderizarNivel(nivel, lista) {
         divNivel.appendChild(btn);
     });
 
-    // Botón Más
     if (tieneMas) {
         const btnMas = document.createElement('button');
         btnMas.type = "button";
@@ -405,7 +401,6 @@ function renderizarNivel(nivel, lista) {
     contenedorPadre.appendChild(divNivel);
 }
 
-// Cerrador de menú al hacer clic afuera
 document.addEventListener('click', () => {
     const menu = document.querySelector('.menu-categorias-extra');
     if (menu) menu.remove();
@@ -559,7 +554,6 @@ async function guardarCategoria() {
 
     const payload = {
         name: nombre,
-        // Si no hay padreId o es string vacío, mandamos null literal
         parent: (padreId && padreId !== "") ? { id: parseInt(padreId) } : null
     };
 
@@ -623,53 +617,40 @@ function eliminarCategoriaSeleccionada() {
 
 const todasLasCategorias = /*[[${categoriasPadre}]]*/ [];
 
-function agregarFila() {
-    const tbody = document.getElementById("cuerpo-carga");
-    const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-        <td><input type="text" class="in-nombre" placeholder="Ej: Radio Panacom"></td>
-        <td><input type="number" class="in-precio" placeholder="0.00"></td>
-        <td><input type="number" class="in-stock" placeholder="10"></td>
-        <td>
-            <div class="dropdown-categorias">
-                <button type="button" onclick="toggleCats(this)">Seleccionar ▼</button>
-                <div class="lista-checkbox" style="display:none; position:absolute; background:#2a2a2a; border:1px solid #555; z-index:10;">
-                    ${todasLasCategorias.sort((a,b) => a.nombre.localeCompare(b.nombre)).map(cat => `
-                        <label style="display:block; padding:5px;">
-                            <input type="checkbox" value="${cat.id}"> ${cat.nombre}
-                        </label>
-                    `).join('')}
-                </div>
-            </div>
-        </td>
-        <td>
-            <input type="file" class="in-fotos" multiple accept="image/*">
-        </td>
-        <td>
-            <button onclick="this.parentElement.parentElement.remove()" class="btn-borrar">❌</button>
-        </td>
-    `;
-    tbody.appendChild(tr);
-}
 
 async function guardarTodo() {
     const filas = document.querySelectorAll("#cuerpo-carga tr");
     
+    if (filas.length === 0) {
+        alert("No hay filas para guardar.");
+        return;
+    }
+
     for (let [index, fila] of filas.entries()) {
         const formData = new FormData();
-        
-        formData.append("title", fila.querySelector(".in-nombre").value);
-        formData.append("price", fila.querySelector(".in-precio").value);
-        formData.append("stock", fila.querySelector(".in-stock").value);
-        formData.append("description", fila.querySelector(".in-descripcion").value);
 
+        // Extraemos los datos buscando dentro de la fila actual
+        const nombre = fila.querySelector(".in-nombre")?.value || "";
+        const precio = fila.querySelector(".in-precio")?.value || "0";
+        const stock = fila.querySelector(".in-stock")?.value || "0";
+        // Buscamos el textarea del modal de esta fila
+        const desc = fila.querySelector(".in-descripcion")?.value || ""; 
+        
+        formData.append("title", nombre);
+        formData.append("price", precio);
+        formData.append("stock", stock);
+        formData.append("description", desc);
+
+        // Categorías
         const checks = fila.querySelectorAll(".cat-check:checked");
         if (checks.length === 0) {
-            console.error(`Fila ${index + 1} no tiene categorías seleccionadas.`);
+            console.error(`Fila ${index + 1}: No tiene categorías seleccionadas.`);
+            alert(`Error en fila ${index + 1}: Seleccioná al menos una categoría.`);
             continue;
         }
+        
         checks.forEach(cb => {
+            // Asegurate que en Java recibas "category" (o "categories" si lo cambiaste)
             formData.append("category", cb.value);
         });
 
@@ -681,46 +662,40 @@ async function guardarTodo() {
         }
 
         try {
-            const resp = await fetch("/products/nuevo-producto", { 
-                method: "POST",
-                body: formData
-            });
+        const resp = await fetch(`${API_URL}/products/nuevo-producto`, { 
+            method: "POST",
+            body: formData
+        });
 
             if (resp.ok) {
-                console.log(`✅ Fila ${index + 1} guardada: ${fila.querySelector(".in-nombre").value}`);
-                fila.style.backgroundColor = "#d4edda"; // Pintamos de verde si sale bien
+                console.log(`✅ Fila ${index + 1} guardada: ${nombre}`);
+                // Usamos un color verde sutil para marcar éxito
+                fila.style.backgroundColor = "#1b4332"; 
+                // Opcional: deshabilitar los inputs para evitar doble carga
+                fila.querySelectorAll("input, button").forEach(el => el.disabled = true);
             } else {
                 const errorData = await resp.text();
-                console.error(`❌ Error 400 en Fila ${index + 1}:`, errorData);
-                alert(`Error en fila ${index + 1}: Verificá que todos los campos obligatorios estén llenos.`);
+                console.error(`❌ Error en Fila ${index + 1}:`, errorData);
+                alert(`Error en fila ${index + 1}: ${errorData || "Revisá los campos obligatorios."}`);
             }
         } catch (err) {
             console.error("Error de red:", err);
+            alert("Error de conexión al servidor.");
         }
     }
 }
 
-function toggleCats(btn) {
-    const lista = btn.nextElementSibling;
-    if (lista) {
-        if (lista.style.display === "none" || lista.style.display === "") {
-            lista.style.display = "block";
-        } else {
-            lista.style.display = "none";
-        }
-    }
-}
 
 function agregarFila() {
     const tbody = document.getElementById("cuerpo-carga");
+    // Usamos la variable que tengas definida para las categorías
     const categorias = categoriasData || []; 
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
         <td><input type="text" class="in-nombre" placeholder="Título"></td>
         <td><input type="number" class="in-precio" placeholder="0.00" style="width:80px"></td>
-        <td><input type="number" class="in-stock" placeholder="10" style="width:60px"></td>
-        
+        <td><input type="number" class="in-stock" placeholder="10" style="width:60px"></td>        
         <td>
             <button type="button" onclick="toggleCats(this)" style="padding: 5px 10px; cursor:pointer;">Editar Desc. 📝</button>
             <div class="panel-desc" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background: white; border: 3px solid #444; z-index: 10001; padding: 25px; width: 90%; max-width: 600px; box-shadow: 0px 0px 50px rgba(0,0,0,0.8); border-radius: 12px;">
@@ -750,6 +725,17 @@ function agregarFila() {
         <td><button type="button" onclick="this.closest('tr').remove()" style="background:none; border:none; cursor:pointer; font-size:20px;">❌</button></td>
     `;
     tbody.appendChild(tr);
+}
+
+function toggleCats(btn) {
+    const lista = btn.nextElementSibling;
+    if (lista) {
+        if (lista.style.display === "none" || lista.style.display === "") {
+            lista.style.display = "block";
+        } else {
+            lista.style.display = "none";
+        }
+    }
 }
 
 function activarEdicion(id) {

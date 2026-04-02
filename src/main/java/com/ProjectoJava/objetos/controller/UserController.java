@@ -1,18 +1,17 @@
 package com.ProjectoJava.objetos.controller;
 
 import com.ProjectoJava.objetos.repository.UserRepository;
-import com.ProjectoJava.objetos.repository.ProductRepository;
 import com.ProjectoJava.objetos.entity.User;
 import com.ProjectoJava.objetos.entity.Role;
 import java.util.Optional;
 import java.util.List;
 import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 
@@ -83,7 +82,6 @@ public class UserController {
                 
                 userRepository.save(u);
                 
-                // Actualizamos la sesión para que los cambios se vean en el momento
                 session.setAttribute("userName", nuevoUser);
                 session.setAttribute("userLogger", u); 
                 
@@ -100,11 +98,9 @@ public class UserController {
                                     @RequestParam String username, 
                                     @RequestParam String password, 
                                     HttpSession session) {
-        
-        // 1. Corregimos el nombre a "userRole" que es el que usa tu LoginController
+
         Object roleAttr = session.getAttribute("userRole");
         
-        // 2. Comparamos de forma segura (pasando a String)
         if (roleAttr == null || !roleAttr.toString().equals("ADMIN")) {
             System.err.println(">>> ACCESO DENEGADO: El usuario intentó editar sin ser ADMIN. Rol encontrado: " + roleAttr);
             return "No autorizado";
@@ -126,12 +122,16 @@ public class UserController {
         }
     }
 
-    @GetMapping("/eliminar/{id}")
-    public String eliminarUsuario(@PathVariable Long id, HttpSession session) {
-        if ("ADMIN".equals(session.getAttribute("rol"))) {
+    @DeleteMapping("/eliminar/{id}")
+    @ResponseBody
+    public ResponseEntity<?> eliminarUsuario(@PathVariable Long id, HttpSession session) {
+        String rol = (String) session.getAttribute("rol");
+        
+        if ("ADMIN".equals(rol)) {
             userRepository.deleteById(id);
+            return ResponseEntity.ok().build();
         }
-        return "redirect:/usuarios/gestion";
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tenés permisos");
     }
 
 

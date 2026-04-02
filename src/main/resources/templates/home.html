@@ -71,15 +71,30 @@
     </section>
 
     <main class="main-content">
-        <div class="search-container">
-            <input type="text" id="busqueda" placeholder="Buscar producto..." 
-                   onkeyup="filtrarPorTexto()" class="search-input">
+        <div class="search-filters-bar">
+            <input type="text" id="busqueda" placeholder="Buscar producto..." onkeyup="filtrarPorTexto()" class="nav-input">
+            <th:block th:if="${session.userName != null}">
+                <select id="ordenPrecioHome" onchange="aplicarFiltrosYOrden()" class="nav-select">
+                    <option value="default">Relevancia</option>
+                    <option value="min">Precio: Menor a Mayor</option>
+                    <option value="max">Precio: Mayor a Menor</option>
+                </select>
+
+                <select id="tipoFiltroPrecio" onchange="actualizarInterfazFiltros()" class="nav-select">
+                    <option value="todos">Todos los precios</option>
+                    <option value="menor">Menor que...</option>
+                    <option value="mayor">Mayor que...</option>
+                    <option value="entre">Entre...</option>
+                </select>
+
+                <div id="inputs-precio" class="inline-inputs"></div>
+
+                <button onclick="aplicarFiltrosYOrden()" class="nav-btn-search">Filtrar 🔍</button>
+            </th:block>
+            <div th:if="${session.userName == null}" style="color: #888; font-size: 0.8rem; margin-left: 10px;">
+                Logueate para filtrar por precio
+            </div>
         </div>
-        <select id="ordenPrecioHome" onchange="aplicarFiltrosYOrden()" class="tu-clase-css">
-            <option value="default">Relevancia</option>
-            <option value="min">Precio: Menor a Mayor</option>
-            <option value="max">Precio: Mayor a Menor</option>
-        </select>
 
         <div class="filter-container">
             <div id="categorias-nav"></div>

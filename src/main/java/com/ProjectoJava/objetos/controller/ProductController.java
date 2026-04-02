@@ -89,7 +89,6 @@ public class ProductController {
         @RequestParam("stock") Integer stock,
         @RequestParam("description") String description,
         @RequestParam("category") Set<Long> categoriesId,
-        // --- AGREGAMOS ESTA LÍNEA ---
         @RequestParam(value = "featured", defaultValue = "false") Boolean featured, 
         @RequestParam(value = "mainImageId", required = false) Long mainImageId, 
         @RequestParam(value = "images", required = false) List<MultipartFile> images) {
@@ -105,7 +104,7 @@ public class ProductController {
             if (images != null) {
                 for (MultipartFile image : images) {
                     if (!image.isEmpty()) {
-                        String nombreFinal = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
+                        String nombreFinal = image.getOriginalFilename();
                         Path rutaCompleta = directorioUploads.resolve(nombreFinal);
                         
                         Files.copy(image.getInputStream(), rutaCompleta, StandardCopyOption.REPLACE_EXISTING);

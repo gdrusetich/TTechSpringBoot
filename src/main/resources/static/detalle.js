@@ -243,7 +243,6 @@ function renderizarCategorias(categories) {
     });
 }
 
-
 function renderizarGaleria(images) {
     const thumbContainer = document.getElementById("thumbnails-container");
     const mainImg = document.getElementById("main-product-image");
@@ -252,16 +251,22 @@ function renderizarGaleria(images) {
     
     thumbContainer.innerHTML = ""; 
     const idsVistos = new Set();
+    const idPrincipal = productoActual.mainImageId;
+    const imagenesOrdenadas = [...images].sort((a, b) => {
+        if (a.id === idPrincipal) return -1;
+        if (b.id === idPrincipal) return 1;
+        return 0;
+    });
 
-    images.forEach((img) => {
+    imagenesOrdenadas.forEach((img, index) => {
         if (!img || idsVistos.has(img.id)) return;
         idsVistos.add(img.id);
 
         const imgElement = document.createElement("img");
         
         let cleanUrl = img.url.startsWith('/') ? img.url.substring(1) : img.url;
-
         let urlFinal;
+
         if (cleanUrl === "default.jpg" || cleanUrl === "WhatsApp.png") {
             urlFinal = `${FOLDER_SYSTEM}/${cleanUrl}`;
         } else if (cleanUrl.startsWith('uploads')) {
@@ -274,7 +279,7 @@ function renderizarGaleria(images) {
         imgElement.className = "thumb-box";
         imgElement.setAttribute('data-image-id', img.id);
 
-        if (idsVistos.size === 1) { 
+        if (index === 0) { 
             mainImg.src = urlFinal;
             mainImg.setAttribute('data-image-id', img.id);
         }

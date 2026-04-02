@@ -416,6 +416,84 @@ h1.logo-title { text-align: center; color: #ffffff; margin-bottom: 40px; }
     box-shadow: 0 0 8px rgba(255, 152, 0, 0.4);
 }
 
+/* --- NUEVA BARRA DE FILTROS UNIFICADA --- */
+.search-filters-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    background: #1e1e1e; /* Fondo igual a tus cards */
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #333;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+/* Inputs y Selects base */
+.nav-input, .nav-select, .nav-btn-search, .price-input {
+    height: 38px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: #121212;
+    color: white;
+    font-size: 0.9rem;
+    padding: 0 10px;
+    outline: none;
+}
+
+/* El buscador un poco más largo */
+.nav-input {
+    flex: 1;
+    min-width: 180px;
+}
+
+/* Selectores con el borde violeta sutil */
+.nav-select {
+    border: 1px solid #bb86fc55;
+    cursor: pointer;
+}
+
+/* El botón con tu color violeta de siempre */
+.nav-btn-search {
+    background: #bb86fc;
+    color: #121212;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    padding: 0 15px;
+}
+
+.nav-btn-search:hover {
+    background: #a370db;
+    transform: translateY(-2px);
+}
+
+/* Los inputs de precio que aparecen dinámicamente */
+.inline-inputs {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.price-input {
+    width: 80px;
+    border: 1px solid #03dac6; /* Color de tus precios */
+    text-align: center;
+}
+
+/* Ajuste para celulares */
+@media (max-width: 600px) {
+    .search-filters-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .nav-input, .nav-select, .nav-btn-search {
+        width: 100%;
+    }
+}    
+
 /* --- AJUSTES PARA TABLETAS Y CELULARES (768px hacia abajo) --- */
 @media (max-width: 768px) {
     body, .main-content, .filter-container {
