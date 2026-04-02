@@ -1,154 +1,135 @@
 <!DOCTYPE html>
-<html lang="es">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dinastía - Electrohogar</title>
+    <title>Dinastia - Detalle de Producto</title>
+    <link rel="stylesheet" th:href="@{/home.css(v='1.5')}">
     <link rel="stylesheet" th:href="@{/detalle.css}">
 </head>
 <body>
-    <header class="main-header">
-        <div class="header-container">
-            <div class="header-left">
-                <h1 class="brand" onclick="window.location.href='/home'">
-                    DINASTÍA <span class="electronics">ELECTRONIC'S</span>
-                </h1>
+    <div id="menu-usuario" class="user-nav-bar">
+        <div class="user-info-group">
+            <div th:if="${session.userName != null}" class="user-greeting">
+                Hola, <strong th:text="${session.userName}"></strong>!
             </div>
 
-            <div class="user-controls">
-                <div th:if="${session.userRole == null}" class="guest-info">
-                    <span class="welcome-msg">Hola, Invitado!</span>
-                    <button class="btn-login" onclick="irAlLoginConRetorno()">Iniciar Sesión</button>
-                </div>
-
-                <div th:if="${session.userRole == 'CLIENTE'}" class="logged-in-info">
-                    <span class="welcome-msg">Hola, [[${session.userName}]]!</span>
-                    <button class="btn-perfil-header" onclick="window.location.href='/perfil'">Mi Perfil</button>
-                    <a href="/logout" class="logout-link">Cerrar Sesión</a>
-                </div>
-
-                <div th:if="${session.userRole == 'ADMIN'}" class="admin-info">
-                    <span class="welcome-msg admin-badge">MODO ADMIN: [[${session.userName}]]</span>
-                    <button class="btn-admin-panel" onclick="window.location.href='/admin'">Panel Control</button>
-                    <a href="/logout" class="logout-link">Cerrar Sesión</a>
-                </div>
+            <div th:if="${session.userRole == 'ADMIN'}">
+                <a href="/admin" class="btn-nav-custom btn-admin">
+                    🛠️ Panel Control
+                </a>
             </div>
         </div>
-    </header>
 
-    <div id="modal-perfil" class="modal">
-        <div class="modal-content">
-            <h3>Editar Mis Datos</h3>
-            <div class="form-group">
-                <label>Nuevo Nombre:</label>
-                <input type="text" id="edit-username" placeholder="Tu nuevo nombre">
+        <div class="user-actions-group">
+            <a href="/home" class="btn-nav-custom">🏠 Inicio</a>
+
+            <div th:if="${session.userName == null}">
+                <a href="/login" class="btn-nav-custom">Ingresar</a>
             </div>
-            <div class="form-group">
-                <label>Nueva Contraseña:</label>
-                <input type="password" id="edit-password" placeholder="Tu nueva contraseña">
-            </div>
-            <div class="modal-actions">
-                <button class="btn-save" onclick="guardarCambios()">Guardar Cambios</button>
-                <button class="btn-cancel" onclick="cerrarModalPerfil()">Cancelar</button>
+
+            <div th:if="${session.userName != null}" class="buttons-flex">
+                <a href="/perfil" class="btn-nav-custom">⚙️ Perfil</a>
+                <a href="/logout" class="btn-nav-custom btn-logout">
+                    Cerrar Sesión
+                </a>
             </div>
         </div>
     </div>
 
-    <div class="product-page">
-        <div class="product-container">
-            <div id="thumbnails-container" class="thumbnails-column"></div>
+    <header class="home-banner-hero" 
+        onclick="window.location.href='/home'"
+        style="cursor: pointer;"
+        th:style="'background-image: url(' + @{/images/dinastia.png} + '); cursor: pointer;'">
+    </header>
 
-            <div class="main-image-container">
-                <img id="main-product-image" src="/uploads/default.jpg" alt="Producto">
-                
-                <div th:if="${session.userRole == 'ADMIN'}" class="admin-image-controls">
-                    <button class="btn-img-action btn-delete" onclick="borrarImagenActual()" title="Borrar esta imagen">🗑️ Borrar</button>
+    <main class="main-content">
+        <div class="product-page">
+            <div class="product-container">
+                <div id="thumbnails-container" class="thumbnails-column"></div>
+
+                <div class="main-image-container">
+                    <img id="main-product-image" src="/images/default.png" alt="Producto">
                     
-                    <label for="upload-new-img" class="btn-img-action btn-add">
-                        ➕ Agregar
-                        <input type="file" id="upload-new-img" style="display:none" onchange="subirNuevaImagen(this)">
-                    </label>
-
-                    <button class="btn-img-action btn-main" onclick="marcarComoPrincipal()" title="Hacer imagen de portada">⭐ Principal</button>
-                </div>
-            </div>
-
-            <div class="product-info" th:if="${producto != null}">
-                <h1 th:text="${producto.title}">Título del Producto</h1>
-                
-                <div class="categories-section">
-                    <div id="categories-container" class="categories-container"></div>                
-                    <div th:if="${session.userRole == 'ADMIN'}" class="admin-category-edit">
-                        <button class="btn-edit-cat" onclick="abrirEditorCategorias()">✎ Editar Categorías</button>
+                    <div th:if="${session.userRole == 'ADMIN'}" class="admin-image-controls">
+                        <button class="btn-img-action btn-delete" onclick="borrarImagenActual()">🗑️</button>
+                        <label for="upload-new-img" class="btn-img-action btn-add">
+                            ➕ <input type="file" id="upload-new-img" style="display:none" onchange="subirNuevaImagen(this)">
+                        </label>
+                        <button class="btn-img-action btn-main" onclick="marcarComoPrincipal()">⭐</button>
                     </div>
                 </div>
 
-                <div th:if="${session.userRole != null}">
-                    <button id="whatsapp-btn" class="btn-wa">Consultar a Dinastía</button>
-                </div>
-            
-                <div id="product-description" th:utext="${producto.description}">Descripción...</div>
-                <div class="price-section">
-                    <div th:if="${session.userRole == 'CLIENTE' or session.userRole == 'ADMIN'}">
-                        <p id="product-price" class="product-price">[[${producto.price}]]</p>
-                    </div>
-
-                    <div th:if="${session.userRole == null}" class="price-login-container">
-                        <p class="login-prompt-text">Para ver el precio</p>
-                        <button class="btn-login-inline" onclick="irAlLoginConRetorno()">Iniciá sesión</button>
-                    </div>
-                </div> 
-
-                <div th:if="${session.userRole == 'ADMIN'}" class="admin-panel">
-                    <h3>🛠️ Consola de Administración</h3>
-                    <p><strong>Stock actual:</strong> <span id="display-stock">[[${producto.stock}]]</span> unidades</p>
+                <div class="product-info" th:if="${producto != null}">
+                    <h1 th:text="${producto.title}" style="margin-bottom: 5px;">Título del Producto</h1>
                     
-                    <div class="admin-actions-grid">
-                        <button class="btn-admin-item" onclick="habilitarEdicion('title')">📝 Editar Título</button>
-                        <button class="btn-admin-item" onclick="habilitarEdicion('price')">💰 Editar Precio</button>
-                        <button class="btn-admin-item" onclick="habilitarEdicion('stock')">📦 Editar Stock</button>
-                        <button class="btn-admin-item" onclick="habilitarEdicion('description')">📝 Editar Descripción</button>                    
+                    <div class="categories-section" style="margin-top: 0; margin-bottom: 15px;">
+                        <div id="categories-container" class="categories-container" style="display: flex; gap: 5px; flex-wrap: wrap;"></div>                
+                        <div th:if="${session.userRole == 'ADMIN'}" class="admin-category-edit">
+                            <button class="btn-edit-cat" onclick="abrirEditorCategorias()" style="font-size: 0.8rem; padding: 2px 8px;">✎ Editar</button>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>       
-        
-        <div id="modal-edicion-unica" class="modal-overlay" style="display:none;">
-            <div class="modal-content">
-                <h3 id="modal-titulo">Editar Campo</h3>
-                
-                <div class="form-group">
-                    <label id="label-campo">Nuevo valor:</label>
-                    <div id="contenedor-input"></div>
-                </div>
+                    <div id="product-description" th:utext="${producto.description}" class="desc-format-detalle">
+                        Descripción...
+                    </div>
 
-                <div class="modal-buttons">
-                    <button onclick="guardarCambioUnico()" class="btn-save">Guardar</button>
-                    <button onclick="cerrarModalUnico()" class="btn-cancel">Cancelar</button>
-                </div>
-            </div>
-        </div>
+                    <div class="price-action-row" style="display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid #333; padding-top: 20px; margin-top: 10px;">                            
+                        <div class="price-section">
+                            <div th:if="${session.userName != null}">
+                                <span style="color: #888; font-size: 0.9rem; display: block; margin-bottom: 2px;">Precio Contado:</span>
+                                <p id="product-price" class="product-price" style="font-size: 2.2rem; font-weight: 800; color: #ffcc00; margin: 0; line-height: 1;">
+                                    $ [[${#numbers.formatDecimal(producto.price, 0, 'POINT', 0, 'COMMA')}]]
+                                </p>
+                            </div>
+                            <div th:if="${session.userName == null}" class="price-login-container">
+                                <p style="margin: 0; font-size: 0.85rem; color: #aaa;">Iniciá sesión para ver el precio</p>
+                                <button class="btn-login-inline" onclick="irAlLoginConRetorno()" style="margin-top: 5px; background: #444; border: 1px solid #666; color: white; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
+                                    Ingresar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="whatsapp-section">
+                            <button id="whatsapp-btn" class="btn-wa-detail" style="background:#25d366; color:white; border:none; padding:15px 25px; border-radius:12px; display:flex; align-items:center; gap:10px; font-weight:bold; cursor:pointer; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);">
+                                <img src="/images/WhatsApp.png" alt="WA" style="width:24px; height:24px;">
+                                Consultar
+                            </button>
+                        </div>
 
-        <div id="modal-categorias" class="modal-overlay" style="display:none;">
-            <div class="modal-content">
-                <h3>Editar Categorías</h3>
-                <div id="lista-todas-categorias" class="category-grid"></div>
-                <div class="modal-buttons">
-                    <button onclick="guardarCategorias()" class="btn-save">Guardar Cambios</button>
-                    <button onclick="cerrarModalCategorias()" class="btn-cancel">Cancelar</button>
-                </div>
-            </div>
-        </div>
+                    </div>
 
-        <div class="related-products">
-            <h3>Productos similares</h3>
+                    <div th:if="${session.userRole == 'ADMIN'}" class="admin-panel" style="margin-top: 30px; border: 1px dashed #e67e22; padding: 15px; border-radius: 8px;">
+                        <h3 style="color: #e67e22; margin-top: 0;">🛠️ Administración</h3>
+                        <p>Stock: <span id="display-stock">[[${producto.stock}]]</span></p>
+                        <div class="admin-actions-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <button onclick="habilitarEdicion('title')" class="btn-nav-custom">📝 Título</button>
+                            <button onclick="habilitarEdicion('price')" class="btn-nav-custom">💰 Precio</button>
+                            <button onclick="habilitarEdicion('stock')" class="btn-nav-custom">📦 Stock</button>
+                            <button onclick="habilitarEdicion('description')" class="btn-nav-custom">📝 Desc</button>
+                        </div>
+                    </div>
+                </div> </div> </div> <div class="related-products">
+            <h3 class="section-title" style="font-size: 1.5rem;">PRODUCTOS SIMILARES</h3>
             <div class="slider-wrapper">
                 <div id="related-container" class="related-slider"></div>
             </div>
         </div>
+    </main>
+    <footer class="footer-principal">
+        <a href="/dinastia" class="footer-link">
+            <div class="footer-content">
+                <span class="brand-name">Dinastía Electrohogar</span> 
+                <span class="separator">|</span>
+                <span class="address">Martiniano Chilavert 1885, Villa Celina</span> 
+                <span class="separator">|</span>
+                <span class="copyright">© 2026 - Todos los derechos reservados</span>
+            </div>
+        </a>
+    </footer>
+
     <script th:src="@{/config.js}"></script>
     <script th:inline="javascript">
         window.productId = /*[[${producto.id}]]*/ 0;
+        window.nombreUsuario = /*[[${session.userName}]]*/ 'Invitado';
     </script>
     <div th:replace="~{editor :: editor-script}"></div>
     <script src="/detalle.js"></script>

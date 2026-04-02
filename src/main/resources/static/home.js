@@ -363,12 +363,11 @@ function renderizarDestacados(data) {
     
     const listaParaSlider = [...data, ...data];
 
-    track.innerHTML = listaParaSlider.map(p => {
-        // Obtenemos el HTML directo del TinyMCE
+    // Limpiamos y generamos el HTML
+    track.innerHTML = listaParaSlider.map((p, index) => {
         let contenidoHtml = p.description || "Sin descripción disponible";
-
-        // Lógica de fotos
         let fotoUrl = '/images/default.png';
+
         if (p.images && p.images.length > 0) {
             const mainImg = p.images.find(img => img.isMain) || p.images[0];
             fotoUrl = mainImg.url.startsWith('/') ? mainImg.url : `/uploads/${mainImg.url}`;
@@ -376,21 +375,19 @@ function renderizarDestacados(data) {
             fotoUrl = `/images/${p.imageUrl}`;
         }
 
-        const idFinal = p.id || p.productId;
+const idFinal = p.productId || p.id; 
 
         return `
-            <div class="card-destacado" onclick="window.location.href='/detalle?id=${idFinal}'">
+            <div class="card-destacado" data-id="${idFinal}" style="cursor: pointer;">
                 <h3 class="featured-title-top">${p.title}</h3>
                 <div class="featured-img-container">
-                    <img src="${fotoUrl}" alt="${p.title}" class="card-img" 
-                         onerror="this.src='/images/default.png';">
+                    <img src="${fotoUrl}" alt="${p.title}" class="card-img">
                 </div>
                 <div class="desc-format-destacado">
                     ${contenidoHtml}
                 </div>
                 <div class="featured-actions-container">
-                    <p class="product-price">$ ${p.price.toLocaleString('es-AR')}</p>
-                    
+                    <p class="product-price">$ ${p.price?.toLocaleString('es-AR')}</p>
                     <a href="https://wa.me/5491137869814?text=Hola! Me interesa el ${p.title}" 
                        class="btn-wa-featured" 
                        onclick="event.stopPropagation();" 
@@ -401,4 +398,19 @@ function renderizarDestacados(data) {
             </div>
         `;
     }).join('');
+    const cards = track.querySelectorAll('.card-destacado');
+    cards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Si el clic fue en el botón de WhatsApp, no hacemos nada (ya tiene su link)
+            if (e.target.closest('.btn-wa-featured')) return;
+
+            const id = this.getAttribute('data-id');
+            if (id && id !== 'undefined') {
+                console.log("Redirigiendo al producto:", id);
+                window.location.href = `/detalle?id=${id}`;
+            } else {
+                console.error("Error: El producto no tiene un ID válido", id);
+            }
+        });
+    });
 }

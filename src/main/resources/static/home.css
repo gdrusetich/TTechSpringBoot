@@ -369,7 +369,13 @@ h1.logo-title { text-align: center; color: #ffffff; margin-bottom: 40px; }
     display: flex;
     flex-direction: column;
     gap: 10px;
-    transition: transform 0.3s;
+    cursor: pointer !important; /* Esto pone la manito */
+    transition: transform 0.2s ease;
+}
+
+.card-destacado:hover {
+    transform: scale(1.02);
+    background: #222;
 }
 
 .card-destacado img {

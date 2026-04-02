@@ -7,15 +7,6 @@ body {
     margin: 0;
 }
 
-.main-header {
-    background: linear-gradient(180deg, #111 0%, #000 100%);
-    border-bottom: 2px solid #25d366;
-    padding: 15px 0;
-    margin-bottom: 30px;
-    position: sticky; /* Agregado para que no se pierda al bajar */
-    top: 0;
-    z-index: 1000;
-}
 
 .header-container {
     max-width: 1200px;
@@ -24,15 +15,6 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
-}
-
-.brand {
-    font-size: 2rem;
-    color: #fff;
-    cursor: pointer;
-    margin: 0;
-    font-weight: 800;
-    letter-spacing: -1px;
 }
 
 .electronics {
@@ -179,6 +161,42 @@ body {
     gap: 15px;
 }
 
+.price-action-row {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    padding: 15px 0;
+    margin: 10px 0 20px 0;
+}
+
+.btn-wa-detail {
+    background-color: #25d366;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1rem;
+    text-decoration: none;
+}
+
+.btn-wa-detail:hover {
+    background-color: #128c7e;
+    transform: translateY(-2px);
+}
+
+.btn-wa-detail img {
+    width: 22px;
+    height: 22px;
+}
+
 .product-info h1, .product-info h2 {
     color: #fff;
 }
@@ -189,27 +207,18 @@ body {
     color: #ccc;
 }
 
-.btn-whatsapp {
-    background-color: #25d366;
-    color: #000; /* Letra negra para máximo contraste */
-    padding: 15px 25px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    border-radius: 50px;
-    text-align: center;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.3s;
-    box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+.desc-format-detalle {
+    line-height: 1.8;
+    color: #ccc;
+    font-size: 1.05rem;
 }
 
-.btn-whatsapp:hover {
-    transform: scale(1.03);
-    background-color: #20ba5a;
-    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+.desc-format-detalle p {
+    margin-bottom: 15px;
+}
+
+.desc-format-detalle strong {
+    color: #fff; /* Que las negritas resalten más */
 }
 
 /* ==========================================================================
@@ -221,6 +230,13 @@ body {
     flex-wrap: wrap;
     gap: 8px;
     margin: 10px 0 20px 0;
+}
+
+.categories-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px; /* Pegado al título, separado del precio */
 }
 
 .category-badge {
@@ -251,6 +267,7 @@ body {
     padding: 20px;
     border-radius: 10px;
     margin-top: 20px;
+    border-color: #ff9800 !important; /* Usá el naranja de Dinastía para el panel admin */
 }
 
 .admin-actions-grid {
@@ -364,6 +381,8 @@ body {
     align-items: flex-start;
     gap: 10px;
 }
+
+
 
 /* ==========================================================================
    SISTEMA DE LOGIN UNIFICADO (Header y Detalle)
@@ -593,13 +612,9 @@ body {
 }
 
 .admin-image-controls {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    z-index: 10; /* Para que siempre esté por encima de la imagen */
+    background: rgba(0, 0, 0, 0.7) !important; /* Cambialo a oscuro para que combine */
+    border: 1px solid #444;
 }
 
 .btn-img-action {
@@ -620,8 +635,6 @@ body {
     filter: brightness(1.1);
 }
 
-
-
 @media (max-width: 768px) {
     /* Estilos de página y contenedores */
     .product-page { margin: 0; width: 100%; border-radius: 0; padding: 10px; }
@@ -631,6 +644,17 @@ body {
     .product-price {
         font-size: 2.2rem;
         text-align: center;
+    }
+
+    .price-action-row {
+        flex-direction: column; /* Uno arriba del otro en el celu */
+        align-items: stretch;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .btn-wa-detail {
+        justify-content: center;
     }
 
     /* Galería */
