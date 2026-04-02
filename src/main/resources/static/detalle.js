@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const params = new URLSearchParams(window.location.search);
     const productId = params.get("id");
 
+    window.productId = productId;
     configurarInterfazUsuario();
     configurarBotonInicio();
     if (productId) {
@@ -306,20 +307,16 @@ async function guardarCambioUnico() {
     let nuevoValor = "";
 
     if (campoActual === 'description') {
-        // Obtenemos el contenido de TinyMCE
         nuevoValor = tinymce.get('editor-admin').getContent();
     } else {
-        // Para título, precio o stock usamos el input común
         const inputComun = document.getElementById('input-dinamico');
         nuevoValor = inputComun ? inputComun.value : ""; 
     }
-
     if (!nuevoValor || nuevoValor.trim() === "") {
         return alert("El campo no puede estar vacío");
     }
 
     try {
-        // IMPORTANTE: Usamos urlActual que ya tiene el ID y el parámetro
         const response = await fetch(urlActual + encodeURIComponent(nuevoValor), { 
             method: 'PUT' 
         });
@@ -359,7 +356,7 @@ function habilitarEdicion(campo) {
     switch (campo) {
         case 'title':
             tituloModal.innerText = "Editar Título";
-            urlActual = `/products/update-title/${idProducto}?title=`;
+            urlActual = `${API_URL}/products/update-title/${window.productId}?title=`;
             const h1Producto = document.querySelector(".product-info h1");
             valorActual = h1Producto ? h1Producto.innerText : "";
             contenedor.innerHTML = `<input type="text" id="input-dinamico" style="width:100%; padding:8px;" value="${valorActual}">`;
@@ -367,15 +364,21 @@ function habilitarEdicion(campo) {
             
         case 'price':
             tituloModal.innerText = "Editar Precio";
-            urlActual = `/products/update-price/${idProducto}?price=`;
+            urlActual = `${API_URL}/products/update-price/${window.productId}?price=`;
             const pPrecio = document.getElementById("product-price");
-            valorActual = pPrecio ? pPrecio.innerText.replace('$', '').trim() : "";
-            contenedor.innerHTML = `<input type="number" id="input-dinamico" style="width:100%; padding:8px;" value="${valorActual}">`;
-            break;
             
+            let valorLimpio = pPrecio.innerText
+                .replace('$', '')
+                .replace(/\./g, '') // Quita puntos de miles
+                .replace(',', '.')  // Cambia coma decimal por punto para Java
+                .trim();
+                
+            valorActual = valorLimpio;
+            contenedor.innerHTML = `<input type="number" id="input-dinamico" style="width:100%; padding:8px;" value="${valorActual}">`;
+            break;            
         case 'stock':
             tituloModal.innerText = "Editar Stock";
-            urlActual = `/products/update-stock/${idProducto}?stock=`;
+            urlActual = `${API_URL}/products/update-description/${window.productId}?description=`;
             const spanStock = document.getElementById("display-stock");
             valorActual = spanStock ? spanStock.innerText : "0";
             contenedor.innerHTML = `<input type="number" id="input-dinamico" style="width:100%; padding:8px;" value="${valorActual}">`;

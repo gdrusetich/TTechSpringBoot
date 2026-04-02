@@ -189,29 +189,22 @@ public class ProductController {
     
     @PutMapping("/update-price/{id}")
     public ResponseEntity<?> updateProductPrice(@PathVariable Long id, 
-                                                @RequestBody Map<String, Object> payload, 
+                                                @RequestParam Double price, // Cambiamos a RequestParam
                                                 HttpSession session) {
 
         Object roleAttr = session.getAttribute("userRole");
         if (roleAttr == null || !roleAttr.toString().equals(Role.ADMIN.name())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acceso denegado: Se requiere rol de Administrador");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acceso denegado");
         }
 
-        return repository.findById(id).map(p -> {
-            if (payload.containsKey("price")) {
-                try {
-                    Double nuevoPrecio = Double.parseDouble(payload.get("price").toString());
-                    p.setPrice(nuevoPrecio);
-                    p.setFechaUltimoPrecio(LocalDate.now()); 
-                    
-                    repository.save(p);
-                    return ResponseEntity.ok().build();
-                } catch (NumberFormatException e) {
-                    return ResponseEntity.badRequest().body("Formato de precio inválido");
-                }
-            }
-            return ResponseEntity.badRequest().body("Falta el campo 'price'");
-        }).orElse(ResponseEntity.notFound().build());
+        Product p = repository.findById(id).orElse(null);
+        if (p == null) return ResponseEntity.notFound().build();
+
+        p.setPrice(price);
+        p.setFechaUltimoPrecio(LocalDate.now()); // ¡Excelente que mantengas la fecha!
+        repository.save(p);
+        
+        return ResponseEntity.ok().build();
     }
 
 
