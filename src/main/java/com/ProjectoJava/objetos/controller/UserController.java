@@ -22,7 +22,6 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    // 1. Ver la lista de usuarios (solo para el admin)
     @GetMapping("/gestion")
     public String gestionarUsuarios(Model model, HttpSession session) {
         if (!"ADMIN".equals(session.getAttribute("rol"))) {
@@ -122,18 +121,22 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/eliminar/{id}")
+    @PostMapping("/eliminar/{id}")
     @ResponseBody
     public ResponseEntity<?> eliminarUsuario(@PathVariable Long id, HttpSession session) {
-        String rol = (String) session.getAttribute("rol");
-        
-        if ("ADMIN".equals(rol)) {
-            userRepository.deleteById(id);
-            return ResponseEntity.ok().build();
+        if (!esAdmin(session)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                .body("Acceso denegado: Se requiere rol de Administrador");
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tenés permisos");
+
+        userRepository.deleteById(id);
+        return ResponseEntity.ok().build();
     }
 
+    private boolean esAdmin(HttpSession session) {
+    Object role = session.getAttribute("userRole");
+    return role != null && role.toString().equalsIgnoreCase("ADMIN");
+}
 
     @GetMapping("/listar")
     @ResponseBody

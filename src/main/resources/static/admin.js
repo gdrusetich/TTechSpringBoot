@@ -263,7 +263,7 @@ function prepararEdicionUsuario(id, nombreActual) {
 function eliminarUsuario(id) {
     if (confirm("¿Estás seguro de que querés eliminar a este usuario?")) {
         fetch(`/usuarios/eliminar/${id}`, {
-            method: 'DELETE'
+            method: 'POST'
         })
         .then(res => {
             if (res.ok) {
