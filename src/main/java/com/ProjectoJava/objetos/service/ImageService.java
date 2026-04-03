@@ -64,24 +64,21 @@ public class ImageService {
             imageRepository.delete(img);
         }
     }
-    // ImageService.java
 
     @Transactional
     public void addImagesToProduct(Long productId, MultipartFile[] files) throws IOException {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        Product product = productRepository.findById(productId).orElseThrow();
 
         for (MultipartFile file : files) {
             if (!file.isEmpty()) {
                 String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-                Path path = Paths.get("uploads").resolve(fileName);
+                Path path = Paths.get("src/main/resources/static/images").resolve(fileName);
                 
                 Files.copy(file.getInputStream(), path);
 
                 Image img = new Image();
                 img.setUrl(fileName);
-                img.setProduct(product); // Relación ManyToOne
-                
+                img.setProduct(product);
                 imageRepository.save(img);
             }
         }
