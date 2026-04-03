@@ -78,7 +78,6 @@ h2, h3 { color: #eee; margin-top: 0; }
     margin-bottom: 5px;
 }
 
-
 .section-box h3 {
     color: #28a745;
     margin-bottom: 15px;
@@ -115,6 +114,61 @@ button {
 
 .btn-add { background-color: #28a745; color: white; }
 .btn-add:hover { background-color: #218838; }
+
+/* Contenedor del precio con el signo $ */
+.precio-edit-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.precio-edit-container span {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.in-price {
+    width: 80px !important;
+    padding: 5px;
+    background: #333;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 4px;
+}
+
+/* Contenedor de acciones (Botones) */
+.acciones-edit-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.row-save-cancel {
+    display: flex;
+    gap: 5px;
+}
+
+.row-photo-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Estilo para los botones de fotos (más chiquitos) */
+.btn-foto-accion {
+    border: none;
+    padding: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: white;
+    transition: 0.2s;
+}
+
+.btn-foto-add { background-color: #007bff; }
+.btn-foto-delete { background-color: #dc3545; }
+.btn-foto-accion:hover { opacity: 0.8; }
 
 /* TABLA */
 th { background-color: #111; color: #28a745; }

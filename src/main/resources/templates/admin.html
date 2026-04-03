@@ -10,30 +10,25 @@
     <aside class="sidebar">
         <h2>🛠️ Panel Admin</h2>
 
-        <div class="admin-section" style="max-width: 450px; margin: auto; background: #222; padding: 20px; border-radius: 8px; color: white;">
-            <h3 id="titulo-form-cat" style="margin-top: 0; font-size: 1.2rem; color: #aaa;">Crear Nueva Categoría</h3>
+        <div class="section-box">
+            <h3 id="titulo-form-cat">📂 Crear Nueva Categoría</h3>
             
-            <div style="margin-bottom: 15px;">
-                <label style="font-size: 0.85rem; color: #888;">Nombre de la Categoría:</label>
-                <input type="text" id="new-category-name" placeholder="Ej: Bebidas" 
-                    style="width: 100%; padding: 10px; margin-top: 5px; background: #333; border: 1px solid #444; color: white; border-radius: 4px;">
-            </div>
+            <label>Nombre de la Categoría:</label>
+            <input type="text" id="new-category-name" placeholder="Ej: Bebidas">
 
-            <div style="margin-bottom: 20px;">
-                <label style="font-size: 0.85rem; color: #888;">Categoría Padre / Editar Existente:</label>
-                <select id="cat-parent" onchange="actualizarBotones()" style="width: 100%; padding: 10px; margin-top: 5px; background: #333; border: 1px solid #444; color: white; border-radius: 4px;">
-                    <option value="">Cargando...</option>
-                </select>
-            </div>
+            <label>Categoría Padre / Editar Existente:</label>
+            <select id="cat-parent" onchange="actualizarBotones()">
+                <option value="">Cargando...</option>
+            </select>
 
-            <div style="display: flex; gap: 10px;">
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
                 <button id="btn-guardar-cat" onclick="guardarCategoria()" 
                         style="flex: 1; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
                     Guardar
                 </button>
                 <button id="btn-preparar-edicion" onclick="prepararEdicionDesdeSelect()" 
                         style="flex: 1; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; display: none;">
-                    Editar Seleccionada
+                    Editar
                 </button>
                 <button id="btn-eliminar-cat" onclick="eliminarCategoriaSeleccionada()" 
                         style="flex: 1; padding: 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; display: none;">
@@ -44,18 +39,15 @@
                     X
                 </button>
             </div>
-        <button class="admin-btn-action" onclick="window.location.href='/products/prices'">
-            📊 Modificación Rápida: Precios y Stock
-        </button>
         </div>
 
         <div class="section-box">
             <h3>👤 Crear Nuevo Usuario</h3>
-            <label>Usuario (Nombre de ingreso):</label>
-            <input type="text" id="new-username" placeholder="Ej: juan.perez" required>
+            <label>Usuario:</label>
+            <input type="text" id="new-username" placeholder="Ej: juan.perez">
 
             <label>Contraseña:</label>
-            <input type="password" id="new-password" placeholder="Clave123" required>
+            <input type="password" id="new-password" placeholder="Clave123">
 
             <label>Tipo de Usuario:</label>
             <select id="new-role">
@@ -63,11 +55,32 @@
                 <option value="ADMIN">Administrador</option>
             </select>
 
-            <button onclick="crearUsuarioDesdeAdmin()" class="btn-add" style="margin-top: 10px;">
+            <button onclick="crearUsuarioDesdeAdmin()" class="btn-add" style="margin-top: 10px; width: 100%;">
                 ➕ Crear Usuario
             </button>
         </div>
 
+        <div style="padding: 0 15px; margin-bottom: 20px;">
+            <button class="admin-btn-action" onclick="window.location.href='/products/prices'" 
+                    style="width: 100%; background-color: #007bff; color: white; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold;">
+                📊 Modificación Rápida: Precios y Stock
+            </button>
+        </div>
+
+        <div class="section-box" style="text-align: center;">
+            <h3>📦 Carga Masiva (.txt)</h3>
+            <div class="import-container" style="padding: 10px; border: 2px dashed #444; border-radius: 8px; background: #222;">
+                <label for="input-archivo-masivo" style="cursor: pointer; display: block;">
+                    <img src="/images/icon-txt.png" alt="Cargar TXT" 
+                        style="width: 45px; transition: 0.3s; margin-bottom: 5px;" 
+                        onmouseover="this.style.transform='scale(1.1)'" 
+                        onmouseout="this.style.transform='scale(1)'">
+                    <p style="font-size: 0.85rem; color: #4CAF50; margin: 0; font-weight: bold;">Subir archivo de productos</p>
+                    <span style="font-size: 0.7rem; color: #777;">Click para seleccionar .txt</span>
+                </label>
+                <input type="file" id="input-archivo-masivo" accept=".txt" style="display: none;" onchange="procesarCargaMasiva(this)">
+            </div>
+        </div>
     </aside>
 
     <main class="main-content">
@@ -89,9 +102,7 @@
                         Categoría seleccionada: <strong id="nombre-seleccionada" style="color: #4CAF50;">Ninguna</strong>
                     </p>
                     <input type="hidden" id="categoriaIdInput" name="categoryId">
-                    
                     <div id="niveles-categorias"></div>
-                    
                     <button class="filter-btn" onclick="limpiarFiltros()" style="margin-top: 10px; background: #666;">
                         Limpiar Filtros
                     </button>
@@ -113,8 +124,7 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody id="tabla-productos">
-                    </tbody>
+                <tbody id="tabla-productos"></tbody>
             </table>
 
             <section id="seccion-carga-masiva" style="margin-top: 20px;">
@@ -126,20 +136,18 @@
                             <th>Precio</th>
                             <th>Stock</th>
                             <th>Descripción</th>
-                            <th>Categorías (Multiselección)</th>
+                            <th>Categorías</th>
                             <th>Fotos</th>
                             <th>Acción</th>
                         </tr>
                     </thead>
-                    <tbody id="cuerpo-carga">
-                        </tbody>
+                    <tbody id="cuerpo-carga"></tbody>
                 </table>
                 <div style="margin-top: 10px;">
                     <button type="button" onclick="agregarFila()" class="btn-editar">➕ Añadir Fila</button>
                     <button type="button" onclick="guardarTodo()" class="btn-guardar" style="background-color: #ff9800;">🚀 Guardar Todo</button>
                 </div>
             </section>
-            
         </div>
 
         <div id="seccion-usuarios" style="display:none;">
@@ -149,7 +157,7 @@
                     <tr style="background: #333;">
                         <th>ID</th>
                         <th>Usuario</th>
-                        <th>Contraseña</th> <th>Rol</th>
+                        <th>Rol</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -157,9 +165,11 @@
             </table>
         </div>
     </main>
+
     <div class="btn-colapsar" onclick="toggleSidebar()" title="Mostrar/Ocultar Panel">
         ☰
     </div>
+
     <script th:src="@{/config.js}"></script>
     <script th:src="@{/admin.js}"></script>
 </body>

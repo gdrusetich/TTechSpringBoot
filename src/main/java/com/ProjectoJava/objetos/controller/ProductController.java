@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -17,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile; // Para recibir la image
 import org.springframework.ui.Model;
 import org.springframework.http.ResponseEntity;
 import java.util.Map;
+import java.util.Optional;
 
 import com.ProjectoJava.objetos.DTO.request.ProductRequestDTO;
 import com.ProjectoJava.objetos.DTO.response.ProductResponseDTO;
@@ -113,8 +113,6 @@ public class ProductController {
                 }
             }
 
-            // --- ACTUALIZAMOS EL CONSTRUCTOR DEL DTO ---
-            // Asegurate que el orden coincida con el que pusimos en ProductRequestDTO
             ProductRequestDTO dto = new ProductRequestDTO(
                 title, 
                 price, 
@@ -177,9 +175,42 @@ public class ProductController {
         return "home"; 
     }
 
+    @PostMapping("/create-masivo")
+    public ResponseEntity<?> crearMasivo(@RequestBody ProductRequestDTO dto) {
+        try {
+            Product p = new Product();
+            p.setTitle(dto.getTitle());
+            p.setPrice(dto.getPrice());
+            p.setStock(dto.getStock());
+            p.setDescription(dto.getDescription());
+            
+            // Usamos tus nombres de métodos reales:
+            p.setFechaUltimoPrecio(java.time.LocalDate.now());
+            p.setOculto(false); 
+            p.setFeatured(false);
+
+            if (dto.getCategoryNames() != null && !dto.getCategoryNames().isEmpty()) {
+                
+                java.util.Set<Category> categorias = dto.getCategoryNames().stream()
+                    .map(nombre -> categoryRepository.findByName(nombre.trim())) // <-- ACÁ usamos el REPO
+                    .filter(java.util.Optional::isPresent)
+                    .map(java.util.Optional::get)
+                    .collect(java.util.stream.Collectors.toSet());
+                    
+                p.setCategories(categorias);
+            }
+            
+            // 3. Guardamos el producto
+            repository.save(p);
+            
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
+        }
+    }
+
     @PutMapping("/update-title/{id}")
     public ResponseEntity<?> updateProductTitle(@PathVariable Long id, @RequestParam String title) {
-        // Buscamos el producto directamente
         Product producto = repository.findById(id).orElse(null);
         if (producto == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
         producto.setTitle(title);
@@ -232,10 +263,8 @@ public class ProductController {
     @PutMapping("/{id}/categories")
     public ResponseEntity<?> updateProductCategories(@PathVariable Long id, @RequestBody List<Long> categoryIds) {
         return repository.findById(id).map(producto -> {
-            // Buscamos las entidades completas basadas en los IDs que mandó el frontend
             List<Category> listaCategorias = categoryRepository.findAllById(categoryIds);
-            Set<Category> setCategorias = new HashSet<>(listaCategorias);            
-            // Seteamos la nueva lista (JPA se encarga de limpiar la tabla intermedia y reinsertar)
+            Set<Category> setCategorias = new HashSet<>(listaCategorias);
             producto.setCategories(setCategorias);
             repository.save(producto);
             
@@ -256,6 +285,25 @@ public class ProductController {
     @DeleteMapping("/images/{imageId}")
     public ResponseEntity<?> eliminarImagen(@PathVariable Long imageId) {
         imageService.deleteImage(imageId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{productId}/add-images")
+    public ResponseEntity<?> agregarImagenesAProducto(
+            @PathVariable Long productId,
+            @RequestParam("images") MultipartFile[] files) {
+        
+        try {
+            imageService.addImagesToProduct(productId, files);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error al subir: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{productId}/images/all")
+    public ResponseEntity<?> eliminarTodasLasImagenes(@PathVariable Long productId) {
+        imageService.deleteAllImagesByProductId(productId); 
         return ResponseEntity.ok().build();
     }
 
@@ -323,7 +371,6 @@ public class ProductController {
             }).orElse(ResponseEntity.notFound().build());
             
         } catch (Exception e) {
-            // Esto imprimirá el error real en tu consola de IntelliJ
             e.printStackTrace(); 
             return ResponseEntity.status(500).body("Error interno: " + e.getMessage());
         }
@@ -357,10 +404,8 @@ public class ProductController {
         List<Product> productosViejos;
         
         if (fechaFiltro != null) {
-            // Buscamos los que no se tocan desde ANTES de esa fecha
             productosViejos = repository.findByFechaUltimoPrecioBefore(fechaFiltro);
         } else {
-            // Si entra por primera vez sin elegir fecha, le mostramos todos o ninguno
             productosViejos = new ArrayList<>();
         }
         

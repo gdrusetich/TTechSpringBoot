@@ -140,7 +140,7 @@ function renderizarTabla(lista) {
             </td>
 
             <td style="min-width: 230px;">
-                <button class="view-mode btn-tabla" style="background:#007bff; color:white;" onclick="event.stopPropagation(); activarEdicion(${id})">Editar</button>
+                <button class="view-mode btn-tabla" style="background:#007bff; color:white;" onclick="event.stopPropagation(); editarFila(${id})">Editar</button>
                 <button class="view-mode btn-tabla" style="background: ${btnColor}; color:white;" onclick="event.stopPropagation(); toggleVisibilidad(${id})"> ${btnTexto} </button>
                 
                 <button class="view-mode btn-destacado ${estrellaClase}" 
@@ -738,12 +738,6 @@ function toggleCats(btn) {
     }
 }
 
-function activarEdicion(id) {
-    const fila = document.getElementById(`fila-${id}`);
-    fila.querySelectorAll('.view-mode').forEach(el => el.classList.add('d-none'));
-    fila.querySelectorAll('.edit-mode').forEach(el => el.classList.remove('d-none'));
-}
-
 function cancelarEdicion(id) {
     const fila = document.getElementById(`fila-${id}`);
     fila.querySelectorAll('.view-mode').forEach(el => el.classList.remove('d-none'));
@@ -761,19 +755,40 @@ function editarFila(id) {
 
     fila.innerHTML = `
         <td>${p.id}</td>
-        <td><input type="text" class="form-control in-title" value="${p.title}"></td>
-        <td><input type="number" class="form-control in-price" value="${p.price}"></td>
-        <td><input type="number" class="form-control in-stock" value="${p.stock}"></td>
         <td>
-            <input type="checkbox" class="in-featured" ${p.featured ? 'checked' : ''}>
+            <img src="${p.imagenCalculada || '/images/no-image.png'}" style="width: 40px; border-radius: 4px;">
         </td>
         <td>
-            <button class="btn btn-success btn-sm" onclick="guardarEdicionRapida(${id})">
-                <i class="fas fa-save"></i> Guardar
-            </button>
-            <button class="btn btn-secondary btn-sm" onclick="cargarProductos()">
-                <i class="fas fa-times"></i>
-            </button>
+            <input type="text" class="in-title" value="${p.title}">
+        </td>
+        <td>
+            <div class="precio-edit-container">
+                <span>$</span>
+                <input type="number" class="in-price" value="${p.price}">
+            </div>
+        </td>
+        <td>
+            <input type="number" class="in-stock" value="${p.stock}" style="width: 60px;">
+        </td>
+        <td class="acciones-edit">
+            <div class="acciones-edit-wrapper">
+                <div class="row-save-cancel">
+                    <button class="btn-guardar" onclick="guardarEdicionRapida(${id})" style="flex: 1; background:#28a745; color:white;">
+                        💾 Guardar
+                    </button>
+                    <button class="btn-cancelar" onclick="cargarProductos()" style="background:#6c757d; color:white;">
+                        ✕
+                    </button>
+                </div>
+                <div class="row-photo-actions">
+                    <button class="btn-foto-accion btn-foto-add" onclick="agregarFotos(${id})">
+                        📷 Agregar Fotos
+                    </button>
+                    <button class="btn-foto-accion btn-foto-delete" onclick="borrarTodasLasFotos(${id})">
+                        🗑️ Borrar Fotos
+                    </button>
+                </div>
+            </div>
         </td>
     `;
 }
@@ -878,4 +893,113 @@ async function guardarEdicionRapida(id) {
     } catch (err) {
         console.error(err);
     }
+}
+
+async function procesarCargaMasiva(input) {
+    const archivo = input.files[0];
+    if (!archivo) return;
+
+    const lector = new FileReader();
+    lector.onload = async (e) => {
+        const contenido = e.target.result;
+        const filas = contenido.split(/\r?\n/); // Divide por saltos de línea (Windows/Linux)
+        let exitos = 0;
+        let errores = 0;
+
+        for (let fila of filas) {
+            if (fila.trim() === "") continue;
+
+            try {
+                // Formato: titulo;precio;stock;descripcion;[cat1,cat2]
+                const partes = fila.split(';');
+                if (partes.length < 5) continue;
+
+                const titulo = partes[0].trim();
+                const precio = parseFloat(partes[1].trim());
+                const stock = parseInt(partes[2].trim());
+                const descripcion = partes[3].trim();
+                const catsRaw = partes[4].replace('[', '').replace(']', '').trim();
+                const nombresCategorias = catsRaw.split(',').map(c => c.trim());
+                const nuevoProducto = {
+                    title: titulo,
+                    price: precio,
+                    stock: stock,
+                    description: descripcion,
+                    categoryNames: nombresCategorias // Tu backend debe recibir esto
+                };
+
+                const response = await fetch(`${API_URL}/products/create-masivo`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nuevoProducto)
+                });
+
+                if (response.ok) exitos++;
+                else errores++;
+
+            } catch (err) {
+                console.error("Error en fila:", fila, err);
+                errores++;
+            }
+        }
+        alert(`Carga finalizada.\nÉxitos: ${exitos}\nErrores: ${errores}`);
+        location.reload();
+    };
+    lector.readAsText(archivo);
+}
+
+async function borrarTodasLasFotos(id) {
+    if (!confirm("⚠️ ¿Estás seguro de borrar TODAS las fotos de este producto?")) return;
+
+    try {
+        const resp = await fetch(`${API_URL}/products/${id}/images/all`, { 
+            method: "DELETE" 
+        });
+
+        if (resp.ok) {
+            alert("🗑️ Se han borrado todas las fotos.");
+            cargarProductos(); // Refresca la tabla
+        } else {
+            alert("Hubo un drama en el servidor al intentar borrar.");
+        }
+    } catch (err) {
+        console.error("Error:", err);
+    }
+}
+
+function agregarFotos(id) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    input.accept = 'image/*';
+
+    input.onchange = async () => {
+        const archivos = input.files;
+        if (archivos.length === 0) return;
+
+        const formData = new FormData();
+        // IMPORTANTE: Chequeá si en Java el parámetro se llama "images" o "files"
+        for (let i = 0; i < archivos.length; i++) {
+            formData.append("images", archivos[i]); 
+        }
+
+        try {
+            // El endpoint debería ser uno que acepte agregar fotos a un ID existente
+            const resp = await fetch(`${API_URL}/products/${id}/add-images`, { 
+                method: "POST",
+                body: formData
+            });
+
+            if (resp.ok) {
+                alert("✅ ¡Fotos agregadas con éxito!");
+                cargarProductos(); // Recarga la tabla para ver los cambios
+            } else {
+                alert("❌ Error al subir fotos: " + await resp.text());
+            }
+        } catch (err) {
+            console.error("Error de red:", err);
+            alert("Error de conexión al servidor.");
+        }
+    };
+    input.click();
 }
