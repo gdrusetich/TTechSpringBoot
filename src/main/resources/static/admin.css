@@ -53,6 +53,41 @@ body {
     box-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 
+/* ==========================================================
+   AJUSTE BOTONES DE NAVEGACIÓN (TAB MENU)
+   ========================================================== */
+
+.btn-tab, .btn-tienda-link {
+    padding: 12px 20px;
+    cursor: pointer;
+    border: 1px solid #444;
+    border-radius: 6px;
+    font-weight: bold;
+    background-color: #333;
+    color: #eee !important; /* Forzamos el gris clarito */
+    text-decoration: none;  /* Quitamos el subrayado del link */
+    display: inline-flex;
+    align-items: center;
+    transition: 0.3s;
+}
+
+.btn-tienda-link {
+    margin-left: auto;
+}
+
+.btn-tienda-link:visited, 
+.btn-tienda-link:active, 
+.btn-tienda-link:focus {
+    color: #eee !important;
+    text-decoration: none !important;
+}
+
+.btn-tab:hover, .btn-tienda-link:hover {
+    background-color: #444;
+    border-color: #28a745; /* Brillo verde al pasar el mouse */
+    color: #28a745 !important;
+}
+
 #tabla-productos img {
     transition: width 0.3s ease, height 0.3s ease;
 }
@@ -137,38 +172,44 @@ button {
     border-radius: 4px;
 }
 
-/* Contenedor de acciones (Botones) */
-.acciones-edit-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.row-save-cancel {
-    display: flex;
-    gap: 5px;
-}
-
-.row-photo-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-/* Estilo para los botones de fotos (más chiquitos) */
-.btn-foto-accion {
-    border: none;
+.contenedor-grilla-botones {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
+    grid-template-rows: 1fr 1fr;    /* Dos filas iguales */
+    gap: 8px;                       /* Espacio entre botones para no pifiarle */
+    min-width: 220px;               /* Ancho mínimo para que respire */
     padding: 5px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.75rem;
-    color: white;
-    transition: 0.2s;
 }
 
-.btn-foto-add { background-color: #007bff; }
-.btn-foto-delete { background-color: #dc3545; }
-.btn-foto-accion:hover { opacity: 0.8; }
+.btn-grid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 5px;             /* Más alto para el celular */
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    line-height: 1.2;
+    text-align: center;
+    min-height: 44px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    color: white;
+}
+
+.btn-grid:active {
+    transform: scale(0.95);
+}
+
+.btn-guardar-check { background-color: #28a745; }
+.btn-cancelar-x    { background-color: #6c757d; }
+.btn-foto-add      { background-color: #007bff; }
+.btn-foto-delete   { background-color: #dc3545; }
+
+.acciones-edit {
+    vertical-align: middle;
+}
 
 /* TABLA */
 th { background-color: #111; color: #28a745; }

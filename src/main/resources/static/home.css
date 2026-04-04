@@ -386,6 +386,40 @@ overflow: hidden;         /* Mata cualquier scroll */
 }
 
 
+/* ==========================================================
+   5. BOTÓN AUDITAR (NARANJA CON LETRAS NEGRAS)
+   ========================================================== */
+
+/* 1. Forzamos el estado base */
+.admin-quick-access .filter-btn {
+    background-color: #e67e22 !important; /* Naranja fuerte */
+    border-color: #d35400 !important;     /* Borde un poco más oscuro */
+    color: #000000 !important;            /* LETRAS NEGRAS */
+    font-weight: 900 !important;          /* Bien negrita para que resalte */
+    text-transform: uppercase;
+    text-decoration: none !important;
+    padding: 10px 20px !important;
+    display: inline-block;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* 2. Forzamos que NO cambie a violeta ni azul al hacer clic o haberlo visitado */
+.admin-quick-access .filter-btn:visited,
+.admin-quick-access .filter-btn:active,
+.admin-quick-access .filter-btn:focus {
+    color: #000000 !important;
+    background-color: #e67e22 !important;
+    text-decoration: none !important;
+}
+
+/* 3. Efecto al pasar el mouse (un naranja más brillante) */
+.admin-quick-access .filter-btn:hover {
+    background-color: #ff9800 !important;
+    color: #000000 !important;
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(230, 126, 34, 0.4);
+}
+
 /* GRID */
 #lista-productos {
     display: grid;

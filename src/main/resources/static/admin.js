@@ -688,7 +688,6 @@ async function guardarTodo() {
 
 function agregarFila() {
     const tbody = document.getElementById("cuerpo-carga");
-    // Usamos la variable que tengas definida para las categorías
     const categorias = categoriasData || []; 
 
     const tr = document.createElement("tr");
@@ -752,11 +751,12 @@ function abrirModalDesc(btn) {
 function editarFila(id) {
     const fila = document.getElementById(`fila-${id}`);
     const p = productosCargados.find(prod => prod.id === id);
+    if (!p) return;
 
     fila.innerHTML = `
         <td>${p.id}</td>
-        <td>
-            <img src="${p.imagenCalculada || '/images/no-image.png'}" style="width: 40px; border-radius: 4px;">
+        <td style="text-align: center;">
+            <div style="font-size: 20px;" title="Modo Edición">⚙️</div>
         </td>
         <td>
             <input type="text" class="in-title" value="${p.title}">
@@ -771,23 +771,20 @@ function editarFila(id) {
             <input type="number" class="in-stock" value="${p.stock}" style="width: 60px;">
         </td>
         <td class="acciones-edit">
-            <div class="acciones-edit-wrapper">
-                <div class="row-save-cancel">
-                    <button class="btn-guardar" onclick="guardarEdicionRapida(${id})" style="flex: 1; background:#28a745; color:white;">
-                        💾 Guardar
-                    </button>
-                    <button class="btn-cancelar" onclick="cargarProductos()" style="background:#6c757d; color:white;">
-                        ✕
-                    </button>
-                </div>
-                <div class="row-photo-actions">
-                    <button class="btn-foto-accion btn-foto-add" onclick="agregarFotos(${id})">
-                        📷 Agregar Fotos
-                    </button>
-                    <button class="btn-foto-accion btn-foto-delete" onclick="borrarTodasLasFotos(${id})">
-                        🗑️ Borrar Fotos
-                    </button>
-                </div>
+            <div class="contenedor-grilla-botones">
+                <button class="btn-grid btn-guardar-check" onclick="guardarEdicionRapida(${id})">
+                    💾 Guardar
+                </button>
+                <button class="btn-grid btn-cancelar-x" onclick="cargarProductos()">
+                    ✕ Cancelar
+                </button>
+
+                <button class="btn-grid btn-foto-add" onclick="agregarFotos(${id})">
+                    📷 Agregar Fotos
+                </button>
+                <button class="btn-grid btn-foto-delete" onclick="borrarTodasLasFotos(${id})">
+                    🗑️ Borrar Fotos
+                </button>
             </div>
         </td>
     `;
