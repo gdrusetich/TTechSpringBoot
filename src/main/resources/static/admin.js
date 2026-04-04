@@ -810,7 +810,12 @@ function toggleVisibilidad(id) {
 
 function manejadorClickFila(event, id) {
     const fila = document.getElementById(`fila-${id}`);
-    if (fila.querySelector('.edit-mode').classList.contains('d-none')) {
+    if (!fila) return; // Seguridad: si no hay fila, no hacemos nada
+
+    const editMode = fila.querySelector('.edit-mode');
+    
+    // Solo entramos al detalle si NO estamos en modo edición
+    if (editMode && editMode.classList.contains('d-none')) {
         irADetalle(id);
     }
 }
