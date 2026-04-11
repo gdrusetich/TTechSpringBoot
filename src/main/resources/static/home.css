@@ -344,13 +344,12 @@ overflow: hidden;         /* Mata cualquier scroll */
 .slider-track {
     display: flex;
     gap: 20px;
-    width: max-content; /* Importante para que no se amontonen */
-    animation: scroll-cinta 30s linear infinite !important;
+    width: max-content; 
+    /* animation: scroll-cinta 30s linear infinite !important; */
 }
 
-/* Pausar cuando el usuario pasa el mouse para que pueda leer/clickear */
 .slider-track:hover {
-    animation-play-state: paused;
+    /* animation-play-state: paused; */
 }
 
 @keyframes scroll-cinta {

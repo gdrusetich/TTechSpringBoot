@@ -421,3 +421,52 @@ function renderizarDestacados(data) {
         });
     });
 }
+
+//Movimiento de Productos Destacados
+const track = document.getElementById('lista-destacados');
+let posicionActual = 0;
+let startX = 0;
+let scrollLeftAlTocar = 0;
+let isPaused = false;
+
+function moverCinta() {// FUNCIÓN 1: Movimiento automático (Cinta continua)
+    if (!isPaused) {
+        posicionActual -= 0.8; // Velocidad de la cinta. Ajustalo a tu gusto.
+
+        // Si llega a la mitad (porque duplicaste los productos), vuelve al inicio
+        if (Math.abs(posicionActual) >= track.scrollWidth / 2) {
+            posicionActual = 0;
+        }
+        track.style.transform = `translateX(${posicionActual}px)`;
+    }
+    requestAnimationFrame(moverCinta);
+}
+
+track.addEventListener('touchstart', (e) => {// FUNCIÓN 2: El dedo manda
+    isPaused = true; // Frenamos el avance automático
+    startX = e.touches[0].pageX;
+    scrollLeftAlTocar = posicionActual;
+    track.style.transition = 'none'; // Movimiento instantáneo con el dedo
+}, {passive: true});
+
+track.addEventListener('touchmove', (e) => {
+    const x = e.touches[0].pageX;
+    const walk = x - startX; // Cuánto se movió el dedo desde el inicio
+
+    posicionActual = scrollLeftAlTocar + walk;    // Actualizamos la posición en tiempo real
+    if (posicionActual > 0) posicionActual = 0;    // Límites para que no se escape la cinta
+    const limiteMax = -(track.scrollWidth - track.parentElement.offsetWidth);
+    if (posicionActual < limiteMax) posicionActual = limiteMax;
+
+    track.style.transform = `translateX(${posicionActual}px)`;
+}, {passive: true});
+
+track.addEventListener('touchend', () => {
+
+    setTimeout(() => {    // Cuando suelta, esperamos medio segundo y vuelve a arrancar solo
+        isPaused = false;
+    }, 500);
+});
+
+
+moverCinta(); // Arrancamos la animación
