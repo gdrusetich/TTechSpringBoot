@@ -41,7 +41,7 @@ function inicializarGaleria() {
     
     setTimeout(() => {
         resetearImagen();
-    }, 10);
+    }, 50);
 };
 
 function resetearImagen() {
