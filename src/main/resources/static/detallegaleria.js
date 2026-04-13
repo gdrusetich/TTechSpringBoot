@@ -1,7 +1,6 @@
 let indexFotoActual = 0;
 
 function inicializarGaleria() {
-    // Inyectar  HTML al final del body
     const div = document.createElement('div');
     div.id = 'modal-galeria';
     div.className = 'modal-zoom';
@@ -9,7 +8,7 @@ function inicializarGaleria() {
         <span class="cerrar-zoom">&times;</span>
         <div class="modal-zoom-contenido">
             <button id="prev-foto" class="nav-foto">❮</button>
-            <div id="wrapper-img" style="overflow:hidden; width:100%; height:100%; display:flex; justify-content:center; align-items:center;">
+            <div id="wrapper-img">
                 <img id="img-zoom" src="" alt="Zoom">
             </div>
             <button id="next-foto" class="nav-foto">❯</button>
@@ -20,81 +19,99 @@ function inicializarGaleria() {
 
     const modal = document.getElementById('modal-galeria');
     const imgZoom = document.getElementById('img-zoom');
+    
     let escala = 1;
+    let posX = 0;
+    let posY = 0;
+    let startX = 0;
+    let startY = 0;
+    let moviendo = false;
 
-    // Función para abrir
     window.abrirModalZoom = (index) => {
         indexFotoActual = index;
         actualizarImagenZoom();
         modal.style.display = 'flex';
-        escala = 1;
-        imgZoom.style.transform = `scale(${escala})`;
+        resetearImagen();
     };
+
+    function resetearImagen() {
+        escala = 1;
+        posX = 0;
+        posY = 0;
+        aplicarTransform();
+    }
+
+    function aplicarTransform() {
+        imgZoom.style.transform = `translate(${posX}px, ${posY}px) scale(${escala})`;
+    }
 
     function actualizarImagenZoom() {
         const fotos = productoActual.images;
         const imgObj = fotos[indexFotoActual];
         let url = imgObj.url;
         let finalPath = url.startsWith('uploads') ? `/${url}` : `${FOLDER_SYSTEM}/${url}`;
-        
         imgZoom.src = finalPath;
         document.getElementById('contador-fotos').innerText = `${indexFotoActual + 1} / ${fotos.length}`;
     }
-    // Botones
-    document.getElementById('next-foto').onclick = () => {
-        indexFotoActual = (indexFotoActual + 1) % productoActual.images.length;
-        actualizarImagenZoom();
-    };
 
-    document.getElementById('prev-foto').onclick = () => {
-        indexFotoActual = (indexFotoActual - 1 + productoActual.images.length) % productoActual.images.length;
-        actualizarImagenZoom();
-    };
+    // --- LÓGICA DE ARRASTRAR (PAN) ---
+    imgZoom.addEventListener('mousedown', (e) => {
+        if (escala > 1) {
+            moviendo = true;
+            startX = e.clientX - posX;
+            startY = e.clientY - posY;
+            imgZoom.style.cursor = 'grabbing';
+        }
+    });
 
-    document.querySelector('.cerrar-zoom').onclick = () => modal.style.display = 'none';
+    window.addEventListener('mousemove', (e) => {
+        if (!moviendo) return;
+        posX = e.clientX - startX;
+        posY = e.clientY - startY;
+        aplicarTransform();
+    });
 
-    // Zoom con ruedita
+    window.addEventListener('mouseup', () => {
+        moviendo = false;
+        if(imgZoom) imgZoom.style.cursor = 'zoom-in';
+    });
+
+    // --- ZOOM CON RUEDITA (Centrado en mouse opcional, aquí simple) ---
     imgZoom.onwheel = (e) => {
         e.preventDefault();
-        escala += e.deltaY * -0.001;
-        escala = Math.min(Math.max(1, escala), 4);
-        imgZoom.style.transform = `scale(${escala})`;
+        const delta = e.deltaY * -0.001;
+        const nuevaEscala = Math.min(Math.max(1, escala + delta), 4);
+        
+        if (nuevaEscala === 1) resetearImagen();
+        else {
+            escala = nuevaEscala;
+            aplicarTransform();
+        }
     };
-    // --- ZOOM CON DOS DEDOS (Pinch-to-Zoom) ---
-    let distanciaInicial = 0;
-    let escalaInicial = 1;
+
+    // --- TOUCH PARA CELULARES (Mover con un dedo si hay zoom) ---
     imgZoom.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 2) {
-            distanciaInicial = Math.hypot(
-                e.touches[0].pageX - e.touches[1].pageX,
-                e.touches[0].pageY - e.touches[1].pageY
-            );
-            escalaInicial = escala;
+        if (e.touches.length === 1 && escala > 1) {
+            moviendo = true;
+            startX = e.touches[0].clientX - posX;
+            startY = e.touches[0].clientY - posY;
         }
     }, {passive: true});
 
     imgZoom.addEventListener('touchmove', (e) => {
-        if (e.touches.length === 2) {
-            e.preventDefault(); // Evita que la página se mueva mientras hacés zoom
-            
-            const distanciaActual = Math.hypot(
-                e.touches[0].pageX - e.touches[1].pageX,
-                e.touches[0].pageY - e.touches[1].pageY
-            );
-
-            // Calculamos la nueva escala basada en la diferencia de distancia
-            const ratio = distanciaActual / distanciaInicial;
-            escala = Math.min(Math.max(1, escalaInicial * ratio), 4);
-            
-            imgZoom.style.transform = `scale(${escala})`;
+        if (moviendo && e.touches.length === 1) {
+            posX = e.touches[0].clientX - startX;
+            posY = e.touches[0].clientY - startY;
+            aplicarTransform();
         }
     }, {passive: false});
 
-    // Cerrar al tocar el fondo negro o con escape
-    modal.onclick = (e) => {
-        if (e.target === modal) modal.style.display = 'none';
-    };
-    document.addEventListener('keydown', (e) => {
-        if (e.key === "Escape") modal.style.display = 'none';
-    });
+    // Botones Navegación
+    document.getElementById('next-foto').onclick = (e) => { e.stopPropagation(); indexFotoActual = (indexFotoActual + 1) % productoActual.images.length; actualizarImagenZoom(); resetearImagen(); };
+    document.getElementById('prev-foto').onclick = (e) => { e.stopPropagation(); indexFotoActual = (indexFotoActual - 1 + productoActual.images.length) % productoActual.images.length; actualizarImagenZoom(); resetearImagen(); };
+
+    const cerrar = () => { modal.style.display = 'none'; resetearImagen(); };
+    document.querySelector('.cerrar-zoom').onclick = cerrar;
+    modal.onclick = (e) => { if (e.target === modal || e.target.id === 'wrapper-img') cerrar(); };
+    document.addEventListener('keydown', (e) => { if (e.key === "Escape") cerrar(); });
 }
