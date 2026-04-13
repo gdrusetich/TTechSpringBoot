@@ -7,7 +7,8 @@
     
     <link rel="stylesheet" th:href="@{/home.css(v='1.5')}">
     <link rel="stylesheet" th:href="@{/detalle.css}">
-    <link rel="stylesheet" th:href="@{/detallegaleria.css}"> <script th:src="@{/detalle.js}" defer></script>
+    <link rel="stylesheet" th:href="@{/detallegaleria.css}">
+    <script th:src="@{/detalle.js}" defer></script>
     <script th:src="@{/detallegaleria.js}" defer></script>
 </head>
 <body>
@@ -160,6 +161,5 @@
         window.nombreUsuario = /*[[${session.userName}]]*/ 'Invitado';
     </script>
     <div th:replace="~{editor :: editor-script}"></div>
-    <script src="/detalle.js"></script>
 </body>
 </html>
