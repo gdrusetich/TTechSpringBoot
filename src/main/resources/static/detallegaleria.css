@@ -1,106 +1,117 @@
+/* 1. EL CONTENEDOR PRINCIPAL */
 .modal-zoom {
-    display: none;
+    display: none; 
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(20, 20, 20, 0.95) !important; /* Gris oscuro premium */
-    z-index: 999999 !important;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: rgba(22, 22, 22, 0.96) !important; 
+    backdrop-filter: blur(12px);
+    z-index: 1000000;
     justify-content: center;
     align-items: center;
-    backdrop-filter: blur(10px);
+    touch-action: none; /* Vital para que el navegador no interfiera */
 }
 
-.modal-zoom-contenido {
+/* 2. EL MARCO (Donde ocurre la magia) */
+.modal-zoom-contenido, #wrapper-img {
     position: relative;
-    width: 65%;
-    height: 80%;
+    width: 100%;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: transparent;
-    border-radius: 4px;
-    overflow: hidden;
+    overflow: hidden; /* Corta la imagen sobrante al hacer zoom */
+    cursor: grab;
+    background: transparent !important;
 }
 
+#wrapper-img:active {
+    cursor: grabbing;
+}
+
+/* 3. LA IMAGEN */
 #img-zoom {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: 90%;
+    max-height: 85vh;
     object-fit: contain;
+    transition: transform 0.1s ease-out; /* Suaviza el movimiento y el zoom */
     user-select: none;
     -webkit-user-drag: none;
-    transition: transform 0.3s ease;
-    cursor: zoom-in;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
 }
 
+/* 4. LA BARRA DE BOTONES */
 .controles-galeria {
     position: fixed;
-    bottom: 40px;
+    bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
+    background: rgba(40, 40, 40, 0.9) !important;
+    padding: 12px 25px;
+    border-radius: 50px;
     display: flex;
     align-items: center;
-    gap: 30px;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px); /* Efecto vidrio esmerilado */
-    padding: 10px 25px;
-    border-radius: 50px;
-    border: 1px solid rgba(255,255,255,0.2);
+    gap: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    z-index: 1000002;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+}
+
+.controles-galeria button {
+    background: transparent;
+    border: none;
     color: white;
-    z-index: 10001;
+    font-size: 1.3rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.controles-galeria button:hover {
+    color: #ffcc00;
+    transform: scale(1.2);
+}
+
+/* 5. ELEMENTOS EXTRAS */
+.separador-v {
+    width: 1px;
+    height: 25px;
+    background: rgba(255, 255, 255, 0.2);
 }
 
 #contador-fotos {
-    color: white;
-    font-family: sans-serif;
-    font-weight: bold;
-    min-width: 50px;
+    color: #ffffff;
+    min-width: 60px;
     text-align: center;
+    font-size: 1rem;
 }
-
-.nav-foto {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 30px;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.nav-foto:hover {
-    transform: scale(1.2);
-    color: #ffda00; /* El color de tu marca */
-}
-
-#prev-foto { left: -80px; }
-#next-foto { right: -80px; }
 
 .cerrar-zoom {
     position: absolute;
     top: 20px;
-    right: 30px;
-    color: white;
+    right: 25px;
     font-size: 40px;
+    color: #ffffff;
     cursor: pointer;
+    z-index: 1000005;
 }
 
-.contenedor-img-zoom, #wrapper-img {
-    overflow: hidden; 
-    touch-action: none; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-}
-
+/* 6. RESPONSIVE (Móviles) */
 @media (max-width: 768px) {
-    .modal-zoom-contenido { width: 95%; height: 60%; }
-    #prev-foto { left: 10px; }
-    #next-foto { right: 10px; }
-    .contenedor-img-zoom {
-    overflow: hidden; /* Esto corta la imagen si se sale de los bordes al agrandarse */
-    touch-action: none; /* Esto le dice al navegador: "No hagas el scroll normal, yo manejo los dedos" */
-}
+    .controles-galeria {
+        width: 95%;
+        bottom: 20px;
+        gap: 10px;
+        padding: 10px;
+        justify-content: center;
+    }
+    
+    .controles-galeria button {
+        font-size: 1.1rem;
+    }
+
+    #img-zoom {
+        max-width: 95%;
+    }
 }
