@@ -30,22 +30,30 @@ function inicializarGaleria() {
     let moviendo = false;
 
     window.abrirModalZoom = (index) => {
-        indexFotoActual = index;
-        actualizarImagenZoom();
-        modal.style.display = 'flex';
+    const modal = document.getElementById('modal-galeria');
+    if (!modal) {
+        console.error("No se encontró el elemento modal-galeria");
+        return;
+    }
+    indexFotoActual = index;
+    actualizarImagenZoom();
+    modal.style.setProperty('display', 'flex', 'important'); 
+    
+    setTimeout(() => {
         resetearImagen();
-    };
+    }, 10);
+};
 
-    function resetearImagen() {
-        escala = 1;
-        posX = 0;
-        posY = 0;
-        aplicarTransform();
-    }
+function resetearImagen() {
+    escala = 1;
+    posX = 0;
+    posY = 0;
+    aplicarTransform();
+}
 
-    function aplicarTransform() {
-        imgZoom.style.transform = `translate(${posX}px, ${posY}px) scale(${escala})`;
-    }
+function aplicarTransform() {
+    imgZoom.style.transform = `translate(${posX}px, ${posY}px) scale(${escala})`;
+}
 
 function actualizarImagenZoom() {
     const producto = window.productoActual;     
