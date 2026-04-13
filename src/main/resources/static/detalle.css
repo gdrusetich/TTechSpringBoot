@@ -144,6 +144,31 @@ body {
 .main-image-container {
     flex: 2;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+    cursor: crosshair;
+}
+
+.zoom-lens {
+    position: absolute;
+    border: 1px solid #ffcc00;
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 204, 0, 0.2);
+    cursor: crosshair;
+}
+
+.zoom-window {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #1a1a1a; /* Gris oscuro para que no mate los ojos */
+    background-repeat: no-repeat;
+    z-index: 10;
+    border: 1px solid #333;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
 #main-product-image {

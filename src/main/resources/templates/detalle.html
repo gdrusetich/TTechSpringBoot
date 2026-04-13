@@ -7,9 +7,7 @@
     
     <link rel="stylesheet" th:href="@{/home.css(v='1.5')}">
     <link rel="stylesheet" th:href="@{/detalle.css}">
-    <link rel="stylesheet" th:href="@{/detallegaleria.css}">
     <script th:src="@{/detalle.js}" defer></script>
-    <script th:src="@{/detallegaleria.js}" defer></script>
 </head>
 <body>
     <div id="menu-usuario" class="user-nav-bar">
@@ -64,66 +62,66 @@
                     </div>
                 </div>
 
-                <div class="product-info" th:if="${producto != null}">
-                    <h1 th:text="${producto.title}" style="margin-bottom: 5px;">Título del Producto</h1>
+                <div class="product-info" th:if="${producto != null}" style="position: relative;">                    
+                    <div id="zoom-result" class="zoom-window" style="display: none;"></div>
                     
-                    <div class="categories-section" style="margin-top: 0; margin-bottom: 15px;">
-                        <div id="categories-container" class="categories-container" style="display: flex; gap: 5px; flex-wrap: wrap;"></div>                
-                        <div th:if="${session.userRole == 'ADMIN'}" class="admin-category-edit">
-                            <button class="btn-edit-cat" onclick="abrirEditorCategorias()" style="font-size: 0.8rem; padding: 2px 8px;">✎ Editar</button>
-                        </div>
-                    </div>
-                    <div id="product-description" th:utext="${producto.description}" class="desc-format-detalle">
-                        Descripción...
-                    </div>
-
-                    <div class="price-action-row" style="display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid #333; padding-top: 20px; margin-top: 10px;">                            
-                        <div class="price-section">
-                            <div th:if="${session.userName != null}">
-                                <span style="color: #888; font-size: 0.9rem; display: block; margin-bottom: 2px;">Precio Contado:</span>
-                                <p id="product-price" class="product-price" style="font-size: 2.2rem; font-weight: 800; color: #ffcc00; margin: 0; line-height: 1;">
-                                    $ [[${#numbers.formatDecimal(producto.price, 0, 'POINT', 0, 'COMMA')}]]
-                                </p>
+                    <div id="info-original">
+                        <h1 th:text="${producto.title}" style="margin-bottom: 5px;">Título del Producto</h1>
+                        
+                        <div class="categories-section" style="margin-top: 0; margin-bottom: 15px;">
+                            <div id="categories-container" class="categories-container" style="display: flex; gap: 5px; flex-wrap: wrap;"></div>                
+                            <div th:if="${session.userRole == 'ADMIN'}" class="admin-category-edit">
+                                <button class="btn-edit-cat" onclick="abrirEditorCategorias()" style="font-size: 0.8rem; padding: 2px 8px;">✎ Editar</button>
                             </div>
-                            <div th:if="${session.userName == null}" class="price-login-container">
-                                <p style="margin: 0; font-size: 0.85rem; color: #aaa;">Iniciá sesión para ver el precio</p>
-                                <button class="btn-login-inline" onclick="irAlLoginConRetorno()" style="margin-top: 5px; background: #444; border: 1px solid #666; color: white; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
-                                    Ingresar
+                        </div>
+
+                        <div id="product-description" th:utext="${producto.description}" class="desc-format-detalle">
+                            Descripción...
+                        </div>
+
+                        <div class="price-action-row" style="display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid #333; padding-top: 20px; margin-top: 10px;">                            
+                            <div class="price-section">
+                                <div th:if="${session.userName != null}">
+                                    <span style="color: #888; font-size: 0.9rem; display: block; margin-bottom: 2px;">Precio Contado:</span>
+                                    <p id="product-price" class="product-price" style="font-size: 2.2rem; font-weight: 800; color: #ffcc00; margin: 0; line-height: 1;">
+                                        $ [[${#numbers.formatDecimal(producto.price, 0, 'POINT', 0, 'COMMA')}]]
+                                    </p>
+                                </div>
+                                <div th:if="${session.userName == null}" class="price-login-container">
+                                    <p style="margin: 0; font-size: 0.85rem; color: #aaa;">Iniciá sesión para ver el precio</p>
+                                    <button class="btn-login-inline" onclick="irAlLoginConRetorno()" style="margin-top: 5px; background: #444; border: 1px solid #666; color: white; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
+                                        Ingresar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="whatsapp-section">
+                                <button id="whatsapp-btn" class="btn-wa-detail" style="background:#25d366; color:white; border:none; padding:15px 25px; border-radius:12px; display:flex; align-items:center; gap:10px; font-weight:bold; cursor:pointer; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);">
+                                    <img src="/images/WhatsApp.png" alt="WA" style="width:24px; height:24px;">
+                                    Consultar
                                 </button>
                             </div>
                         </div>
-                        <div class="whatsapp-section">
-                            <button id="whatsapp-btn" class="btn-wa-detail" style="background:#25d366; color:white; border:none; padding:15px 25px; border-radius:12px; display:flex; align-items:center; gap:10px; font-weight:bold; cursor:pointer; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);">
-                                <img src="/images/WhatsApp.png" alt="WA" style="width:24px; height:24px;">
-                                Consultar
-                            </button>
-                        </div>
 
-                    </div>
-
-                    <div th:if="${session.userRole == 'ADMIN'}" class="admin-panel" style="margin-top: 30px; border: 1px dashed #e67e22; padding: 15px; border-radius: 8px;">
-                        <h3 style="color: #e67e22; margin-top: 0;">🛠️ Administración</h3>
-                        <p>Stock: <span id="display-stock">[[${producto.stock}]]</span></p>
-                        <div class="admin-actions-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <button onclick="habilitarEdicion('title')" class="btn-nav-custom">📝 Título</button>
-                            <button onclick="habilitarEdicion('price')" class="btn-nav-custom">💰 Precio</button>
-                            <button onclick="habilitarEdicion('stock')" class="btn-nav-custom">📦 Stock</button>
-                            <button onclick="habilitarEdicion('description')" class="btn-nav-custom">📝 Desc</button>
+                        <div th:if="${session.userRole == 'ADMIN'}" class="admin-panel" style="margin-top: 30px; border: 1px dashed #e67e22; padding: 15px; border-radius: 8px;">
+                            <h3 style="color: #e67e22; margin-top: 0;">🛠️ Administración</h3>
+                            <p>Stock: <span id="display-stock">[[${producto.stock}]]</span></p>
+                            <div class="admin-actions-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <button onclick="habilitarEdicion('title')" class="btn-nav-custom">📝 Título</button>
+                                <button onclick="habilitarEdicion('price')" class="btn-nav-custom">💰 Precio</button>
+                                <button onclick="habilitarEdicion('stock')" class="btn-nav-custom">📦 Stock</button>
+                                <button onclick="habilitarEdicion('description')" class="btn-nav-custom">📝 Desc</button>
+                            </div>
                         </div>
-                    </div>
-                </div> </div> </div> <div class="related-products">
-            <h3 class="section-title" style="font-size: 1.5rem;">PRODUCTOS SIMILARES</h3>
-            <div class="slider-wrapper">
-                <div id="related-container" class="related-slider"></div>
+                    </div> </div> </div> <div class="related-products">
+                <h3 class="section-title" style="font-size: 1.5rem;">PRODUCTOS SIMILARES</h3>
+                <div class="slider-wrapper">
+                    <div id="related-container" class="related-slider"></div>
+                </div>
             </div>
-        </div>
-        <div id="modal-edicion-unica" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
+        </div> <div id="modal-edicion-unica" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
             <div style="background:#222; padding:30px; border-radius:12px; width:90%; max-width:500px; border:1px solid #444; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
                 <h2 id="modal-titulo" style="color:#ffcc00; margin-top:0;">Editar Campo</h2>
-                
-                <div id="contenedor-input" style="margin:20px 0;">
-                    </div>
-
+                <div id="contenedor-input" style="margin:20px 0;"></div>
                 <div style="display:flex; gap:10px; justify-content:flex-end;">
                     <button onclick="cerrarModalUnico()" style="background:#444; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer;">Cancelar</button>
                     <button onclick="guardarCambioUnico()" style="background:#ffcc00; color:#000; border:none; padding:10px 20px; border-radius:6px; font-weight:bold; cursor:pointer;">Guardar Cambios</button>
@@ -134,8 +132,7 @@
         <div id="modal-categorias" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
             <div style="background:#222; padding:30px; border-radius:12px; width:90%; max-width:400px; border:1px solid #444;">
                 <h2 style="color:#ffcc00; margin-top:0;">Seleccionar Categorías</h2>
-                <div id="lista-todas-categorias" style="max-height:300px; overflow-y:auto; margin-bottom:20px;">
-                    </div>
+                <div id="lista-todas-categorias" style="max-height:300px; overflow-y:auto; margin-bottom:20px;"></div>
                 <div style="display:flex; gap:10px; justify-content:flex-end;">
                     <button onclick="cerrarModalCategorias()" style="background:#444; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer;">Cerrar</button>
                     <button onclick="guardarCategorias()" style="background:#25d366; color:white; border:none; padding:10px 20px; border-radius:6px; font-weight:bold; cursor:pointer;">Actualizar</button>

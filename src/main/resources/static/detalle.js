@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
         console.error("No se encontró el ID del producto en la URL");
     }
-    inicializarGaleria();
+    inicializarLupa();
 });
 
 async function cargarSimilares(categoriaId, idActual) {
@@ -362,7 +362,6 @@ function habilitarEdicion(campo) {
     const modal = document.getElementById('modal-edicion-unica');
     const tituloModal = document.getElementById('modal-titulo');
     const contenedor = document.getElementById('contenedor-input');
-    const idProducto = window.productId; 
     campoActual = campo;
 
     if (!modal) return;
@@ -373,57 +372,42 @@ function habilitarEdicion(campo) {
         case 'title':
             tituloModal.innerText = "Editar Título";
             urlActual = `${API_URL}/products/update-title/${window.productId}?title=`;
-            const h1Producto = document.querySelector(".product-info h1");
-            valorActual = h1Producto ? h1Producto.innerText : "";
+            valorActual = document.querySelector(".product-info h1")?.innerText || "";
             contenedor.innerHTML = `<input type="text" id="input-dinamico" style="width:100%; padding:8px;" value="${valorActual}">`;
             break;
             
         case 'price':
             tituloModal.innerText = "Editar Precio";
             urlActual = `${API_URL}/products/update-price/${window.productId}?price=`;
-            const pPrecio = document.getElementById("product-price");
-            
-            let valorLimpio = pPrecio.innerText
-                .replace('$', '')
-                .replace(/\./g, '') // Quita puntos de miles
-                .replace(',', '.')  // Cambia coma decimal por punto para Java
-                .trim();
-                
-            valorActual = valorLimpio;
+            let pPrecio = document.getElementById("product-price");
+            valorActual = pPrecio.innerText.replace('$', '').replace(/\./g, '').replace(',', '.').trim();
             contenedor.innerHTML = `<input type="number" id="input-dinamico" style="width:100%; padding:8px;" value="${valorActual}">`;
             break;            
+
         case 'stock':
             tituloModal.innerText = "Editar Stock";
             urlActual = `${API_URL}/products/update-stock/${window.productId}?stock=`;
-            const spanStock = document.getElementById("display-stock");
-            valorActual = spanStock ? spanStock.innerText : "0";
+            valorActual = document.getElementById("display-stock")?.innerText || "0";
             contenedor.innerHTML = `<input type="number" id="input-dinamico" style="width:100%; padding:8px;" value="${valorActual}">`;
             break;
             
         case 'description':
             tituloModal.innerText = "Editar Descripción";
-            // Usamos window.productId para asegurar que el ID esté presente
             urlActual = `${API_URL}/products/update-description/${window.productId}?description=`;
-            
-            const pDesc = document.getElementById('product-description');
-            valorActual = pDesc ? pDesc.innerHTML : ""; 
+            valorActual = document.getElementById('product-description')?.innerHTML || ""; 
             
             contenedor.innerHTML = `<textarea id="editor-admin"></textarea>`;
 
+            // Esperamos un toque a que el textarea esté en el DOM antes de setear contenido
             setTimeout(() => {
-                if (typeof inicializarEditor === "function") {
-                    inicializarEditor('#editor-admin');
-                    setTimeout(() => {
-                        const ed = tinymce.get('editor-admin');
-                        if (ed) {
-                            ed.setContent(valorActual);
-                            ed.focus(); // Esto ayuda a que el cursor aparezca de una
-                        }
-                    }, 300); 
+                const ed = tinymce.get('editor-admin');
+                if (ed) {
+                    ed.setContent(valorActual);
+                    ed.focus();
                 }
-            }, 100);
+            }, 200); 
             break;
-        }
+    }
     modal.style.display = 'flex';
 }
 
@@ -540,16 +524,63 @@ async function subirNuevaImagen(input) {
 
 tinymce.init({
     selector: '#editor-admin',
-    readonly: false, // Forzamos que sea editable
-    license_key: 'gpl', // Si usás la versión de cdnjs
+    license_key: 'gpl',
     height: 300,
     menubar: false,
     plugins: 'lists link image table code help wordcount',
     toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist | code',
     setup: function (editor) {
-        editor.on('init', function () {
-            editor.setContent(valorActual);
-            editor.mode.set("design"); // <--- Esto fuerza el modo edición
-        });
     }
 });
+
+function inicializarLupa() {
+    const mainImg = document.getElementById("main-product-image");
+    const zoomResult = document.getElementById("zoom-result");
+    const infoOriginal = document.getElementById("info-original");
+    const container = document.querySelector(".main-image-container");
+
+    if (!mainImg || !zoomResult || !infoOriginal || !container) return;
+
+    container.addEventListener("mouseenter", () => {
+        zoomResult.style.display = "block";
+        infoOriginal.style.opacity = "0"; // Usamos opacity para que no "salte" el diseño
+        infoOriginal.style.pointerEvents = "none"; // Evita que se clickeen botones fantasmales
+        
+        zoomResult.style.backgroundImage = `url('${mainImg.src}')`;
+        zoomResult.style.backgroundSize = `${mainImg.offsetWidth * 2.5}px auto`;
+    });
+
+    container.addEventListener("mouseleave", () => {
+        zoomResult.style.display = "none";
+        infoOriginal.style.opacity = "1";
+        infoOriginal.style.pointerEvents = "auto";
+    });
+
+    container.addEventListener("mousemove", (e) => {
+        const rect = container.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const xPercent = (x / rect.width) * 100;
+        const yPercent = (y / rect.height) * 100;
+
+        zoomResult.style.backgroundPosition = `${xPercent}% ${yPercent}%`;
+    });
+
+    const observer = new MutationObserver(() => {
+        const thumbnails = document.querySelectorAll(".thumb-box");
+        thumbnails.forEach(thumb => {
+            thumb.addEventListener("mouseenter", () => {
+                mainImg.src = thumb.src;
+                // Si el zoom está activo, actualizamos el fondo también
+                if (zoomResult.style.display === "block") {
+                    zoomResult.style.backgroundImage = `url('${thumb.src}')`;
+                }
+            });
+        });
+    });
+
+    const thumbsContainer = document.getElementById("thumbnails-container");
+    if (thumbsContainer) {
+        observer.observe(thumbsContainer, { childList: true });
+    }
+};
