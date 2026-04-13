@@ -428,6 +428,11 @@ let posicionActual = 0;
 let startX = 0;
 let scrollLeftAlTocar = 0;
 let isPaused = false;
+//Para inercia de deslizamiento de Productos Destacados con el dedo.
+let velocidad = 0;
+let ultimaPosicionX = 0;
+let friccion = 0.95;
+let seguidorInercia;
 
 function moverCinta() {// FUNCIÓN 1: Movimiento automático (Cinta continua)
     if (!isPaused) {
@@ -452,6 +457,9 @@ track.addEventListener('touchstart', (e) => {// FUNCIÓN 2: El dedo manda
 track.addEventListener('touchmove', (e) => {
     const x = e.touches[0].pageX;
     const walk = x - startX; // Cuánto se movió el dedo desde el inicio
+    let xActual = e.touches ? e.touches[0].clientX : e.clientX;
+    velocidad = xActual - ultimaPosicionX;
+    ultimaPosicionX = xActual;
 
     posicionActual = scrollLeftAlTocar + walk;    // Actualizamos la posición en tiempo real
     if (posicionActual > 0) posicionActual = 0;    // Límites para que no se escape la cinta
@@ -462,11 +470,24 @@ track.addEventListener('touchmove', (e) => {
 }, {passive: true});
 
 track.addEventListener('touchend', () => {
-
-    setTimeout(() => {    // Cuando suelta, esperamos medio segundo y vuelve a arrancar solo
-        isPaused = false;
-    }, 250);
+    aplicarInercia();
 });
 
 
 moverCinta(); // Arrancamos la animación
+
+function aplicarInercia() {
+    if (Math.abs(velocidad) > 0.1) {
+        posicionActual += velocidad;
+        velocidad *= friccion;
+
+        if (Math.abs(posicionActual) >= track.scrollWidth / 2) {
+            posicionActual = 0;
+        }
+
+        track.style.transform = `translateX(${posicionActual}px)`;
+        seguidorInercia = requestAnimationFrame(aplicarInercia);
+    } else {
+        setTimeout(() => { isPaused = false; }, 1000);
+    }
+}
