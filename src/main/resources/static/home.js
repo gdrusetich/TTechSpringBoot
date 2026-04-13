@@ -465,7 +465,7 @@ track.addEventListener('touchend', () => {
 
     setTimeout(() => {    // Cuando suelta, esperamos medio segundo y vuelve a arrancar solo
         isPaused = false;
-    }, 500);
+    }, 250);
 });
 
 

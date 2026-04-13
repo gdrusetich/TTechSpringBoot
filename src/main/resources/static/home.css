@@ -345,7 +345,6 @@ overflow: hidden;         /* Mata cualquier scroll */
     display: flex;
     gap: 20px;
     width: max-content; 
-    /* animation: scroll-cinta 30s linear infinite !important; */
 }
 
 .slider-track:hover {

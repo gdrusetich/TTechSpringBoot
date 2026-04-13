@@ -1,0 +1,83 @@
+.modal-zoom {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.modal-zoom-contenido {
+    position: relative;
+    width: 65%;
+    height: 80%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+#img-zoom {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.2s ease-out;
+    cursor: zoom-in;
+}
+
+.nav-foto {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.5);
+    color: white;
+    border: none;
+    font-size: 2rem;
+    padding: 15px 20px;
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 10001;
+}
+
+#prev-foto { left: -80px; }
+#next-foto { right: -80px; }
+
+.cerrar-zoom {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: white;
+    font-size: 40px;
+    cursor: pointer;
+}
+
+#contador-fotos {
+    color: #ccc;
+    margin-top: 15px;
+    font-family: Arial, sans-serif;
+}
+
+.contenedor-img-zoom, #wrapper-img {
+    overflow: hidden; 
+    touch-action: none; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+@media (max-width: 768px) {
+    .modal-zoom-contenido { width: 95%; height: 60%; }
+    #prev-foto { left: 10px; }
+    #next-foto { right: 10px; }
+    .contenedor-img-zoom {
+    overflow: hidden; /* Esto corta la imagen si se sale de los bordes al agrandarse */
+    touch-action: none; /* Esto le dice al navegador: "No hagas el scroll normal, yo manejo los dedos" */
+}
+}

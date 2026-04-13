@@ -1,3 +1,5 @@
+
+
 let campoActual = ''; 
 let urlActual = '';
 let productoActual = null;
@@ -18,6 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
         console.error("No se encontró el ID del producto en la URL");
     }
+    inicializarGaleria();
 });
 
 async function cargarSimilares(categoriaId, idActual) {
@@ -291,6 +294,12 @@ function renderizarGaleria(images) {
         };         
         thumbContainer.appendChild(imgElement);
     });
+    mainImg.onclick = () => {
+        // Buscamos el index de la imagen que está mostrando el mainImg
+        const idActual = mainImg.getAttribute('data-image-id');
+        const index = productoActual.images.findIndex(i => i.id == idActual);
+        abrirModalZoom(index); // Esta función vive en galeria.js
+    };
 }
 
 function configurarBotonWhatsApp(titulo) {
