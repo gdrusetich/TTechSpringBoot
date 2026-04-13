@@ -1,5 +1,3 @@
-
-
 let campoActual = ''; 
 let urlActual = '';
 let productoActual = null;
@@ -7,6 +5,7 @@ let categoriasSeleccionadas = [];
 let imagenSeleccionadaIndex = 0;
 let currentIndex = 0;
 let quillEditor = null;
+window.FOLDER_SYSTEM = FOLDER_SYSTEM;
 
 document.addEventListener("DOMContentLoaded", async () => {
     const params = new URLSearchParams(window.location.search);
@@ -203,6 +202,7 @@ async function cargarDatosDelProducto(productId) {
         const producto = await response.json();
         if (!response.ok) throw new Error("Producto no encontrado");
         productoActual = producto;
+        window.productoActual = producto;
 
         renderizarInformacionBasica(productoActual);
         renderizarCategorias(productoActual.categories);
@@ -294,12 +294,19 @@ function renderizarGaleria(images) {
         };         
         thumbContainer.appendChild(imgElement);
     });
-    mainImg.onclick = () => {
-        // Buscamos el index de la imagen que está mostrando el mainImg
+    mainImg.style.cursor = "zoom-in";
+    mainImg.onclick = null; 
+
+    mainImg.addEventListener('click', () => {
         const idActual = mainImg.getAttribute('data-image-id');
         const index = productoActual.images.findIndex(i => i.id == idActual);
-        abrirModalZoom(index); // Esta función vive en galeria.js
-    };
+        console.log("Intentando abrir zoom para el índice:", index);        
+        if (typeof window.abrirModalZoom === 'function') {
+            window.abrirModalZoom(index);
+        } else {
+            console.error("La función abrirModalZoom no está disponible globalmente.");
+        }
+    });
 }
 
 function configurarBotonWhatsApp(titulo) {

@@ -151,7 +151,13 @@ body {
     max-height: 500px;
     object-fit: contain;
     background-color: #111;
+    cursor: zoom-in;
+    transition: opacity 0.3s;
 }
+#main-product-image:hover {
+    opacity: 0.9; /* Un pequeño efecto visual al pasar el mouse */
+}
+
 
 /* --- Información y Texto --- */
 .product-info {
