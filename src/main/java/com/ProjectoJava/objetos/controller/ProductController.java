@@ -312,32 +312,23 @@ private Cloudinary cloudinary; // Inyectamos el cliente de Cloudinary
         return ResponseEntity.ok(mapa);
     }
 
-    @PostMapping("/images/uploads")
+@PostMapping("/images/uploads")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file, 
                                         @RequestParam("productId") Long productId) {
         try {
-            Path directorioPath = Paths.get("uploads");
-            if (!Files.exists(directorioPath)) {
-                Files.createDirectories(directorioPath);
-            }
-
-            String fileName = file.getOriginalFilename();
-            Path targetPath = directorioPath.resolve(fileName);
-            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
             Product producto = repository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), com.cloudinary.utils.ObjectUtils.emptyMap());
+            String urlCloudinary = uploadResult.get("url").toString();
             Image nuevaImagen = new Image();
-            nuevaImagen.setUrl(fileName); 
+            nuevaImagen.setUrl(urlCloudinary); // <--- IMPORTANTE: Guardamos la URL de internet, no el fileName
             nuevaImagen.setProduct(producto);
             imageRepository.save(nuevaImagen);
 
-            return ResponseEntity.ok().build();
-        } catch (IOException e) {
+            return ResponseEntity.ok().body("Imagen subida a Cloudinary con éxito");
+        } catch (Exception e) {
             e.printStackTrace(); 
-            return ResponseEntity.status(500).body("Error al guardar archivo: " + e.getMessage());
-        } catch (Exception e){
-            return ResponseEntity.status(404).body("Error: " + e.getMessage());
+            return ResponseEntity.status(500).body("Error en el servidor: " + e.getMessage());
         }
     }
 
