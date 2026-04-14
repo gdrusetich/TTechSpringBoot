@@ -96,21 +96,28 @@ function renderizarTabla(lista) {
         const esDestacado = p.featured; // O la propiedad que indique si es destacado
         const estrellaIcono = esDestacado ? "⭐" : "☆";
         const estrellaClase = esDestacado ? "is-featured" : "";
-        
-        let rtaImagen;
-        let cleanUrl = nombreArchivo.startsWith('/') ? nombreArchivo.substring(1) : nombreArchivo;
 
-        if (cleanUrl.startsWith('http')) {
-            rtaImagen = cleanUrl;
-        } 
-        else if (cleanUrl === "default.jpg" || cleanUrl === "default.png") {
-            rtaImagen = rutaDefault;
-        } 
-        else if (cleanUrl.startsWith('images/') || cleanUrl.startsWith('uploads/')) {
-            rtaImagen = `/${cleanUrl}`;
-        }
-        else {
-            rtaImagen = `${FOLDER_SYSTEM}/${cleanUrl}`;
+        let nombreArchivo = (p.mainImage && p.mainImage.url) 
+            ? p.mainImage.url 
+            : (p.images && p.images.length > 0 ? (p.images[0].url || p.images[0]) : 'default.jpg');
+
+        let rtaImagen;
+        
+        if (nombreArchivo.startsWith('http')) {
+            rtaImagen = nombreArchivo;
+        } else {
+            // 2. Si no es URL completa, limpiamos la barra inicial para las rutas locales
+            let cleanUrl = nombreArchivo.startsWith('/') ? nombreArchivo.substring(1) : nombreArchivo;
+
+            if (cleanUrl === "default.jpg" || cleanUrl === "default.png") {
+                rtaImagen = rutaDefault;
+            } 
+            else if (cleanUrl.startsWith('images/') || cleanUrl.startsWith('uploads/')) {
+                rtaImagen = `/${cleanUrl}`;
+            }
+            else {
+                rtaImagen = `${FOLDER_SYSTEM}/${cleanUrl}`;
+            }
         }
         htmlFinal += `
         <tr id="fila-${id}" onclick="manejadorClickFila(event, ${id})" style="cursor: pointer;" class="fila-producto">
