@@ -56,7 +56,7 @@ public class FeaturedProductService {
 
     private FeaturedProductResponseDTO convertToDTO(FeaturedProduct fp) {
         Product p = fp.getProduct();
-        String urlFinal = "/images/default.jpg"; // Solo como último recurso desesperado
+        String urlFinal = "/images/default.jpg"; //Como último recurso desesperado
         if (p.getMainImage() != null && p.getMainImage().getUrl() != null) {
             urlFinal = p.getMainImage().getUrl();
         } 
@@ -67,7 +67,7 @@ public class FeaturedProductService {
                 fp.getId(),
                 p.getId(),
                 p.getTitle(), 
-                p.getDescription(), // <--- PASAR LA DESCRIPCIÓN AQUÍ
+                p.getDescription(),
                 urlFinal,
                 p.getPrice(),
                 fp.getPosition()

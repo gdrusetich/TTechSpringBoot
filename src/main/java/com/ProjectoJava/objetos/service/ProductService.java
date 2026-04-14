@@ -34,6 +34,9 @@ public class ProductService {
     private ImageRepository imageRepository;
 
     @Autowired
+    private ImageService imageService;
+
+    @Autowired
     private CategoryService categoryService;
 
     @Autowired
@@ -156,16 +159,23 @@ public class ProductService {
         productoExistente.setCategories(new HashSet<>(categoriasEncontradas));
 
         if (PRDTO.getImageURL() != null && !PRDTO.getImageURL().isEmpty()) {
-                // Solo actualizamos el nombre si el DTO trae una imagen nueva
-            productoExistente.getImages().clear();
-            for(String nombreArchivo : PRDTO.getImageURL()){
-                Image nuevaImagen = new Image();
-                nuevaImagen.setUrl(nombreArchivo);
-                nuevaImagen.setProduct(productoExistente); // Vínculo bidireccional
-                productoExistente.getImages().add(nuevaImagen);
-            }
+            // En lugar de clear(), borramos cada una correctamente en DB y Nube
+            List<Long> idsABorrar = productoExistente.getImages().stream()
+                                        .map(Image::getId)
+                                        .collect(Collectors.toList());
             
+            for (Long idImg : idsABorrar) {
+                imageService.deleteImage(idImg);
             }
+
+            // Ahora agregamos las nuevas URLs de Cloudinary
+            for(String urlCloudinary : PRDTO.getImageURL()){
+                Image nuevaImagen = new Image();
+                nuevaImagen.setUrl(urlCloudinary);
+                nuevaImagen.setProduct(productoExistente);
+                imageRepository.save(nuevaImagen); 
+            }
+        }
             Product productoActualizado = productRepositoryJPA.save(productoExistente);
             return new ProductResponseDTO(productoActualizado);
     }

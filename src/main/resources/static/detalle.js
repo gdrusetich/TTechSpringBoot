@@ -374,7 +374,7 @@ function habilitarEdicion(campo) {
             urlActual = `${API_URL}/products/update-title/${window.productId}?title=`;
             valorActual = document.querySelector(".product-info h1")?.innerText || "";
             contenedor.innerHTML = `<input type="text" id="input-dinamico" style="width:100%; padding:8px;" value="${valorActual}">`;
-            break;
+        break;
             
         case 'price':
             tituloModal.innerText = "Editar Precio";
@@ -382,31 +382,36 @@ function habilitarEdicion(campo) {
             let pPrecio = document.getElementById("product-price");
             valorActual = pPrecio.innerText.replace('$', '').replace(/\./g, '').replace(',', '.').trim();
             contenedor.innerHTML = `<input type="number" id="input-dinamico" style="width:100%; padding:8px;" value="${valorActual}">`;
-            break;            
+        break;            
 
         case 'stock':
             tituloModal.innerText = "Editar Stock";
             urlActual = `${API_URL}/products/update-stock/${window.productId}?stock=`;
             valorActual = document.getElementById("display-stock")?.innerText || "0";
             contenedor.innerHTML = `<input type="number" id="input-dinamico" style="width:100%; padding:8px;" value="${valorActual}">`;
-            break;
+        break;
             
         case 'description':
             tituloModal.innerText = "Editar Descripción";
             urlActual = `${API_URL}/products/update-description/${window.productId}?description=`;
             valorActual = document.getElementById('product-description')?.innerHTML || ""; 
-            
             contenedor.innerHTML = `<textarea id="editor-admin"></textarea>`;
+            if (tinymce.get('editor-admin')) {
+                tinymce.remove('#editor-admin');
+            }
 
-            // Esperamos un toque a que el textarea esté en el DOM antes de setear contenido
-            setTimeout(() => {
-                const ed = tinymce.get('editor-admin');
-                if (ed) {
-                    ed.setContent(valorActual);
-                    ed.focus();
-                }
-            }, 200); 
-            break;
+            tinymce.init({
+                selector: '#editor-admin',
+                setup: function (editor) {
+                    editor.on('init', function () {
+                        editor.setContent(valorActual); // Setea el texto apenas arranca
+                        editor.focus();
+                    });
+                },
+            height: 300,
+            menubar: false
+            });
+        break;
     }
     modal.style.display = 'flex';
 }
