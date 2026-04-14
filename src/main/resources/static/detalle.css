@@ -695,4 +695,7 @@ body {
 
     .related-card { min-width: calc(50% - 10px); max-width: calc(50% - 10px); }
     .related-products h3 { font-size: 1.2rem; margin-bottom: 15px; }
+    #main-product-image:hover { opacity: 1; }
+
+    .zoom-lens { display: none;}
 }
