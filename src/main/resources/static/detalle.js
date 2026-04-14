@@ -268,10 +268,13 @@ function renderizarGaleria(images) {
 
         const imgElement = document.createElement("img");
         
-        let cleanUrl = img.url.startsWith('/') ? img.url.substring(1) : img.url;
+        let cleanUrl = img.url;
         let urlFinal;
 
-        if (cleanUrl === "default.jpg" || cleanUrl === "WhatsApp.png") {
+        if (cleanUrl.startsWith('http')) {
+            urlFinal = cleanUrl;
+        } 
+        else if (cleanUrl === "default.jpg" || cleanUrl === "WhatsApp.png") {
             urlFinal = `${FOLDER_SYSTEM}/${cleanUrl}`;
         } else if (cleanUrl.startsWith('uploads')) {
             urlFinal = `/${cleanUrl}`;

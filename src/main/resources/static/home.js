@@ -53,18 +53,20 @@ function renderizarCards(data) {
     }
 
     if (nombreImagen) {
-        let cleanUrl = nombreImagen.startsWith('/') ? nombreImagen.substring(1) : nombreImagen;
-        
-        if (cleanUrl === "default.jpg") {
-            fotoUrl = rutaDefault;
-        } else if (cleanUrl.startsWith('images/')) {
-            fotoUrl = `/${cleanUrl}`;
-        } else if (cleanUrl.startsWith('uploads/')) {
-            fotoUrl = `/${cleanUrl}`;
-        } else {
-             fotoUrl = `${FOLDER_SYSTEM}/${cleanUrl}`;
+            let cleanUrl = nombreImagen.startsWith('/') ? nombreImagen.substring(1) : nombreImagen;
+            if (nombreImagen.startsWith('http')) {
+                fotoUrl = nombreImagen;
+            } 
+            else if (cleanUrl === "default.jpg") {
+                fotoUrl = rutaDefault;
+            } else if (cleanUrl.startsWith('images/')) {
+                fotoUrl = `/${cleanUrl}`;
+            } else if (cleanUrl.startsWith('uploads/')) {
+                fotoUrl = `/${cleanUrl}`;
+            } else {
+                fotoUrl = `${FOLDER_SYSTEM}/${cleanUrl}`;
+            }
         }
-    }
         return `
             <div class="card" data-category-id="${catId}">
                 <div class="img-container" onclick="window.location.href='/detalle?id=${p.id}'">
@@ -373,11 +375,15 @@ function renderizarDestacados(data) {
         let fotoUrl = '/images/default.png';
         if (p.images && p.images.length > 0) {
             const mainImg = p.images.find(img => img.isMain) || p.images[0];
-            fotoUrl = mainImg.url.startsWith('/') ? mainImg.url : `/uploads/${mainImg.url}`;
+            const rawUrl = mainImg.url;
+            if (rawUrl.startsWith('http')) {
+                fotoUrl = rawUrl;
+            } else {
+                fotoUrl = rawUrl.startsWith('/') ? rawUrl : `/uploads/${rawUrl}`;
+            }
         } else if (p.imageUrl) {
-            fotoUrl = `/images/${p.imageUrl}`;
+            fotoUrl = p.imageUrl.startsWith('http') ? p.imageUrl : `/images/${p.imageUrl}`;
         }
-
         const idFinal = p.productId || p.id; 
 
         return `
