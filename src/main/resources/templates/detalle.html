@@ -87,11 +87,13 @@
                                         $ [[${#numbers.formatDecimal(producto.price, 0, 'POINT', 0, 'COMMA')}]]
                                     </p>
                                 </div>
-                                <div th:if="${session.userName == null}" class="price-login-container">
-                                    <p style="margin: 0; font-size: 0.85rem; color: #aaa;">Iniciá sesión para ver el precio</p>
-                                    <button class="btn-login-inline" onclick="irAlLoginConRetorno()" style="margin-top: 5px; background: #444; border: 1px solid #666; color: white; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
+                                <div th:if="${session.userName == null}" class="price-login-container" style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px;">
+                                    <button class="btn-login" onclick="irAlLoginConRetorno()">
                                         Ingresar
                                     </button>
+                                    <p style="margin: 0; font-size: 0.85rem; color: #aaa; font-style: italic;">
+                                        Iniciá sesión para ver el precio
+                                    </p>
                                 </div>
                             </div>
                             <div class="whatsapp-section">

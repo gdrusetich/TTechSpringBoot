@@ -549,13 +549,21 @@ function inicializarLupa() {
 
     if (!mainImg || !zoomResult || !infoOriginal || !container) return;
 
+    // --- GUARDIA PARA MÓVILES ---
+    // Si la pantalla es menor a 768px (celulares), salimos y no activamos nada
+    if (window.innerWidth < 768) {
+        zoomResult.style.display = "none";
+        return;
+    }
+
     container.addEventListener("mouseenter", () => {
         zoomResult.style.display = "block";
-        infoOriginal.style.opacity = "0"; // Usamos opacity para que no "salte" el diseño
-        infoOriginal.style.pointerEvents = "none"; // Evita que se clickeen botones fantasmales
+        infoOriginal.style.opacity = "0";
+        infoOriginal.style.pointerEvents = "none";
         
         zoomResult.style.backgroundImage = `url('${mainImg.src}')`;
-        zoomResult.style.backgroundSize = `${mainImg.offsetWidth * 2.5}px auto`;
+        // Bajamos el zoom de 2.5 a 2.0 para que no sea tan "tosco"
+        zoomResult.style.backgroundSize = `${mainImg.offsetWidth * 3}px auto`;
     });
 
     container.addEventListener("mouseleave", () => {
@@ -574,45 +582,11 @@ function inicializarLupa() {
         zoomResult.style.backgroundPosition = `${xPercent}% ${yPercent}%`;
     });
 
-    // --- SOPORTE PARA CELULARES (TOUCH) ---
-    // 1.Apoyar el dedo
-    container.addEventListener("touchstart", (e) => {
-        // e.preventDefault(); // Descomentr si el celu intenta hacer scroll
-        zoomResult.style.display = "block";
-        infoOriginal.style.opacity = "0";
-        infoOriginal.style.pointerEvents = "none";
-        
-        zoomResult.style.backgroundImage = `url('${mainImg.src}')`;
-        zoomResult.style.backgroundSize = `${mainImg.offsetWidth * 2.5}px auto`;
-    }, {passive: true});
-
-    // 2.Mover el dedo
-    container.addEventListener("touchmove", (e) => {
-        const rect = container.getBoundingClientRect();
-        const touch = e.touches[0]; 
-        
-        const x = touch.clientX - rect.left;
-        const y = touch.clientY - rect.top;
-        
-        const xPercent = Math.max(0, Math.min(100, (x / rect.width) * 100));
-        const yPercent = Math.max(0, Math.min(100, (y / rect.height) * 100));
-
-        zoomResult.style.backgroundPosition = `${xPercent}% ${yPercent}%`;
-    }, {passive: true});
-
-    // 3. Levantar el dedo
-    container.addEventListener("touchend", () => {
-        zoomResult.style.display = "none";
-        infoOriginal.style.opacity = "1";
-        infoOriginal.style.pointerEvents = "auto";
-    });
-
     const observer = new MutationObserver(() => {
         const thumbnails = document.querySelectorAll(".thumb-box");
         thumbnails.forEach(thumb => {
             thumb.addEventListener("mouseenter", () => {
                 mainImg.src = thumb.src;
-                // Si el zoom está activo, actualizamos el fondo también
                 if (zoomResult.style.display === "block") {
                     zoomResult.style.backgroundImage = `url('${thumb.src}')`;
                 }
@@ -624,4 +598,4 @@ function inicializarLupa() {
     if (thumbsContainer) {
         observer.observe(thumbsContainer, { childList: true });
     }
-};
+}
