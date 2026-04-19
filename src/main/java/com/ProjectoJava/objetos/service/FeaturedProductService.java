@@ -6,9 +6,11 @@ import com.ProjectoJava.objetos.DTO.response.FeaturedProductResponseDTO;
 import com.ProjectoJava.objetos.entity.FeaturedProduct;
 import com.ProjectoJava.objetos.entity.Product;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,10 +18,10 @@ public class FeaturedProductService {
 
     @Autowired
     private FeaturedProductRepository featuredRepository;
-
     @Autowired
     private ProductRepository productRepository;
 
+    private LocalDateTime expirationDate;
  
     public List<FeaturedProduct> isFeaturedProducts() {
         return featuredRepository.findAllByOrderByPositionAsc();
@@ -32,6 +34,10 @@ public class FeaturedProductService {
         }
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        
+        product.setFeatured(true); 
+        productRepository.save(product);
+
         Integer lastPos = featuredRepository.findMaxPosition();
         int nextPos = (lastPos == null) ? 1 : lastPos + 1;
         FeaturedProduct featured = new FeaturedProduct(product, nextPos);
@@ -43,6 +49,9 @@ public class FeaturedProductService {
         FeaturedProduct toRemove = featuredRepository.findByProductId(productId);
         
         if (toRemove != null) {
+            Product p = toRemove.getProduct();
+            p.setFeatured(false);
+            productRepository.save(p);
             int removedPos = toRemove.getPosition();
             featuredRepository.delete(toRemove);
             
@@ -52,6 +61,21 @@ public class FeaturedProductService {
             }
             featuredRepository.saveAll(following);
         }
+    }
+
+    @Transactional
+    public void removeAllFeatured() {
+        List<FeaturedProduct> destacados = featuredRepository.findAll();
+        
+        if (!destacados.isEmpty()) {
+            List<Long> ids = destacados.stream()
+                    .map(fp -> fp.getProduct().getId())
+                    .toList();
+            productRepository.updateFeaturedStatus(ids, false);
+        }
+        featuredRepository.deleteAll();
+        
+        System.out.println("Limpieza masiva completada con éxito.");
     }
 
     private FeaturedProductResponseDTO convertToDTO(FeaturedProduct fp) {
@@ -109,6 +133,22 @@ public class FeaturedProductService {
 
         target.setPosition(newPosition);        
         featuredRepository.saveAll(allFeatured);
+    }
+
+    public void setExpirationDate(LocalDateTime date) {
+        this.expirationDate = date;
+    }
+
+    public LocalDateTime getExpirationDate() {
+        return this.expirationDate;
+    }
+
+    @Scheduled(fixedRate = 1000)
+    public void checkExpiration() {
+        if (expirationDate != null && LocalDateTime.now().isAfter(expirationDate)) {
+            removeAllFeatured();
+            expirationDate = null;
+        }
     }
 
 }

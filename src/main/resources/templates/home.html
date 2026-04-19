@@ -1,21 +1,19 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dinastia - Electrohogar</title>
-    <link rel="stylesheet" th:href="@{/home.css(v='1.5')}">
+    <link rel="stylesheet" th:href="@{/home.css(v='1.7')}">
 </head>
 <body>
     <div id="menu-usuario" class="user-nav-bar">
-        
         <div class="user-info-group">
             <div th:if="${session.userName != null}" class="user-greeting">
                 Hola, <strong th:text="${session.userName}"></strong>!
             </div>
-
             <div th:if="${session.userRole == 'ADMIN'}">
-                <a href="/admin" class="btn-nav-custom btn-admin">
+                <a href="/admin" class="btn-panel-control">
                     🛠️ Panel Control
                 </a>
             </div>
@@ -28,9 +26,7 @@
 
             <div th:if="${session.userName != null}" class="buttons-flex">
                 <a href="/perfil" class="btn-nav-custom">⚙️ Perfil</a>
-                <a href="/logout" class="btn-nav-custom btn-logout">
-                    Cerrar Sesión
-                </a>
+                <a href="/logout" class="btn-nav-custom btn-logout">Cerrar Sesión</a>
             </div>
         </div>
     </div>
@@ -39,15 +35,33 @@
         th:style="'background-image: url(' + @{/images/dinastia.png} + ');'">
     </header>
 
-    <section th:if="${destacados != null && !destacados.isEmpty()}" class="featured-section">
+    <section th:if="${destacados != null && !destacados.isEmpty()}" class="featured-section overlay-featured">
         <div class="container">
-            <h2 class="section-title">¡PRODUCTOS DESTACADOS!</h2>
             <div class="slider-container">
-                <div id="lista-destacados" class="slider-track">
+                <div id="lista-destacados" class="slider-track"></div>
+            </div>
+            
+            <div class="offers-main-row">
+                <div class="side-block left-side">
+                    <div th:if="${session.userRole == 'ADMIN'}" class="admin-controls">
+                        <input type="datetime-local" id="input-fecha-limite" class="d-none timer-input">
+                        <button id="btn-timer-toggle" class="btn-timer-admin" onclick="manejarTimer()">
+                            Hora Límite
+                        </button>
                     </div>
+                </div>
+
+                <div class="center-block">
+                    <h2 class="section-title">¡OFERTAS!</h2>
+                </div>
+
+                <div class="side-block right-side">
+                    <div id="countdown-display" class="timer-display" style="display: none;">
+                        <span id="timer-numbers"></span>
+                    </div>
+                </div>
             </div>
         </div>
-        <hr class="section-divider">
     </section>
 
     <script th:inline="javascript">
@@ -57,13 +71,46 @@
     </script>
 
     <main class="main-content">
-        <div class="search-filters-bar">
+        <div class="cat-search-container" style="display: flex; align-items: center; gap: 10px;">
+            <div th:if="${session.userRole == 'ADMIN'}" class="admin-quick-access">
+                <a href="/actualizar" class="filter-btn-admin" 
+                style="background: #e67e22; color: #000; padding: 6px 12px; text-decoration: none; 
+                        font-size: 0.75rem; font-weight: bold; border-radius: 20px; display: inline-block; white-space: nowrap;">
+                    ⚠️ Actualizar Precios
+                </a>
+            </div>
+
+            <input type="text" id="cat-search" placeholder="🔍 Buscar categoría..." class="nav-input cat-search-input" style="flex-grow: 1;">
+        </div>
+
+        <div class="filter-container">
+            <div class="panel-wrapper">
+                <div class="panel-arrow arrow-left">←</div>
+                <div id="categorias-nav" class="panel-movil-container"></div>
+                <div class="panel-arrow arrow-right">→</div>
+            </div>
+
+            <div class="panel-wrapper">
+                <div class="panel-arrow arrow-left">←</div>
+                <div id="subcategorias-nav" class="panel-movil-container"></div>
+                <div class="panel-arrow arrow-right">→</div>
+            </div>
+
+            <div class="panel-wrapper">
+                <div class="panel-arrow arrow-left">←</div>
+                <div id="nietos-nav" class="panel-movil-container"></div>
+                <div class="panel-arrow arrow-right">→</div>
+            </div>
+        </div>
+
+        <div class="search-filters-bar" style="margin-top: 15px;">
             <input type="text" id="busqueda" placeholder="Buscar producto..." onkeyup="filtrarPorTexto()" class="nav-input">
+            
             <th:block th:if="${session.userName != null}">
                 <select id="ordenPrecioHome" onchange="aplicarFiltrosYOrden()" class="nav-select">
                     <option value="default">Relevancia</option>
-                    <option value="min">Precio: Menor a Mayor</option>
-                    <option value="max">Precio: Mayor a Menor</option>
+                    <option value="min">Menor a Mayor</option>
+                    <option value="max">Mayor a Menor</option>
                 </select>
 
                 <select id="tipoFiltroPrecio" onchange="actualizarInterfazFiltros()" class="nav-select">
@@ -74,24 +121,12 @@
                 </select>
 
                 <div id="inputs-precio" class="inline-inputs"></div>
-
                 <button onclick="aplicarFiltrosYOrden()" class="nav-btn-search">Filtrar 🔍</button>
             </th:block>
-            <div th:if="${session.userName == null}" style="color: #888; font-size: 0.8rem; margin-left: 10px;">
+
+            <div th:if="${session.userName == null}" style="color: #888; font-size: 0.7rem; margin-left: 10px;">
                 Logueate para filtrar por precio
             </div>
-        </div>
-
-        <div class="filter-container">
-            <div id="categorias-nav"></div>
-            <div id="subcategorias-nav"></div>
-            <div id="nietos-nav"></div>
-        </div>
-
-        <div th:if="${session.userRole == 'ADMIN'}" class="admin-quick-access" style="margin-top: 15px;">
-            <a href="/actualizar" class="filter-btn" style="background: #e67e22; border-color: #d35400; text-decoration: none; display: inline-block;">
-                ⚠️ Auditar Precios Desactualizados
-            </a>
         </div>
 
         <div id="seccion-cliente-vista">

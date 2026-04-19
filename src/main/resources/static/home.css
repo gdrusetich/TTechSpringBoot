@@ -1,32 +1,81 @@
+:root {
+    --naranja: #ff9800;
+    --naranja-dark: #e67e22;
+    --violeta: #bb86fc;
+    --fondo: #121212;
+    --card-bg: #1e1e1e;
+    --aqua: #03dac6;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body { 
+    font-family: 'Segoe UI', sans-serif; 
+    background: var(--fondo); 
+    color: #e0e0e0;
+    margin: 0; 
+    padding: 0;
+    overflow-x: hidden;
+}
+
 /* ==========================================================
    1. EL BANNER
    ========================================================== */
 .home-banner-hero {
-    width: 80% !important;        /* 10% de aire a cada lado */
-    margin: 0 auto !important;    /* Lo centra y deja los costados negros */
-    height: 250px !important;     /* Altura fija para que no crezca para abajo */
-    background-size: contain !important; 
-    background-position: center !important;
-    background-repeat: no-repeat !important;
-    background-color: #000 !important; /* Fondo negro para los bordes del logo */
+    width: 100%;
+    min-height: 400px; 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-bottom: 12px solid #2c2c2c; /* Un gris oscuro sólido */
+    box-shadow: inset 0 -5px 10px rgba(0,0,0,0.5), 0 5px 15px rgba(0,0,0,0.3);
     
-    display: block !important;
-    position: relative !important;
+    margin-bottom: 30px;
+}
+.home-banner-hero::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.2);
     z-index: 1;
-    border-bottom: 2px solid #ff9800; /* Línea naranja distintiva */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.home-banner-hero h1 {
+    color: white;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+    z-index: 2;
+}
+
+.user-greeting {
+    color: #ffffff;
+    font-size: 0.95rem;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.user-greeting strong {
+    color: var(--naranja);
 }
 
 /* ==========================================================
-   2. BOTONES NARANJA (MATAMOS EL VIOLETA DEFINITIVAMENTE)
+   2. BOTONES NARANJA del encabezado
    ========================================================== */
 
 /* Esta regla aplica a Panel Control, Perfil e Ingresar */
 .btn-nav-custom, .btn-panel-control, .btn-admin {
-    background: rgba(34, 34, 34, 0.8) !important; /* Botones apenas más oscuros */
-    border: 1px solid #ff9800 !important;
-    color: #ff9800 !important;
-    text-decoration: none !important;
+    background: rgba(34, 34, 34, 0.8);
+    border: 1px solid var(--naranja);
+    color: var(--naranja);
     padding: 6px 13px;
     font-size: 0.85rem;
     font-weight: bold;
@@ -34,8 +83,8 @@
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    white-space: nowrap;
     transition: all 0.3s ease;
+    text-decoration: none;
 }
 
 /* Forzamos que NUNCA cambien de color aunque se hayan visitado */
@@ -48,12 +97,11 @@
 }
 
 .btn-nav-custom:hover, .btn-panel-control:hover {
-    background: #333 !important;
-    box-shadow: 0 0 8px rgba(255, 152, 0, 0.4) !important;
-    color: #ffffff !important; /* Un poco de brillo al pasar el mouse */
+    background: #333;
+    color: #fff;
+    box-shadow: 0 0 8px rgba(255, 152, 0, 0.4);
 }
 
-/* Variación para el botón de Cerrar Sesión (Rojo suave para diferenciar) */
 .btn-logout {
     border-color: #ff5252 !important;
     color: #ff5252 !important;
@@ -68,53 +116,44 @@
    3. ESTRUCTURA DEL MENÚ SUPERIOR
    ========================================================== */
 .user-nav-bar {
-position: absolute !important; 
+    position: absolute;
     top: 0;
-    left: 0 !important;             /* Pegada al borde izquierdo */
-    width: 100% !important;         /* Ocupa todo el ancho */
+    left: 0;
+    width: 100%;
     z-index: 1000;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; 
     align-items: center;
-    padding: 10px 20px;             /* Aire interno */
-    background: rgba(0, 0, 0, 0.7) !important; 
-    backdrop-filter: blur(8px);     /* Esto le da el toque premium */
+    padding: 10px 30px;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.1); /* Fondo negro semi-transparente */
+    backdrop-filter: blur(2px);    /* Efecto de desenfoque del fondo */
+    -webkit-backdrop-filter: blur(5px);   
     border-bottom: 1px solid rgba(255, 152, 0, 0.3);
-    box-sizing: border-box;         /* Para que el padding no la ensanche */
 }
 
-.user-greeting {
-    color: #ffffff !important;
-    text-shadow: 1px 1px 3px rgba(0,0,0,1); /* Sombra para que se lea sobre el logo */
-}
-
-.user-greeting strong {
-    color: #ff9800 !important;
-}
-
-.user-info-group, .user-actions-group, .buttons-flex {
-display: flex;
+.user-info-group, .user-actions-group {
+    display: flex;
     align-items: center;
-    gap: 10px;
-    flex-shrink: 1;
+    gap: 15px;
 }
+
+.buttons-flex {
+    display: flex;
+    gap: 10px;
+}
+
 
 .wa-icon-featured {
-    width: 32px !important;
-    height: 32px !important;
+    width: 45px !important; /* Más grande como pediste */
+    height: 45px !important;
+    max-width: 45px;
+    max-height: 45px;
+    filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.6));
 }
 
-* {
-    box-sizing: border-box;
-}
-
-body { 
-    font-family: 'Segoe UI', sans-serif; 
-    background: #121212; 
-    color: #e0e0e0;
-    margin: 0; 
-    padding: 0;
-    overflow-x: hidden;
+.btn-wa-featured:hover {
+    transform: scale(1.2) rotate(5deg);
 }
 
 .main-content {
@@ -130,8 +169,8 @@ h1.logo-title { text-align: center; color: #ffffff; margin-bottom: 40px; }
     display: flex;          
     align-items: center;    
     justify-content: flex-end;
-    gap: 15px;              /* Espacio entre los elementos */
-    padding: 10px 20px;     /* Un poco de aire alrededor */
+    gap: 15px;
+    padding: 10px 20px;
 }
 
 .user-info a, .user-info span {
@@ -139,17 +178,11 @@ h1.logo-title { text-align: center; color: #ffffff; margin-bottom: 40px; }
     white-space: nowrap;
 }
 
-.user-greeting {
-    font-size: 0.9rem;
-    color: #ffffff;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-}
-
 .btn-panel-control {
     background: #222 !important;
     border: 1px solid #ff9800 !important;
-    color: #ff9800 !important; /* Naranja siempre */
-    text-decoration: none !important; /* Quita el subrayado */
+    color: #ff9800 !important;
+    text-decoration: none !important;
     padding: 8px 15px;
     font-size: 0.85rem;
     border-radius: 6px;
@@ -171,225 +204,344 @@ h1.logo-title { text-align: center; color: #ffffff; margin-bottom: 40px; }
     box-shadow: 0 0 8px rgba(255, 152, 0, 0.4);
 }
 
+/* Contenedor con degradé */
+.panel-wrapper {
+    height: 40px;
+    align-items: center;
+    position: relative;
+    display: none;
+    align-items: center;
+    background: #000;
+    overflow: hidden;
+    border-bottom: 1px solid #111;
+}
+
+.panel-wrapper::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0;
+    width: 80px; height: 100%;
+    background: linear-gradient(to right, transparent, #000);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.panel-movil-container {
+    height: 100%;
+    gap: 8px; /* Menos espacio entre botones */
+    padding: 0 10px;
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    width: 100%;
+}
+
+.panel-movil-container::-webkit-scrollbar { display: none; }
+
+.panel-item {
+    padding: 4px 25px;
+    color: #888;
+    white-space: nowrap;
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-right: 1px solid #333;
+
+    transition: color 0.3s ease, background 0.3s ease;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.panel-item:hover { color: #fff; background: #1a1a1a; }
+
+.panel-arrow {
+    position: absolute;
+    right: 0;
+    height: 100%;
+    width: 50px;
+    background: linear-gradient(to right, transparent, rgba(0,0,0,0.9));
+    color: var(--naranja);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    z-index: 100;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.arrow-left {
+    left: 0;
+    right: auto;
+    background: linear-gradient(to left, transparent, rgba(0,0,0,0.9));
+}
+
+.panel-item.active {
+    color: var(--naranja) !important;
+    border-bottom: 2px solid var(--naranja);
+    background: rgba(255, 255, 255, 0.05);
+}
+
 /* ==========================================================
-   4. PRODUCT FEATURED
+    4. PRODUCT FEATURED (RECARGADO)
    ========================================================== */
-.section-title, .featured-title {
+
+.featured-section {
+    margin-top: 0; 
+    background-color: transparent !important; 
+    padding: 20px 0; /* Bajamos el padding para que no sea tan gigante el bloque */
+    position: relative;
+    z-index: 10;
+}
+
+.overlay-featured {
+    margin-top: -250px !important; 
+    position: relative;
+    z-index: 100;
+    background: transparent !important;
+}
+
+.section-title {
     text-align: center;
-    
-    /* 1. VIOLETA OSCURO PARA LA LETRA */
-    color: #6a1b9a; /* Un violeta profundo, tipo uva */
-    
-    font-size: 2.2rem;
+    color: var(--naranja) !important;
+    font-size: 3.5rem;
     font-weight: 900;
     text-transform: uppercase;
-    margin: 15px 0 10px 0; /* Un poco de aire arriba, menos abajo */
-    letter-spacing: 2px;
-    
-    /* 2. EFECTO DE BORDE VIOLETA MUY OSCURO (CASI NEGRO) */
+    letter-spacing: 5px;
+    margin-top: 10px;
     text-shadow: 
-        -2px -2px 0 #310d4c, /* Violeta súper oscuro */
-         2px -2px 0 #310d4c,
-        -2px  2px 0 #310d4c,
-         2px  2px 0 #310d4c,
-         3px  3px 6px rgba(0,0,0,0.7); /* Sombrita profunda para dar relieve */
-}
-.featured-section {
-    margin-top: 20px !important; /* Espacio después del banner */
-    background-color: #121212; 
-    padding: 30px 0;
+        -3px -3px 0 #000,
+         3px -3px 0 #000,
+        -3px  3px 0 #000,
+         3px  3px 0 #000,
+         0px 0px 25px rgba(255, 152, 0, 0.7);
 }
 
-.product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 250px)); /* Un poco más ancha para que entre WA */
-    gap: 20px;
-    justify-content: center;
-    max-width: 1000px;
-    margin: 0 auto;
-}
-
-.featured-card {
-    background: #1a1a1a;
-    border: 1px solid #333;
-    border-radius: 12px;
-    padding: 10px;
+/* LA CARD DE LA CINTA */
+.card-destacado {
+    width: 350px;
+    height: 440px;
+    flex-shrink: 0;
+    background: rgba(15, 15, 15, 0.2) !important;
+    border-radius: 15px;
+    border: 2px solid var(--naranja);
+    padding: 15px;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    color: white;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    transition: transform 0.2s ease, border-color 0.2s ease;
+    gap: 7px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transition: all 0.3s ease;
 }
 
-.featured-card:hover {
-    transform: scale(1.02);
-    border-color: #ff9800; /* Borde naranja al pasar mouse */
+.card-destacado:hover {
+    transform: translateY(-5px) scale(1.02);
+    border-color: var(--violeta);
+    box-shadow: 0 15px 40px rgba(187, 134, 252, 0.3);
 }
 
 .featured-title-top {
-    color: #ff9800;
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin: 5px 0 3px 0; /* Espacio mínimo abajo */
+    color: var(--naranja) !important; /* Ahora naranja */
+    font-size: 1.15rem;
+    font-weight: 800;
     text-align: center;
-}
-
-.featured-img-container {
-    width: 100%;
-    height: 220px;
-    background-color: #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    border-radius: 8px;
-}
-
-.featured-img-container img {
-    max-width: 95%;
-    max-height: 95%;
-    object-fit: contain !important;
-    width: auto !important;
-    height: auto !important;
-}
-
-.product-img {
-    width: 100%;
-    height: 120px; /* Compacta */
-    object-fit: contain;
-}
-
-.desc-corta {
-    font-size: 0.85rem;
-    color: #bbb;
-    margin: 5px 0 !important; /* Reducimos el margen vertical a la mitad */
-    line-height: 1.2;
-    height: 2.4em; /* Ajustamos la altura para 2 líneas máximo */
+    margin-top: 5px;
+    margin: 5px 0;
+    height: 3rem;
+    padding: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: auto; /* Sacamos el min-height que lo estiraba */
+    line-height: 1.2;
+    text-shadow: 1px 1px 2px #000;
 }
 
-.desc-format-destacado {
-overflow: hidden;         /* Mata cualquier scroll */
-    text-overflow: ellipsis;  /* Refuerzo visual por si acaso */
-    display: block;           /* Asegura que respete el contenedor */
-    max-height: 120px;        /* Ajustá esto según el alto de tu tarjeta */
-    margin-bottom: 10px;
-    font-size: 0.9rem;
-    line-height: 1.4;
+.featured-img-container {   /*Contenedor negro de imágen*/
+    width: 95%;
+    height: 95%;
+    min-height: 150px;
+    background: #000;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 5px;
+    display: inline-flex;
+    align-self: center;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
-/* Estilo para las viñetas dentro de la tarjeta */
-.desc-format-destacado ul, .desc-format-destacado ol {
-    padding-left: 20px;
-    margin: 5px 0;
+.featured-img-container img {
+    height: 100%; 
+    width: 100%;
+    max-width: 100%;
+    object-fit: contain; 
+    display: block;
+    border-radius: 8px;
 }
 
-.desc-format-destacado strong {
-    color: #fff;             /* Que las negritas resalten en blanco */
+.product-price {
+    font-size: 1.7rem;
+    font-weight: 900;
+    margin: 0;
+    background: linear-gradient(to bottom, #FFF5B7 0%, #FFD700 50%, #B8860B 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
+    filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.8)) 
+            drop-shadow(0 0 10px rgba(255, 223, 0, 0.5));
+    
+    text-shadow: none;
 }
 
 .featured-actions-container {
     width: 100%;
     display: flex;
-    justify-content: space-between; /* Precio a la izq, WA a la der */
-    align-items: center; /* Alineación vertical */
-    padding: 0 5px; /* Un poco de aire lateral */
-    margin-top: 0;
-    padding-top: 5px;
-}
-
-.product-price {
-    color: #03dac6;
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin: 0;
-}
-
-.btn-wa-featured {
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.btn-wa-featured:hover {
-    transform: scale(1.15);
+    justify-content: space-between; 
+    align-items: center;
+    margin-top: auto;
+    padding-top: 8px; 
+    padding-bottom: 5px;
+    border-top: 1px solid rgba(255, 152, 0, 0.2);
 }
 
 .wa-icon-featured {
-    width: 32px;
-    height: 32px;
+    width: 35px !important;
+    height: 35px !important;
+    filter: drop-shadow(0 0 5px rgba(37, 211, 102, 0.5));
     border-radius: 50%;
+    object-fit: contain;
+    max-width: 35px;
+    max-height: 35px;
 }
 
-.section-divider {
-    border: 0;
-    height: 1px;
-    background-image: linear-gradient(to right, transparent, #ccc, transparent);
-    margin: 50px 0;
+.btn-wa-featured {
+    display: flex;
+    align-items: center;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+
+.btn-wa-featured:hover {
+    transform: scale(1.2) rotate(10deg);
+}
+
+
+/* LA CINTA */
 .slider-container {
     width: 100%;
-    overflow: hidden; /* Escondemos lo que sobra */
-    background: #1e1e1e;
-    padding: 20px 0;
+    overflow: hidden;
+    background: transparent !important;
+    padding: 10px 0;
     position: relative;
+    margin-bottom: 20px;
 }
 
 .slider-track {
     display: flex;
     gap: 20px;
-    width: max-content; 
+    will-change: transform;
 }
 
-.slider-track:hover {
-    /* animation-play-state: paused; */
-}
-
-@keyframes scroll-cinta {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); } /* Se mueve hasta la mitad */
-}
-
-.card-destacado {
-    width: 350px;
-    flex-shrink: 0;
-    background: #1a1a1a;
-    border-radius: 12px;
-    border: 2px solid #ff9800;
-    padding: 20px;
-    color: white;
+/* ==========================================================
+    4. RELOJ
+   ========================================================== */
+.offers-main-row {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    cursor: pointer !important; /* Esto pone la manito */
-    transition: transform 0.2s ease;
-}
-
-.card-destacado:hover {
-    transform: scale(1.02);
-    background: #222;
-}
-
-.card-destacado img {
+    align-items: center;
+    justify-content: center; /* Centrado base */
     width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 8px;
+    margin-top: 40px;
+    position: relative;
+    padding: 0 20px;
 }
 
+.side-block { /* Los dos bloques laterales miden lo mismo*/
+    flex: 1; 
+    display: flex;
+    align-items: center;
+}
+.left-side { justify-content: flex-start; }  /* Controles admin a la izquierda */
+.right-side { justify-content: flex-start; padding-left: 10px; }
+.center-block { flex: 0 1 auto; text-align: center;}
+
+.btn-timer-admin {
+    background: rgba(34, 34, 34, 0.8);
+    border: 1px solid var(--naranja);
+    color: var(--naranja);
+    padding: 8px 15px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-timer-admin:hover {
+    background: var(--naranja);
+    color: black;
+    box-shadow: 0 0 15px rgba(255, 152, 0, 0.4);
+}
+
+.timer-display {
+    font-size: 3rem; /* Bajamos un pelín para que no sea tan "tosco" */
+    font-weight: 900;
+    color: var(--naranja);
+    font-family: 'Consolas', 'Monaco', monospace; /* Fuentes más compactas */
+    text-shadow: 0px 0px 15px rgba(255, 152, 0, 0.5);
+    white-space: nowrap;
+    letter-spacing: -2px; /* Pegamos más los números entre sí */
+    padding-left: 15px; /* Espacio mínimo de seguridad con el título */
+}
+
+.section-title {
+    margin: 0 !important;
+    line-height: 1;
+}
+
+/* El título mantiene su estilo original */
+.section-title {
+    margin: 0 !important;
+    white-space: nowrap;
+}
+
+/* Estilizamos el reloj para que sea IGUAL al título */
+.timer-side {
+    font-size: 2.5rem; /* Ajustá esto al tamaño exacto de tu .section-title */
+    font-weight: bold;
+    color: var(--naranja); /* O el color que uses para resaltar */
+    min-width: 300px; /* Evita que el título se mueva cuando cambian los segundos */
+    text-align: left;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.admin-side {
+    display: flex;
+    gap: 10px;
+    min-width: 300px; /* Equilibrio visual con el lado del reloj */
+    justify-content: flex-end;
+}
+
+.timer-input {
+    padding: 5px;
+    border-radius: 15px;
+    border: 1px solid #e67e22;
+    background: #1a1a1a;
+    color: white;
+    font-size: 0.8rem;
+}
 
 /* ==========================================================
    5. BOTÓN AUDITAR (NARANJA CON LETRAS NEGRAS)
    ========================================================== */
 
 /* 1. Forzamos el estado base */
-.admin-quick-access .filter-btn {
+.admin-quick-access {
     background-color: #e67e22 !important; /* Naranja fuerte */
     border-color: #d35400 !important;     /* Borde un poco más oscuro */
     color: #000000 !important;            /* LETRAS NEGRAS */
@@ -489,38 +641,58 @@ overflow: hidden;         /* Mata cualquier scroll */
 }
 
 .price { color: #03dac6; font-size: 1.2rem; font-weight: bold; }
-.category { color: #bb86fc; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; }
 
-#categorias-nav, 
-#subcategorias-nav, 
-#nietos-nav {
+/* --- CINTAS DE CATEGORÍAS (SCROLL HORIZONTAL) --- */
+.scroll-horizontal {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    margin: 20px 0; /* Un poco de aire arriba y abajo */
+    flex-wrap: nowrap; /* IMPORTANTE: obliga a una sola línea */
+    overflow-x: auto;
+    gap: 12px;
+    padding: 15px 10px;
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Oculta scroll en Firefox */
+    -webkit-overflow-scrolling: touch;
 }
+
+.scroll-horizontal::-webkit-scrollbar {
+    display: none; /* Oculta scroll en Chrome/Safari */
+}
+
+
+/* --- BUSCADOR DE CATEGORÍAS --- */
+.category { color: #bb86fc; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; }
 
 /* 1. Reducir espacios muertos entre secciones */
 .filter-container {
     margin-bottom: 20px;
 }
 
-.search-container { /* Menos espacio abajo del buscador */
-    margin-bottom: 15px;
+/* --- BUSCADOR DE CATEGORÍAS --- */
+.cat-search-container {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0 20px 0;
 }
 
-.filter-btn {
-    background: #1e1e1e;
-    border: 2px solid #bb86fc;
-    color: #bb86fc;
-    padding: 8px 15px;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: 0.3s;
+.cat-search-input {
+    width: 90%;
+    max-width: 400px;
+    border: 1px solid #444;
+    background: #1a1a1a;
+    border-radius: 30px !important;
+    padding: 10px 20px !important;
+    font-size: 0.9rem;
+    color: white;
 }
-.filter-btn.active, .filter-btn:hover { background: #bb86fc; color: #121212; }
+
+/* Brillito de búsqueda exitosa */
+.active-search {
+    background: #ff9800 !important;
+    color: black !important;
+    transform: scale(1.1);
+    box-shadow: 0 0 15px #ff9800;
+    transition: all 0.4s ease;
+}
 
 /* TOOLTIP */
 .tooltip {
@@ -772,8 +944,8 @@ hr, .separator {
 
     /* 2. Banner y Logo */
     .home-banner-hero {
-        width: 100% !important;
-        height: 200px !important; /* Altura fija para que no tape todo */
+        width: 100%;
+        height: 180px;
         border-radius: 0;
         background-size: cover !important; /* En celu mejor que cubra */
     }
@@ -788,11 +960,6 @@ hr, .separator {
         padding: 8px 10px !important;
         left: 0 !important;
         width: 100% !important;
-    }
-    
-    .user-greeting {
-        font-size: 0.8rem;
-        white-space: nowrap;
     }
 
     .buttons-flex {
@@ -812,43 +979,44 @@ hr, .separator {
         align-items: stretch;
         gap: 10px;
         padding: 15px;
-        margin: 10px !important;
+        margin: 10px
     }
 
     .nav-input, .nav-select, .nav-btn-search {
-        width: 100% !important;
-        height: 45px !important; /* Altura táctil para el dedo */
-        flex: none !important;
+        width: 100% ;
+        height: 45px; /* Altura táctil para el dedo */
+        flex: none;
     }
 
-    /* 5. Scroll Horizontal para Categorías (El truco del que hablamos) */
-    #categorias-nav, #subcategorias-nav, #nietos-nav {
-        display: flex !important;
-        overflow-x: auto !important;
-        flex-wrap: nowrap !important;
-        justify-content: flex-start !important;
-        padding: 10px !important;
-        gap: 8px;
-        -webkit-overflow-scrolling: touch;
-    }
 
     .filter-btn {
         white-space: nowrap !important; /* Que no se corten los nombres */
         padding: 8px 15px !important;
     }
 
-    /* 6. Grid de Productos (2 por fila) */
     #lista-productos {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important; 
-        gap: 10px;
-        padding: 10px;
-        box-sizing: border-box;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
     }
 
-    .card {
-        width: 100% !important;
-        margin: 0;
+    .card { 
+        background: var(--card-bg); 
+        border-radius: 15px;
+        border: 1px solid #333;
+        padding: 15px; 
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .card:hover { 
+        transform: translateY(-10px); 
+        box-shadow: 0 10px 20px rgba(255, 152, 0, 0.2); 
     }
 
     .info h3 {
@@ -868,6 +1036,23 @@ hr, .separator {
     .separator {
         display: none;
     }
+    .user-greeting {
+        display: none; /* Si es muy chico, ocultamos el "Hola" y dejamos solo botones */
+    }
+
+    .offers-main-row {
+            flex-direction: column;
+            gap: 20px;
+        }
+        .side-block { justify-content: center; width: 100%; }
+        .timer-display { font-size: 2.5rem; }
+
+    .admin-side, .timer-side {
+        min-width: auto;
+        justify-content: center;
+        text-align: center;
+    }
+
 }
 
 /* Ajuste extra para celulares muy angostos */
@@ -879,9 +1064,5 @@ hr, .separator {
     
     .logo-title, .home-logo-img {
         max-width: 80vw;
-    }
-
-    .user-greeting {
-        display: none; /* Si es muy chico, ocultamos el "Hola" y dejamos solo botones */
     }
 }

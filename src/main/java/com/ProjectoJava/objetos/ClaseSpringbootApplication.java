@@ -3,18 +3,20 @@ package com.ProjectoJava.objetos;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 
 @SpringBootApplication
+@EnableScheduling
 public class ClaseSpringbootApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ClaseSpringbootApplication.class, args);
 		
 		}
 
-		@Bean
+	@Bean
 	public Cloudinary cloudinaryConfig() {
 		return new Cloudinary(ObjectUtils.asMap(
 			"cloud_name", System.getenv("CLOUDINARY_CLOUD_NAME"),

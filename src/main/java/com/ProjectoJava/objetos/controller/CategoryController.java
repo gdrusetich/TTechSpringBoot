@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Comparator;
 
 @RestController
 @RequestMapping("/categories")
@@ -24,16 +25,20 @@ public class CategoryController {
 
     @GetMapping("/list")
     public List<Category> listar() {
-        return repository.findAll();
+        List<Category> categorias = repository.findAll();
+        categorias.sort(Comparator.comparing(Category::getName)); // Ordenamos por nombre
+        return categorias;
     }
 
     @GetMapping("/all")
     public List<CategoryResponseDTO> getAllCategories() {
         return repository.findAll()
                 .stream()
+                .sorted(Comparator.comparing(Category::getName))
                 .map(cat -> new CategoryResponseDTO(cat))
                 .collect(Collectors.toList());
     }
+
     @GetMapping("/{id}/ancestros")
     public List<CategoryResponseDTO> getAncestros(@PathVariable Long id) {
         return service.obtenerAncestrosDTO(id);
@@ -43,6 +48,7 @@ public class CategoryController {
     public List<CategoryResponseDTO> getHijos(@PathVariable Long id) {
         List<Category> hijas = service.obtenerSubcategorias(id);
         return hijas.stream()
+                    .sorted(Comparator.comparing(Category::getName)) // <--- AGREGAR ESTO
                     .map(CategoryResponseDTO::new)
                     .collect(Collectors.toList());
     }
@@ -50,7 +56,6 @@ public class CategoryController {
     @PostMapping("/add")
     public ResponseEntity<?> agregar(@RequestBody Category nueva) {
         try {
-            // Si el JS mandó un padre con ID, lo vinculamos correctamente
             if (nueva.getParent() != null && nueva.getParent().getId() != null) {
                 Category padre = repository.findById(nueva.getParent().getId())
                     .orElseThrow(() -> new RuntimeException("Padre no encontrado"));

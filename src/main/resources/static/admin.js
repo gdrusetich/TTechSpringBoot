@@ -93,7 +93,7 @@ function renderizarTabla(lista) {
         const id = p.id || p.id_producto;
         const btnColor = p.oculto ? '#e67e22' : '#6f42c1'; 
         const btnTexto = p.oculto ? '👁️ Mostrar' : '🙈 Ocultar';
-        const esDestacado = p.featured; // O la propiedad que indique si es destacado
+        const esDestacado = (p.featured === true || p.isFeatured === true);
         const estrellaIcono = esDestacado ? "⭐" : "☆";
         const estrellaClase = esDestacado ? "is-featured" : "";
 

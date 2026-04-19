@@ -2,6 +2,7 @@ package com.ProjectoJava.objetos.repository;
 import com.ProjectoJava.objetos.entity.Product;
 import com.ProjectoJava.objetos.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -18,6 +19,10 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
     List<Product >findByCategoriesContaining(Category category);
     @Query("SELECT p FROM Product p JOIN p.categories c WHERE c.id = :catId OR c.parent.id = :catId")
     List<Product> findByCategoryIdOrParentId(@Param("catId") Long catId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Product p SET p.featured = :status WHERE p.id IN :ids")
+    void updateFeaturedStatus(@Param("ids") List<Long> ids, @Param("status") boolean status);
 
     @Query("SELECT DISTINCT p FROM Product p " +
             "LEFT JOIN FETCH p.images " + 

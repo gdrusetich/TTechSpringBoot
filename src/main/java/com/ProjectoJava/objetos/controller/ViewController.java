@@ -2,6 +2,7 @@ package com.ProjectoJava.objetos.controller;
 
 import com.ProjectoJava.objetos.DTO.response.ProductResponseDTO;
 import com.ProjectoJava.objetos.entity.Product;
+import com.ProjectoJava.objetos.entity.Category;
 import com.ProjectoJava.objetos.entity.User;
 import com.ProjectoJava.objetos.entity.Role;
 
@@ -10,7 +11,9 @@ import com.ProjectoJava.objetos.repository.ProductRepository;
 import com.ProjectoJava.objetos.repository.UserRepository;
 
 import com.ProjectoJava.objetos.service.FeaturedProductService;
-
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Comparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -82,11 +85,13 @@ public class ViewController {
     @GetMapping("/admin")
     public String vistaAdmin(HttpSession session, Model model) {
         User usuario = (User) session.getAttribute("userLogger");
-
         if (usuario == null || usuario.getRole() != Role.ADMIN) {
             return "redirect:/home"; 
         }
-        model.addAttribute("categoriasPadre", categoryRepository.findByParentIsNull());
+        List<Category> padres = categoryRepository.findByParentIsNull();
+        padres.sort(Comparator.comparing(Category::getName, 
+                    Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+        model.addAttribute("categoriasPadre", padres);
         return "admin"; 
     }
 
