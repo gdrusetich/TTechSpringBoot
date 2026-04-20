@@ -666,35 +666,43 @@ h1.logo-title { text-align: center; color: #ffffff; margin-bottom: 40px; }
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-left: 28px; /* El "truco" para que el precio esté centrado ignorando el WhatsApp */
+    /* Este margen compensa el icono de la derecha para centrar el botón */
+    margin-left: 32px; 
+    width: auto;
 }
 
-/* El botón "Ingresar" (el que reemplaza al precio para no logueados) */
+/* El botón "Ingresar" con un tamaño controlado para que se vea bien */
 .btn-ingresar-link {
-    background: rgba(255, 255, 255, 0.05); /* Fondo casi invisible */
+    background: rgba(255, 255, 255, 0.1);
     color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.3); /* Borde finito */
-    padding: 6px 14px;
+    border: 1px solid var(--naranja);
+    padding: 6px 12px;
     border-radius: 20px;
     font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
     font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.3s;
 }
 
 .btn-ingresar-link:hover {
-    background: rgba(255, 152, 0, 0.2);
-    border-color: #ff9800; /* Se ilumina en naranja al pasar el mouse */
-    color: #ff9800;
+    background: var(--naranja);
+    color: #000;
 }
 
 /* El icono de WhatsApp a la derecha absoluta */
 .btn-wa-card {
     position: absolute;
     right: 0;
-    width: 28px;
-    height: 28px;
+    /* Forzamos el tamaño igual al de los destacados */
+    width: 32px !important;   
+    height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
     cursor: pointer;
+    transition: transform 0.2s ease;
+    object-fit: contain;
+    z-index: 5; /* Asegura que esté por encima pero no tape el centro */
 }
 
 .btn-wa-card:hover {
