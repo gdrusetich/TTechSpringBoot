@@ -74,7 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
                             : `${FOLDER_SYSTEM}/${cleanUrl}`;
                 }
             }
-
             return `
                 <div class="card" data-category-id="${catId}">
                     <div class="img-container" onclick="window.location.href='/detalle?id=${p.id}'">
@@ -83,10 +82,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                     <div class="info">
                         <h3>${p.title}</h3>
-                        ${esUsuarioReal ? `<span class="price">$ ${p.price.toLocaleString('es-AR')}</span>` : ''}
-                        <div class="botones-container" style="display: flex; justify-content: center; align-items: center; gap: 10px;">
-                            <img src="${rutaWA}" alt="WhatsApp" class="btn-wa-icon" onclick="enviarWhatsApp('${p.title}')"> 
-                            ${!esUsuarioReal ? `<button class="filter-btn small" onclick="window.location.href='/login'">Ingresar</button>` : ''}
+                        
+                        <div class="card-footer-actions">
+                            <div class="price-and-link">
+                                ${esUsuarioReal 
+                                    ? `<span class="price">$ ${p.price.toLocaleString('es-AR')}</span>` 
+                                    : `<button class="btn-ingresar-link" onclick="window.location.href='/login'">Ingresar</button>`
+                                }
+                            </div>
+
+                            <img src="${rutaWA}" alt="WhatsApp" class="btn-wa-card" onclick="enviarWhatsApp('${p.title}')"> 
                         </div>
                     </div>
                 </div>`;
