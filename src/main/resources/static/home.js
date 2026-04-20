@@ -340,14 +340,12 @@ function renderizarDestacados(data) {
     const listaParaSlider = [...data, ...data];
 
     track.innerHTML = listaParaSlider.map((p) => {
-        let fotoUrl = '/images/default.png';
-        if (p.images && p.images.length > 0) {
-            const mainImg = p.images.find(img => img.isMain) || p.images[0];
-            fotoUrl = mainImg.url.startsWith('http') ? mainImg.url : (mainImg.url.startsWith('/') ? mainImg.url : `/uploads/${mainImg.url}`);
-        }
+    let fotoUrl = p.imageUrl || '/images/default.png';
+    if (fotoUrl !== '/images/default.png' && !fotoUrl.startsWith('http') && !fotoUrl.startsWith('/')) {
+        fotoUrl = `/uploads/${fotoUrl}`;
+    }
 
-        const idFinal = p.productId || p.id;
-
+    const idFinal = p.productId || p.id;
         return `
             <div class="card-destacado" data-id="${idFinal}">
                 <div class="featured-img-container">
@@ -366,6 +364,21 @@ function renderizarDestacados(data) {
             </div>
         `;
     }).join('');
+
+    setTimeout(() => {
+        const contenedores = track.querySelectorAll('.featured-img-container');
+        let alturaMaxima = 0;
+        contenedores.forEach(cont => {
+            const h = cont.offsetHeight;
+            if (h > alturaMaxima) alturaMaxima = h;
+        });
+
+        if (alturaMaxima > 0) {
+            contenedores.forEach(cont => {
+                cont.style.height = `${alturaMaxima}px`;
+            });
+        }
+    }, 100);
 
     track.querySelectorAll('.card-destacado').forEach(card => {
         card.onclick = function(e) {
@@ -533,17 +546,26 @@ function obtenerHijos(idPadre) {
 function renderizarNivel(containerId, listaHijos, idPadreActual) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    const wrapper = container.parentElement;
+    const wrapper = container.parentElement; // Este suele ser el que tiene el fondo negro
 
     if (!listaHijos || listaHijos.length === 0) {
         container.innerHTML = '';
-        if (wrapper) wrapper.style.display = 'none';
+        if (wrapper) {
+            wrapper.style.display = 'none'; // ESTO quita el renglón negro
+            wrapper.style.height = '0';     // Aseguramos por CSS
+            wrapper.style.padding = '0';    // Evitamos espacios residuales
+        }
         return;
     }
 
-    if (wrapper) wrapper.style.display = 'flex';
+    // Si hay hijos, restauramos el estilo
+    if (wrapper) {
+        wrapper.style.display = 'flex';
+        wrapper.style.height = 'auto'; // O el alto que tengas por defecto (ej: 45px)
+        wrapper.style.padding = '';    // Restauramos el padding del CSS
+    }
+    
     container.innerHTML = '';
-
     const btnTodo = document.createElement('div');
     btnTodo.className = "panel-item active";
     btnTodo.innerText = (containerId === 'categorias-nav') ? 'Todas' : 'Ver Todo';

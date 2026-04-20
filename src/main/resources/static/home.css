@@ -320,7 +320,7 @@ h1.logo-title { text-align: center; color: #ffffff; margin-bottom: 40px; }
 /* LA CARD DE LA CINTA */
 .card-destacado {
     width: 350px;
-    height: 440px;
+    height: 100%;
     flex-shrink: 0;
     background: rgba(15, 15, 15, 0.2) !important;
     border-radius: 15px;
@@ -361,28 +361,26 @@ h1.logo-title { text-align: center; color: #ffffff; margin-bottom: 40px; }
     text-shadow: 1px 1px 2px #000;
 }
 
-.featured-img-container {   /*Contenedor negro de imágen*/
-    width: 95%;
-    height: 95%;
-    min-height: 150px;
-    background: #000;
-    border: 1px solid #333;
-    border-radius: 10px;
-    padding: 5px;
-    display: inline-flex;
-    align-self: center;
-    align-items: center;
+.featured-img-container {
+    display: flex; 
     justify-content: center;
-    overflow: hidden;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.8); /* Negro con un toque de transparencia para el efecto vidrio */
+    padding: 5px;             /* Tu bordecito de 5px */
+    margin: 10px auto;        /* Centra el bloque dentro de la tarjeta */
+    margin-bottom: 10px;
+    border-radius: 8px;       /* Bordes redondeados para el bloque negro */
+    max-width: calc(100% - 20px); 
 }
 
 .featured-img-container img {
-    height: 100%; 
-    width: 100%;
-    max-width: 100%;
-    object-fit: contain; 
     display: block;
-    border-radius: 8px;
+    max-width: 100%;
+    max-height: 200px;        /* El límite de altura que vos quieras */
+    width: auto;
+    height: auto;
+    object-fit: contain;      /* Importante: mantiene la proporción original */
+    border-radius: 4px;       /* Un toque sutil a la imagen */
 }
 
 .product-price {
@@ -706,8 +704,22 @@ h1.logo-title { text-align: center; color: #ffffff; margin-bottom: 40px; }
     max-width: 250px;
 }
 .product-card {
-    cursor: pointer;
+        width: 100% !important; /* Que ocupe todo el ancho de su celda de la grilla */
+        height: 150px;
+        object-fit: cover;
+        margin: 0 auto !important;
+        padding: 8px; /* Reducimos el padding interno para ganar espacio */
 }
+
+.product-card h3 {
+        font-size: 0.9rem;
+        margin: 5px 0;
+}
+
+.product-card .price {
+    font-size: 1rem;
+}
+
 .card.hidden { display: none; }
 .footer-admin a { color: rgba(255,255,255,0.1); text-decoration: none; font-size: 0.8rem; float: right; }
 
@@ -934,7 +946,6 @@ hr, .separator {
    ESTILOS MOBILE (CELULARES Y TABLETS)
    ========================================================== */
 @media (max-width: 768px) {
-    /* 1. Reset de anchos para que nada desborde */
     body, .main-content, .filter-container, .nosotros-container {
         width: 100% !important;
         margin: 0 !important;
@@ -942,7 +953,6 @@ hr, .separator {
         overflow-x: hidden; /* Evita el scroll lateral molesto */
     }
 
-    /* 2. Banner y Logo */
     .home-banner-hero {
         width: 100%;
         height: 180px;
@@ -988,12 +998,17 @@ hr, .separator {
         flex: none;
     }
 
-
     .filter-btn {
         white-space: nowrap !important; /* Que no se corten los nombres */
         padding: 8px 15px !important;
     }
 
+    .productos-grid { 
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important; /* "1fr 1fr" crea dos columnas iguales */
+        gap: 10px; /* Espacio pequeño entre tarjetas para que no se peguen */
+        padding: 10px;
+    }
     #lista-productos {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -1052,7 +1067,12 @@ hr, .separator {
         justify-content: center;
         text-align: center;
     }
-
+    .product-card h3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
+    }
 }
 
 /* Ajuste extra para celulares muy angostos */
