@@ -28,15 +28,14 @@ body {
     min-height: 400px; 
     background-size: cover;
     background-position: center;
-    background-repeat: no-repeat;
+    position: relative; /* Clave para que los hijos no se escapen */
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    position: relative;
-    border-bottom: 12px solid #2c2c2c; /* Un gris oscuro sólido */
-    box-shadow: inset 0 -5px 10px rgba(0,0,0,0.5), 0 5px 15px rgba(0,0,0,0.3);
+    border-bottom: 12px solid #2c2c2c;
     margin-bottom: 0;
 }
+
 .home-banner-hero::after {
     content: "";
     position: absolute;
@@ -48,35 +47,48 @@ body {
     z-index: 1;
 }
 
+/* El contenedor del buscador flotante */
 .floating-search-trigger {
     position: absolute;
-    top: 35%; /* Lo bajamos un poco para que no tape el saludo de arriba */
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 600px;
-    z-index: 200; /* Por encima de todo */
-    cursor: pointer;
+    top: 50px;    /* 5px debajo del encabezado (45px + 5px) */
+    left: 5px;    /* A la izquierda de todo del margen */
+    z-index: 1001; /* Un pelín por encima del nav para asegurar clic */
+    width: fit-content;
+    transform: none;
 }
 
 .search-box-fake {
-    background: white;
-    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.15); 
+    backdrop-filter: blur(8px); /* Desenfoca lo que hay atrás */
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px; /* Bordes redondeados pero finos */
     display: flex;
     align-items: center;
-    padding: 12px 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    border: 2px solid #e67e22; /* Color naranja Dinastia */
+    padding: 5px 15px; /* Más petisa */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.search-box-fake:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: #e67e22;
 }
 
 .fake-input {
     border: none;
     outline: none;
-    width: 100%;
-    font-size: 1rem;
-    margin-left: 10px;
-    cursor: pointer;
     background: transparent;
+    color: white; 
+    font-size: 0.9rem;
+    width: 180px; 
+    margin-left: 8px;
+    cursor: pointer;
+}
+
+.fake-input::placeholder {
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .home-banner-hero h1 {
@@ -150,15 +162,14 @@ body {
     top: 0;
     left: 0;
     width: 100%;
+    height: 45px; /* Altura estimada */
     z-index: 1000;
     display: flex;
     justify-content: space-between; 
     align-items: center;
-    padding: 10px 30px;
-    height: 60px;
-    background: rgba(0, 0, 0, 0.1); /* Fondo negro semi-transparente */
-    backdrop-filter: blur(2px);    /* Efecto de desenfoque del fondo */
-    -webkit-backdrop-filter: blur(5px);   
+    padding: 0 30px;
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
     border-bottom: 1px solid rgba(255, 152, 0, 0.3);
 }
 
@@ -172,7 +183,6 @@ body {
     display: flex;
     gap: 10px;
 }
-
 
 .wa-icon-featured {
     width: 45px !important; /* Más grande como pediste */
@@ -1074,8 +1084,9 @@ hr, .separator {
         overflow: hidden;
     }
 
-    .floating-search-trigger {  top: 30%;   }
-    .fake-input {   font-size: 0.9rem;      }
+    .fake-input {
+        width: 70px; 
+    }
 
     .logo-wrapper-home {
         width: 90vw; 

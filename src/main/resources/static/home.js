@@ -763,14 +763,17 @@ function iniciarCuentaRegresivaVisual(fechaFin) {
 
 function inicializarAccesoRapidoBusqueda() {
     const trigger = document.getElementById('nav-search-trigger');
-    const inputReal = document.getElementById('cat-search');
+    const inputReal = document.getElementById('busqueda'); // <--- CAMBIADO A PRODUCTOS
 
     if (trigger && inputReal) {
         trigger.addEventListener('click', () => {
             inputReal.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
             setTimeout(() => {
                 inputReal.focus();
-                inputReal.select(); 
+                inputReal.select();
+                inputReal.style.boxShadow = "0 0 10px #ff9800";
+                setTimeout(() => { inputReal.style.boxShadow = "none"; }, 1500);
             }, 600);
         });
     }
