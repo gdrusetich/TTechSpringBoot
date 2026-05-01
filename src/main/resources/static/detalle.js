@@ -27,7 +27,7 @@ async function cargarSimilares(categoriaId, idActual) {
         const res = await fetch(`${API_URL}/products/categoria/${categoriaId}`);
         const data = await res.json();
         const similares = Array.isArray(data) ? data : (data.content || []);
-        
+        const esUsuarioReal = (window.nombreUsuario && window.nombreUsuario !== 'Invitado');
         const filtrados = similares.filter(p => {
             return Number(p.id) !== Number(idActual) && p.oculto !== true && p.oculto !== "true";
         });
@@ -39,16 +39,18 @@ async function cargarSimilares(categoriaId, idActual) {
             const mainImgObj = p.images.find(i => i.isMain) || p.images[0];
             const rawUrl = mainImgObj ? (mainImgObj.url || mainImgObj) : null;
             let imgUrl = obtenerUrlFinal(rawUrl);
-
             const card = document.createElement('div');
             card.className = 'related-card';
-            card.onclick = () => window.location.href = `/detalle?id=${p.id}`;
+            const contenidoPrecio = esUsuarioReal 
+                ? `<span class="currency">$</span><span class="amount">${p.price.toLocaleString('es-AR')}</span>`
+                : `<button class="btn-ingresar-link" onclick="window.location.href='/login'">Ingresar</button>`;
+
             card.innerHTML = `
-                <img src="${imgUrl}" alt="${p.title}" onerror="this.src='${rutaDefault}';">
+                <img src="${imgUrl}" alt="${p.title}" onclick="window.location.href='/detalle?id=${p.id}'" onerror="this.src='${rutaDefault}';">
                 <div class="related-info">
                     <h4>${p.title}</h4>
                     <div class="price-tag">
-                        <span class="currency">$</span><span class="amount">${p.price.toLocaleString('es-AR')}</span>
+                        ${contenidoPrecio}
                     </div>
                 </div>
             `;
@@ -79,19 +81,14 @@ function iniciarAnimacionSlider() {
     }
 
     setInterval(() => {
-
         if (!necesitaSlider()) return;
-
         const firstChild = slider.firstElementChild;
         if (!firstChild) return;
-
         const estilo = window.getComputedStyle(slider);
         const gap = parseInt(estilo.columnGap) || 20; 
         const desplazamiento = firstChild.offsetWidth + gap;
-
         slider.style.transition = "transform 0.5s ease";
         slider.style.transform = `translateX(-${desplazamiento}px)`;
-
         setTimeout(() => {
             slider.style.transition = "none";
             slider.style.transform = "translateX(0)";

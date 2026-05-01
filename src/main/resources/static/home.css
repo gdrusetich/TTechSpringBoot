@@ -35,8 +35,7 @@ body {
     position: relative;
     border-bottom: 12px solid #2c2c2c; /* Un gris oscuro sólido */
     box-shadow: inset 0 -5px 10px rgba(0,0,0,0.5), 0 5px 15px rgba(0,0,0,0.3);
-    
-    margin-bottom: 30px;
+    margin-bottom: 0;
 }
 .home-banner-hero::after {
     content: "";
@@ -1068,6 +1067,11 @@ hr, .separator {
     }
 
     /*Destacados*/
+    .featured-section {
+        padding: 5px 0 !important; /* Bajamos el padding para que no sea tan gigante el bloque */
+        margin-top: 0 !important;
+    }
+
     .card-destacado {
         width: 240px !important; 
         height: auto !important;
@@ -1081,11 +1085,11 @@ hr, .separator {
     }
 
     .featured-img-container {
-        height: auto !important; 
-        min-height: 100px !important; 
-        max-height: 160px !important; 
-        width: 100% !important;
-        background-color: rgba(0, 0, 0, 0.8) !important;
+        height: auto ; 
+        min-height: 100px; 
+        max-height: 160px; 
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
         margin: 5px 0 !important;
         display: flex !important;
         align-items: center;
@@ -1093,27 +1097,29 @@ hr, .separator {
     }
 
     .featured-img-container img {
-        max-height: 150px !important;
-        max-width: 100% !important;
+        max-height: 150px;
+        max-width: 100%;
         width: auto;
         object-fit: contain !important;
         position: static !important; /* Evita desplazamientos raros */
     }
 
     .featured-title-top {
-        font-size: 1rem !important;
+        font-size: 1rem ;
         height: auto !important; /* Que no reserve espacio extra si el nombre es corto */
-        margin-bottom: 5px !important;
+        margin-bottom: 5px;
     }
 
     .overlay-featured {
-        margin-top: -90px !important; /* Esto lo sube para que pise el banner */
-        position: relative !important; 
+        margin-top: -110px !important; /* Esto lo sube para que pise el banner */
+        position: relative; 
         z-index: 100;
-        padding: 0 10px;
     }
+
     /* 4. Filtros y Buscador */
     .search-filters-bar {
+        margin-top: 0 !important;
+        margin-bottom: 15px !important;
         flex-direction: column;
         align-items: stretch;
         gap: 10px;
@@ -1130,6 +1136,10 @@ hr, .separator {
     .filter-btn {
         white-space: nowrap !important; /* Que no se corten los nombres */
         padding: 8px 15px !important;
+    }
+
+    .cat-search-container {
+        margin: 0 0 10px 0 !important;
     }
 
     .productos-grid, #lista-productos { 
@@ -1199,8 +1209,10 @@ hr, .separator {
     }
 
     .section-title {
-        font-size: 1.8rem !important; /* Título más acorde al celu */
+        font-size: 1.8rem;
         letter-spacing: 2px;
+        margin-bottom: 10px !important;
+        margin-top: 0 !important;
     }
 
     /* 7. Footer */
@@ -1225,7 +1237,7 @@ hr, .separator {
         white-space: nowrap;
     }
 
-img.btn-wa-card, .btn-wa-card {
+    img.btn-wa-card, .btn-wa-card {
         width: 25px !important;
         height: 25px !important;
         min-width: 25px !important;
@@ -1250,9 +1262,10 @@ img.btn-wa-card, .btn-wa-card {
     }
 
     .offers-main-row {
-            flex-direction: column;
-            gap: 20px;
-        }
+        margin-top: 5px !important;  /* Antes estaba en 40px o 10px */
+        margin-bottom: 5px !important;
+        padding: 0 10px !important;
+    }
         .side-block { justify-content: center; width: 100%; }
         .timer-display { font-size: 2.5rem; }
 
@@ -1264,7 +1277,6 @@ img.btn-wa-card, .btn-wa-card {
 
 }
 
-/* Ajuste extra para celulares muy angostos */
 @media (max-width: 480px) {
     #lista-productos, .productos-grid {
         grid-template-columns: repeat(2, 1fr) !important; /* Mantenemos las dos columnas */
