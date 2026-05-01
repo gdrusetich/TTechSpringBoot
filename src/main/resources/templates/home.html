@@ -31,8 +31,13 @@
         </div>
     </div>
 
-    <header class="home-banner-hero" 
-        th:style="'background-image: url(' + @{/images/dinastia.png} + ');'">
+    <header class="home-banner-hero" th:style="'background-image: url(' + @{/images/dinastia.png} + ');'">
+        <div class="floating-search-trigger" id="nav-search-trigger">
+            <div class="search-box-fake">
+                <span class="search-icon">🔍</span>
+                <input type="text" readonly placeholder="Busca productos, categorías..." class="fake-input">
+            </div>
+        </div>
     </header>
 
     <section th:if="${destacados != null && !destacados.isEmpty()}" class="featured-section overlay-featured">

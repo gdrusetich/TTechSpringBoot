@@ -48,6 +48,37 @@ body {
     z-index: 1;
 }
 
+.floating-search-trigger {
+    position: absolute;
+    top: 35%; /* Lo bajamos un poco para que no tape el saludo de arriba */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 600px;
+    z-index: 200; /* Por encima de todo */
+    cursor: pointer;
+}
+
+.search-box-fake {
+    background: white;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border: 2px solid #e67e22; /* Color naranja Dinastia */
+}
+
+.fake-input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 1rem;
+    margin-left: 10px;
+    cursor: pointer;
+    background: transparent;
+}
+
 .home-banner-hero h1 {
     color: white;
     font-size: 2.5rem;
@@ -1042,6 +1073,9 @@ hr, .separator {
         border-radius: 0 !important;
         overflow: hidden;
     }
+
+    .floating-search-trigger {  top: 30%;   }
+    .fake-input {   font-size: 0.9rem;      }
 
     .logo-wrapper-home {
         width: 90vw; 

@@ -88,13 +88,14 @@ body {
 
 .home-banner-hero {
     width: 100%;
-    max-width: 800px;
-    height: 160px;
-    margin: 0 auto;
-    background-size: cover;
-    background-position: center;
+    height: 140px;
+    margin: 0;
+    background-size: cover;    
+    background-position: center; 
     background-repeat: no-repeat;
+    position: relative;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    image-rendering: -webkit-optimize-contrast; 
 }
 
 /* ==========================================================================

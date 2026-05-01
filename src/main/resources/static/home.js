@@ -18,6 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
     pedirProductos(`${API_URL}/products/list`);
     chequearTimerActivo();
     inicializarBuscadorCategorias('cat-search', 'categorias-nav');
+    inicializarAccesoRapidoBusqueda();
+
     ['productos-destacados-container', 'categorias-nav', 'subcategorias-nav', 'nietos-nav'].forEach(id => {
         configurarScrollArrastrable(id);
     });
@@ -759,3 +761,17 @@ function iniciarCuentaRegresivaVisual(fechaFin) {
     }, 1000);
 }
 
+function inicializarAccesoRapidoBusqueda() {
+    const trigger = document.getElementById('nav-search-trigger');
+    const inputReal = document.getElementById('cat-search');
+
+    if (trigger && inputReal) {
+        trigger.addEventListener('click', () => {
+            inputReal.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                inputReal.focus();
+                inputReal.select(); 
+            }, 600);
+        });
+    }
+}
