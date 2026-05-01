@@ -27,8 +27,8 @@ async function cargarSimilares(categoriaId, idActual) {
         const res = await fetch(`${API_URL}/products/categoria/${categoriaId}`);
         const data = await res.json();
         const similares = Array.isArray(data) ? data : (data.content || []);
+        
         const filtrados = similares.filter(p => {
-            console.log(`Producto: ${p.title} | Oculto: ${p.oculto} | Tipo: ${typeof p.oculto}`);
             return Number(p.id) !== Number(idActual) && p.oculto !== true && p.oculto !== "true";
         });
 
@@ -36,21 +36,20 @@ async function cargarSimilares(categoriaId, idActual) {
         container.innerHTML = "";
 
         filtrados.forEach(p => {
-            let imgUrl = rutaDefault;
-            let nombreImagen = null;
-            if (p.images && p.images.length > 0) {
-                const mainImgObj = p.images.find(i => i.isMain) || p.images[0];
-                nombreImagen = mainImgObj.url || mainImgObj;
-            }
-            if (nombreImagen) {
-                let cleanPath = nombreImagen.startsWith('/') ? nombreImagen.substring(1) : nombreImagen;
+            // --- LÓGICA CLOUDINARY / IMAGEN ---
+            let imgUrl = rutaDefault; 
 
-                if (cleanPath === "default.jpg") {
-                    imgUrl = rutaDefault;
-                } else if (cleanPath.startsWith('images/') || cleanPath.startsWith('uploads/')) {
-                    imgUrl = `/${cleanPath}`;
-                } else {
-                    imgUrl = `${FOLDER_SYSTEM}/${cleanPath}`;
+            if (p.images && p.images.length > 0) {
+                // Buscamos la principal o la primera que haya
+                const mainImgObj = p.images.find(i => i.isMain) || p.images[0];
+                
+                // Si es un objeto con propiedad .url (como viene de Cloudinary/DB)
+                if (mainImgObj.url) {
+                    imgUrl = mainImgObj.url;
+                } 
+                // Por si acaso viene solo el string
+                else if (typeof mainImgObj === 'string') {
+                    imgUrl = mainImgObj;
                 }
             }
 
@@ -74,7 +73,7 @@ async function cargarSimilares(categoriaId, idActual) {
         } else {
             setTimeout(iniciarAnimacionSlider, 500); 
         }
-        } catch (e) {
+    } catch (e) {
         console.error("Error en similares:", e);
     }
 }
@@ -482,7 +481,6 @@ async function borrarImagenActual() {
 
             if(response.ok) {
                 alert("Imagen eliminada con éxito");
-                // En lugar de recargar todo, podrías redirigir o limpiar el src
                 location.reload(); 
             } else {
                 const errorData = await response.json().catch(() => ({}));
@@ -549,8 +547,6 @@ function inicializarLupa() {
 
     if (!mainImg || !zoomResult || !infoOriginal || !container) return;
 
-    // --- GUARDIA PARA MÓVILES ---
-    // Si la pantalla es menor a 768px (celulares), salimos y no activamos nada
     if (window.innerWidth < 768) {
         zoomResult.style.display = "none";
         return;
@@ -559,10 +555,8 @@ function inicializarLupa() {
     container.addEventListener("mouseenter", () => {
         zoomResult.style.display = "block";
         infoOriginal.style.opacity = "0";
-        infoOriginal.style.pointerEvents = "none";
-        
+        infoOriginal.style.pointerEvents = "none";        
         zoomResult.style.backgroundImage = `url('${mainImg.src}')`;
-        // Bajamos el zoom de 2.5 a 2.0 para que no sea tan "tosco"
         zoomResult.style.backgroundSize = `${mainImg.offsetWidth * 3}px auto`;
     });
 

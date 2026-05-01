@@ -720,19 +720,18 @@ function iniciarCuentaRegresivaVisual(fechaFin) {
 
     let fechaLimpia = fechaFin.replace(/["']/g, "").trim(); 
     fechaLimpia = fechaLimpia.replace(' ', 'T'); 
-
     const target = new Date(fechaLimpia).getTime();
-
+    const ahora = new Date().getTime();
+    if (target < ahora) {
+        display.style.display = 'none';
+        return;
+    }
     if (isNaN(target)) return; 
-
     display.style.display = 'block';
-
     if (window.timerInterval) clearInterval(window.timerInterval);
-
     window.timerInterval = setInterval(() => {
         const ahora = new Date().getTime();
         const diff = target - ahora;
-
         if (diff <= 0) {
             clearInterval(window.timerInterval);
             span.innerText = "¡OFERTA FINALIZADA!";
@@ -759,3 +758,4 @@ function iniciarCuentaRegresivaVisual(fechaFin) {
         }
     }, 1000);
 }
+

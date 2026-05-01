@@ -52,9 +52,14 @@ public class FeaturedProductController {
         }
     }
 
+
     @GetMapping("/timer")
     public ResponseEntity<LocalDateTime> getExpiration() {
-        return ResponseEntity.ok(featuredService.getExpirationDate());
+        LocalDateTime date = featuredService.getExpirationDate();
+        if (date == null) {
+            return ResponseEntity.noContent().build(); // Devuelve un 204 Sin Contenido
+        }
+        return ResponseEntity.ok(date);
     }
     
     @DeleteMapping("/clear-timer")

@@ -140,14 +140,19 @@ public class FeaturedProductService {
     }
 
     public LocalDateTime getExpirationDate() {
+        // Si la fecha existe pero ya pasó, la limpiamos antes de devolverla
+        if (this.expirationDate != null && LocalDateTime.now().isAfter(this.expirationDate)) {
+            this.expirationDate = null;
+        }
         return this.expirationDate;
     }
 
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 60000)
     public void checkExpiration() {
         if (expirationDate != null && LocalDateTime.now().isAfter(expirationDate)) {
             removeAllFeatured();
             expirationDate = null;
+            System.out.println("Cron: Ofertas expiradas y limpiadas.");
         }
     }
 

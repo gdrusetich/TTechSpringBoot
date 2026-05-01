@@ -42,11 +42,7 @@ public class ImageService {
                 }
             }
         }
-
-        // --- BORRADO EN LA NUBE ---
         try {
-            // Extraemos el "Public ID" de la URL (es el nombre único que le da Cloudinary)
-            // Ejemplo URL: .../upload/v123/nombre_archivo.jpg -> Public ID: nombre_archivo
             String url = image.getUrl();
             if (url.contains("cloudinary.com")) {
                 String publicId = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
@@ -63,7 +59,6 @@ public class ImageService {
     public void deleteAllImagesByProductId(Long productId) {
         List<Image> imagenes = imageRepository.findByProductId(productId);
         for (Image img : imagenes) {
-            // Reutilizamos la lógica de borrado para que limpie Cloudinary también
             deleteImage(img.getId());
         }
     }
@@ -75,7 +70,6 @@ public class ImageService {
 
         for (MultipartFile file : files) {
             if (!file.isEmpty()) {
-                // --- SUBIDA A LA NUBE ---
                 Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
                 String urlCloudinary = uploadResult.get("url").toString();
 
