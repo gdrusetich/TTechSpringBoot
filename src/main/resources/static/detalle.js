@@ -242,6 +242,7 @@ function renderizarGaleria(images) {
     thumbContainer.innerHTML = ""; 
     const idsVistos = new Set();
     const idPrincipal = productoActual.mainImageId;
+    
     const imagenesOrdenadas = [...images].sort((a, b) => {
         if (a.id === idPrincipal) return -1;
         if (b.id === idPrincipal) return 1;
@@ -251,9 +252,8 @@ function renderizarGaleria(images) {
     imagenesOrdenadas.forEach((img, index) => {
         if (!img || idsVistos.has(img.id)) return;
         idsVistos.add(img.id);
-
+        const imgElement = document.createElement("img");
         const urlFinal = obtenerUrlFinal(img.url);
-
         imgElement.src = urlFinal;
         imgElement.className = "thumb-box";
         imgElement.setAttribute('data-image-id', img.id);
@@ -269,17 +269,17 @@ function renderizarGaleria(images) {
         };         
         thumbContainer.appendChild(imgElement);
     });
+
     mainImg.style.cursor = "zoom-in";
     mainImg.onclick = null; 
 
     mainImg.addEventListener('click', () => {
         const idActual = mainImg.getAttribute('data-image-id');
         const index = productoActual.images.findIndex(i => i.id == idActual);
-        console.log("Intentando abrir zoom para el índice:", index);        
         if (typeof window.abrirModalZoom === 'function') {
             window.abrirModalZoom(index);
         } else {
-            console.error("La función abrirModalZoom no está disponible globalmente.");
+            console.error("La función abrirModalZoom no está disponible.");
         }
     });
 }
