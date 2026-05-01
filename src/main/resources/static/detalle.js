@@ -36,22 +36,9 @@ async function cargarSimilares(categoriaId, idActual) {
         container.innerHTML = "";
 
         filtrados.forEach(p => {
-            // --- LÓGICA CLOUDINARY / IMAGEN ---
-            let imgUrl = rutaDefault; 
-
-            if (p.images && p.images.length > 0) {
-                // Buscamos la principal o la primera que haya
-                const mainImgObj = p.images.find(i => i.isMain) || p.images[0];
-                
-                // Si es un objeto con propiedad .url (como viene de Cloudinary/DB)
-                if (mainImgObj.url) {
-                    imgUrl = mainImgObj.url;
-                } 
-                // Por si acaso viene solo el string
-                else if (typeof mainImgObj === 'string') {
-                    imgUrl = mainImgObj;
-                }
-            }
+            const mainImgObj = p.images.find(i => i.isMain) || p.images[0];
+            const rawUrl = mainImgObj ? (mainImgObj.url || mainImgObj) : null;
+            let imgUrl = obtenerUrlFinal(rawUrl);
 
             const card = document.createElement('div');
             card.className = 'related-card';
@@ -265,21 +252,7 @@ function renderizarGaleria(images) {
         if (!img || idsVistos.has(img.id)) return;
         idsVistos.add(img.id);
 
-        const imgElement = document.createElement("img");
-        
-        let cleanUrl = img.url;
-        let urlFinal;
-
-        if (cleanUrl.startsWith('http')) {
-            urlFinal = cleanUrl;
-        } 
-        else if (cleanUrl === "default.jpg" || cleanUrl === "WhatsApp.png") {
-            urlFinal = `${FOLDER_SYSTEM}/${cleanUrl}`;
-        } else if (cleanUrl.startsWith('uploads')) {
-            urlFinal = `/${cleanUrl}`;
-        } else {
-            urlFinal = `${FOLDER_SYSTEM}/${cleanUrl}`;
-        }
+        const urlFinal = obtenerUrlFinal(img.url);
 
         imgElement.src = urlFinal;
         imgElement.className = "thumb-box";
@@ -592,4 +565,24 @@ function inicializarLupa() {
     if (thumbsContainer) {
         observer.observe(thumbsContainer, { childList: true });
     }
+}
+
+function obtenerUrlFinal(cleanUrl) {
+    if (!cleanUrl) return "/images/default.png"; // Fallback de seguridad
+    // 1. Si ya es una URL completa, forzamos HTTPS para evitar Mixed Content
+    if (cleanUrl.startsWith('http')) {
+        return cleanUrl.replace("http://", "https://");
+    } 
+    // 2. Si son archivos de sistema (iconos o default)
+    if (cleanUrl === "default.jpg" || cleanUrl === "WhatsApp.png" || cleanUrl === "default.png") {
+        return `${FOLDER_SYSTEM}/${cleanUrl}`;
+    }     
+    // 3. Si viene de una carpeta de uploads local
+    if (cleanUrl.startsWith('uploads')) {
+        return `/${cleanUrl}`;
+    } 
+
+    // 4. EL CASO CLOUDINARY: Si no es nada de lo anterior, es el ID "raro"
+    const cloudName = "dzkfjusut"; // Tu Cloud Name
+    return `https://res.cloudinary.com/${cloudName}/image/upload/${cleanUrl}`;
 }
